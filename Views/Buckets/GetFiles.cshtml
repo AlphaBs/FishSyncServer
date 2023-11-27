@@ -1,0 +1,15 @@
+@{
+    ViewData["Title"] = "GetFiles";
+}
+
+<div>
+    <h1>id</h1>
+    <p>@ViewData["id"]</p>
+    <h1>lastUpdated</h1>
+    <p>@ViewData["lastUpdated"]</p>
+
+    @foreach (var file in ViewData["files"] as IEnumerable<BucketFile>)
+    {
+        <p>@file.Path @file.Size @file.LastUpdated @file.Checksum @file.Location</p><br>
+    }
+</div>

@@ -1,0 +1,12 @@
+@using AlphabetUpdateServer.Entities;
+
+@{
+    ViewData["Title"] = "buckets";
+}
+
+<div>
+    @foreach (var bucket in ViewData["buckets"] as IEnumerable<BucketEntity>)
+    {
+        <p>@bucket.Id @bucket.LastUpdated</p><br>
+    }
+</div>
