@@ -23,7 +23,7 @@ public class FileChecksumStorageDbRepository : IFileChecksumStorageRepository
         return await _context.ChecksumStorages
             .FirstAsync(storage => 
                 storage.BucketId == bucketId && 
-                storage.Id == id);
+                storage.StorageId == id);
     }
 
     public async ValueTask<IEnumerable<FileChecksumStorageEntity>> GetStorages(string bucketId)
@@ -36,7 +36,7 @@ public class FileChecksumStorageDbRepository : IFileChecksumStorageRepository
     public async ValueTask Remove(string bucketId, string id)
     {
         await _context.ChecksumStorages
-            .Where(storage => storage.Id == id)
+            .Where(storage => storage.StorageId == id)
             .ExecuteDeleteAsync();
     }
 }
