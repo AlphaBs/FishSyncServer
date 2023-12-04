@@ -1,5 +1,6 @@
 using AlphabetUpdateServer;
-using AlphabetUpdateServer.Models;
+using AlphabetUpdateServer.Models.Buckets;
+using AlphabetUpdateServer.Models.ChecksumStorages;
 using AlphabetUpdateServer.Repositories;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,11 +8,13 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Models
 builder.Services.AddTransient<IBucketFactory, BucketFactory>();
+builder.Services.AddTransient<IFileChecksumStorageManager, FileChecksumStorageManager>();
 
 // Repositories
 builder.Services.AddTransient<IBucketRepository, BucketDbRepository>();
 builder.Services.AddTransient<IBucketFileRepository, BucketFileDbRepository>();
-builder.Services.AddTransient<IFileChecksumRepository, FileChecksumDbRepository>();
+builder.Services.AddTransient<ICachedFileChecksumRepository, CachedFileChecksumDbRepository>();
+builder.Services.AddTransient<IFileChecksumStorageRepository, FileChecksumStorageDbRepository>();
 builder.Services.AddTransient<IUserRepository, UserDbRepository>();
 
 // Application

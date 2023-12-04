@@ -1,11 +1,11 @@
-namespace AlphabetUpdateServer.Models;
+namespace AlphabetUpdateServer.Models.Buckets;
 
 public interface IBucket
 {
     string Id { get; }
     DateTime LastUpdated { get; set; }
 
-    ValueTask<IEnumerable<BucketFile>> GetFiles();
+    IAsyncEnumerable<BucketFile> GetFiles();
     ValueTask<BucketSyncResult> Sync(IEnumerable<BucketSyncFile> files);
     ValueTask ClearFiles();
 }

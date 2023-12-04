@@ -1,4 +1,4 @@
-namespace AlphabetUpdateServer.Models;
+namespace AlphabetUpdateServer.Models.Buckets;
 
 public class BucketSyncFile
 {

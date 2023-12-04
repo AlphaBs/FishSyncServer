@@ -3,6 +3,7 @@ using System;
 using AlphabetUpdateServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AlphabetUpdateServer.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231204112259_update")]
+    partial class update
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -73,6 +76,9 @@ namespace AlphabetUpdateServer.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("BucketEntityId")
+                        .HasColumnType("TEXT");
+
                     b.Property<bool>("IsReadyOnly")
                         .HasColumnType("INTEGER");
 
@@ -88,6 +94,8 @@ namespace AlphabetUpdateServer.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("BucketId", "Id");
+
+                    b.HasIndex("BucketEntityId");
 
                     b.ToTable("ChecksumStorages");
 
@@ -168,13 +176,9 @@ namespace AlphabetUpdateServer.Migrations
 
             modelBuilder.Entity("AlphabetUpdateServer.Entities.FileChecksumStorageEntity", b =>
                 {
-                    b.HasOne("AlphabetUpdateServer.Entities.BucketEntity", "Bucket")
+                    b.HasOne("AlphabetUpdateServer.Entities.BucketEntity", null)
                         .WithMany("Storages")
-                        .HasForeignKey("BucketId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Bucket");
+                        .HasForeignKey("BucketEntityId");
                 });
 
             modelBuilder.Entity("BucketEntityUserEntity", b =>

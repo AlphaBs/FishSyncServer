@@ -1,61 +1,15 @@
-using AlphabetUpdateServer.Entities;
+using AlphabetUpdateServer.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace AlphabetUpdateServer.Repositories;
 
-public class FileChecksumDbRepository : IFileChecksumRepository
+public class CachedFileChecksumDbRepository : ICachedFileChecksumRepository
 {
     private readonly ApplicationDbContext _context;
 
-    public FileChecksumDbRepository(ApplicationDbContext context)
+    public CachedFileChecksumDbRepository(ApplicationDbContext context)
     {
         _context = context;
-    }
-
-    public async ValueTask<IEnumerable<FileChecksumEntity>> Find(string checksum)
-    {
-        return await _context.Checksums
-            .Where(file => file.Checksum == checksum)
-            .ToListAsync();
-    }
-
-    public async ValueTask<FileChecksumEntity?> Find(string checksum, string repository)
-    {
-        return await _context.Checksums.SingleOrDefaultAsync(file => 
-            file.Checksum == checksum && file.Repository == repository);
-    }
-
-    public async ValueTask<FileChecksumEntity?> FindBest(string checksum)
-    {
-        return await _context.Checksums.SingleOrDefaultAsync(file =>
-            file.Checksum == checksum);
-    }
-
-    public async ValueTask<FileChecksumEntity[]> BulkFind(IEnumerable<string> checksums)
-    {
-        var checksumsArr = checksums.ToArray();
-        var files = await _context.Checksums
-            .Where(file => checksumsArr.Contains(file.Checksum))
-            .ToListAsync();
-        return files.ToArray();
-    }
-
-    public async ValueTask<IEnumerable<FileChecksumEntity>> GetAllFiles()
-    {
-        return await _context.Checksums.ToListAsync();
-    }
-
-    public async ValueTask<IEnumerable<FileChecksumEntity>> GetAllFilesFromRepository(string repository)
-    {
-        return await _context.Checksums
-            .Where(file => file.Repository == repository)
-            .ToListAsync();
-    }
-
-    public async ValueTask Add(FileChecksumEntity entity)
-    {
-        await _context.Checksums.AddAsync(entity);
-        await _context.SaveChangesAsync();
     }
 
     public async ValueTask Remove(string checksum)
@@ -68,7 +22,54 @@ public class FileChecksumDbRepository : IFileChecksumRepository
     public async ValueTask Remove(string checksum, string repository)
     {
         await _context.Checksums
-            .Where(file => file.Checksum == checksum && file.Repository == repository)
+            .Where(file => file.Checksum == checksum && file.Storage == repository)
             .ExecuteDeleteAsync();
+    }
+
+    public IAsyncEnumerable<FileLocation> GetAllFiles()
+    {
+        return _context.Checksums.AsAsyncEnumerable();
+    }
+
+    public IAsyncEnumerable<FileLocation> Query(IEnumerable<string> checksums)
+    {
+        var checksumsArr = checksums.ToArray();
+        return _context.Checksums
+            .Where(file => checksumsArr.Contains(file.Checksum))
+            .AsAsyncEnumerable();
+    }
+
+    public IAsyncEnumerable<FileLocation> Find(string checksum)
+    {
+        return _context.Checksums
+            .Where(file => file.Checksum == checksum)
+            .AsAsyncEnumerable();
+    }
+
+    public async ValueTask<FileLocation?> Find(string checksum, string storage)
+    {
+        return await _context.Checksums.SingleOrDefaultAsync(file => 
+            file.Checksum == checksum && file.Storage == storage);
+    }
+
+    public async ValueTask<FileLocation?> FindBest(string checksum)
+    {
+        return await _context.Checksums.SingleOrDefaultAsync(file =>
+            file.Checksum == checksum);
+    }
+
+    public async ValueTask Add(FileLocation entity)
+    {
+        await _context.Checksums.AddAsync(entity);
+        await _context.SaveChangesAsync();
+    }
+
+    public async ValueTask Add(IEnumerable<FileLocation> entities)
+    {
+        foreach (var entity in entities)
+        {
+            await _context.Checksums.AddAsync(entity);
+        }
+        await _context.SaveChangesAsync();
     }
 }

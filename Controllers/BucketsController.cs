@@ -1,5 +1,5 @@
 using AlphabetUpdateServer.DTOs;
-using AlphabetUpdateServer.Models;
+using AlphabetUpdateServer.Models.Buckets;
 using AlphabetUpdateServer.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
@@ -34,7 +34,7 @@ public class BucketsController : Controller
     public async Task<ActionResult> GetFiles(string id)
     {
         var bucket = await getBucket(id);
-        var files = await bucket.GetFiles();
+        var files = bucket.GetFiles();
 
         ViewData["id"] = id;
         ViewData["lastUpdated"] = bucket.LastUpdated;
@@ -46,6 +46,11 @@ public class BucketsController : Controller
     [HttpPost("{id}/sync")]
     public async Task<ActionResult> PostSync(string id, BucketSyncRequestDTO request)
     {
+        if (request.Files == null)
+        {
+            return BadRequest("request.Files was null");
+        }
+
         var bucket = await getBucket(id);
         await bucket.Sync(request.Files.Select(f => new BucketSyncFile()
         {
@@ -59,7 +64,7 @@ public class BucketsController : Controller
     private async Task<IBucket> getBucket(string id)
     {
         var bucketEntity = await _bucketRepository.FindBucketById(id);
-        return _bucketFactory.Create(
+        return await _bucketFactory.Create(
             bucketEntity.Id, 
             bucketEntity.LastUpdated);
     }

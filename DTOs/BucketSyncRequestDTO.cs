@@ -1,4 +1,4 @@
-using AlphabetUpdateServer.Models;
+using AlphabetUpdateServer.Models.Buckets;
 
 namespace AlphabetUpdateServer.DTOs;
 

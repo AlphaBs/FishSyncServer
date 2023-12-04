@@ -1,4 +1,4 @@
-namespace AlphabetUpdateServer.Models;
+namespace AlphabetUpdateServer.Models.Buckets;
 
 public class BucketSyncAction
 {
@@ -7,5 +7,5 @@ public class BucketSyncAction
 
     public BucketSyncFile File { get; }
     public string? ActionType { get; set; }
-    public Dictionary<string, string>? Parameters { get; set; }
+    public Dictionary<string, string> Parameters { get; set; } = new();
 }
