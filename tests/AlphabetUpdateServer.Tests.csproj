@@ -7,10 +7,20 @@
 
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
+
+    <TestSDK>true</TestSDK>
   </PropertyGroup>
 
-  <ItemGroup>
+  <PropertyGroup Condition="$(TestSDK)">
+    <DefineConstants>$(DefineConstants);TEST_SDK</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup Condition="$(TestSDK)">
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Moq" Version="4.20.70" />
     <PackageReference Include="xunit" Version="2.4.2" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -20,6 +30,10 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\src\AlphabetUpdateServer.csproj" />
   </ItemGroup>
 
 </Project>

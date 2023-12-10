@@ -4,7 +4,8 @@ namespace AlphabetUpdateServer.Models.ChecksumStorages;
 
 public class CompositeFileChecksumStorage : IFileChecksumStorage
 {
-    public bool IsReadOnly => Storages.All(storage => storage.IsReadOnly);
+    public bool IsReadOnly => 
+        !Storages.Any() || Storages.All(storage => storage.IsReadOnly);
 
     private readonly List<IFileChecksumStorage> _storages = new();
     public IEnumerable<IFileChecksumStorage> Storages => _storages;

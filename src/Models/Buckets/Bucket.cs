@@ -11,7 +11,7 @@ public class Bucket : IBucket
 
     public Bucket(
         string id,
-        DateTime lastUpdated,
+        DateTimeOffset lastUpdated,
         IBucketFileRepository fileRepository,
         IFileChecksumStorage checksumStorage)
     {
@@ -22,76 +22,56 @@ public class Bucket : IBucket
     }
 
     public string Id { get; }
-    public DateTime LastUpdated { get; set; }
+    public DateTimeOffset LastUpdated { get; set; }
 
     public ValueTask ClearFiles() =>
         _fileRepository.UpdateFiles(Id, Enumerable.Empty<BucketFileEntity>());
 
     public async IAsyncEnumerable<BucketFile> GetFiles()
     {
+        // IBucketFileRepository 는 파일의 경로와 체크섬 등 메타데이터만 가지고 있으며 실제 위치는 모름
+        // IFileChecksumStorage 에서 파일의 실제 위치를 찾고 파일 목록을 반환함
         var files = await _fileRepository.GetFiles(Id);
         var checksumFileMap = files.ToDictionary(f => f.Checksum, f => f);
 
+        // 찾아야 할 체크섬 전체를 질의
         var checksumLocations = _checksumStorage.Query(checksumFileMap.Keys);
         await foreach (var checksumLocation in checksumLocations)
         {
             var fileEntity = checksumFileMap[checksumLocation.Checksum];
+            checksumFileMap.Remove(checksumLocation.Checksum);
+
             var bucketFile = new BucketFile(
-                path: fileEntity.Path,
-                size: fileEntity.Size,
-                lastUpdated: fileEntity.LastUpdated,
-                location: checksumLocation.Location ?? string.Empty,
-                checksum: fileEntity.Checksum
-            );
+                Path: fileEntity.Path,
+                Size: fileEntity.Size,
+                LastUpdated: fileEntity.LastUpdated,
+                Location: checksumLocation.Location ?? string.Empty,
+                Checksum: fileEntity.Checksum);
+            yield return bucketFile;
+        }
+
+        // ChecksumStorage 에서 찾지 못한 파일은 Location 을 null 로 하여 반환
+        foreach (var file in checksumFileMap.Values)
+        {
+            var bucketFile = new BucketFile(
+                Path: file.Path,
+                Size: file.Size,
+                LastUpdated: file.LastUpdated,
+                Location: null,
+                Checksum: file.Checksum);
             yield return bucketFile;
         }
     }
 
     public async ValueTask<BucketSyncResult> Sync(IEnumerable<BucketSyncFile> files)
     {
-        Dictionary<string, BucketSyncFile> requestChecksumFileMap = files
-            .Where(f => !string.IsNullOrEmpty(f.Checksum))
-            .ToDictionary(f => f.Checksum!, f => f);
-            
-        var queryFiles = _checksumStorage.Query(requestChecksumFileMap.Keys);
-        await foreach (var queryFile in queryFiles)
-        {
-            if (requestChecksumFileMap.TryGetValue(queryFile.Checksum, out var requestFile))
-            {
-                if (requestFile.Size != queryFile.Size)
-                {
-                    var validationAction = new FileSizeValidationAction(requestFile);
-                    return BucketSyncResult.ActionRequired(
-                        new BucketSyncAction[] { validationAction });
-                }
-                requestChecksumFileMap.Remove(queryFile.Checksum);
-            }
-        }
+        var (result, entities) = await BucketSyncProcessor.Sync(Id, _checksumStorage, files);
 
-        var actions = new List<BucketSyncAction>();
-        foreach (var remainHash in requestChecksumFileMap.Keys)
+        if (result.IsSuccess)
         {
-            var action = _checksumStorage.CreateSyncAction(remainHash);
-            actions.Add(action);
-        }
-
-        if (actions.Any())
-        {
-            return BucketSyncResult.ActionRequired(actions);
-        }
-        else
-        {
-            var now = DateTime.UtcNow;
-            var entities = requestChecksumFileMap.Values.Select(file => new BucketFileEntity
-            {
-                BucketId = Id,
-                Path = file.Path,
-                Size = file.Size,
-                LastUpdated = now,
-                Checksum = file.Checksum
-            });
             await _fileRepository.UpdateFiles(Id, entities);
-            return BucketSyncResult.Success();
         }
+
+        return result;
     }
 }

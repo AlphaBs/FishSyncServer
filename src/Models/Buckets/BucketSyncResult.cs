@@ -1,24 +1,29 @@
+using AlphabetUpdateServer.Entities;
+
 namespace AlphabetUpdateServer.Models.Buckets;
 
 public class BucketSyncResult
 {
-    public static BucketSyncResult Success() =>
-        new BucketSyncResult(true, Enumerable.Empty<BucketSyncAction>(), null);
-
-    public static BucketSyncResult Error(string message) =>
-        new BucketSyncResult(false, Enumerable.Empty<BucketSyncAction>(), message);
+    public static BucketSyncResult Success(DateTimeOffset updatedAt) =>
+        new BucketSyncResult(
+            true, 
+            Enumerable.Empty<BucketSyncAction>(), 
+            updatedAt);
 
     public static BucketSyncResult ActionRequired(IEnumerable<BucketSyncAction> actions) => 
-        new BucketSyncResult(false, actions, null);
+        new BucketSyncResult(
+            false, 
+            actions, 
+            DateTimeOffset.MinValue);
 
     public BucketSyncResult(
         bool isSuccess, 
         IEnumerable<BucketSyncAction> actions, 
-        string? message) =>
-        (IsSuccess, RequiredActions, Message) = 
-        (isSuccess, actions, message);
+        DateTimeOffset updatedAt) =>
+        (IsSuccess, RequiredActions, UpdatedAt) = 
+        (isSuccess, actions, updatedAt);
 
     public bool IsSuccess { get; }
-    public string? Message { get; }
     public IEnumerable<BucketSyncAction> RequiredActions { get; }
+    public DateTimeOffset UpdatedAt { get; }
 }
