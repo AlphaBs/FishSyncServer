@@ -17,14 +17,6 @@ public class BucketDbRepository : IBucketRepository
         return await _context.Buckets.FindAsync(bucketId);   
     }
 
-    public async ValueTask<IEnumerable<BucketEntity>> FindBucketsByOwner(string ownerId)
-    {
-        var user = await _context.Users.FindAsync(ownerId);
-        if (user == null)
-            throw new InvalidOperationException();
-        return user.Buckets;
-    }
-
     public async ValueTask<IEnumerable<BucketEntity>> GetAllBuckets()
     {
         return await _context.Buckets.ToListAsync();

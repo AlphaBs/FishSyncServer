@@ -3,6 +3,7 @@ using System;
 using AlphabetUpdateServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AlphabetUpdateServer.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231216094604_Initial")]
+    partial class Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -96,6 +99,30 @@ namespace AlphabetUpdateServer.Migrations
                     b.UseTphMappingStrategy();
                 });
 
+            modelBuilder.Entity("AlphabetUpdateServer.Entities.UserEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("UserEntity");
+                });
+
             modelBuilder.Entity("AlphabetUpdateServer.Models.FileLocation", b =>
                 {
                     b.Property<string>("Location")
@@ -114,6 +141,21 @@ namespace AlphabetUpdateServer.Migrations
                     b.HasKey("Location", "Checksum");
 
                     b.ToTable("Checksums");
+                });
+
+            modelBuilder.Entity("BucketEntityUserEntity", b =>
+                {
+                    b.Property<string>("BucketsId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("OwnersId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("BucketsId", "OwnersId");
+
+                    b.HasIndex("OwnersId");
+
+                    b.ToTable("BucketEntityUserEntity");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -177,11 +219,6 @@ namespace AlphabetUpdateServer.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Discriminator")
-                        .IsRequired()
-                        .HasMaxLength(13)
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("TEXT");
@@ -232,10 +269,6 @@ namespace AlphabetUpdateServer.Migrations
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers", (string)null);
-
-                    b.HasDiscriminator<string>("Discriminator").HasValue("IdentityUser");
-
-                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -331,21 +364,6 @@ namespace AlphabetUpdateServer.Migrations
                     b.HasDiscriminator().HasValue("RFilesChecksumStorageEntity");
                 });
 
-            modelBuilder.Entity("AlphabetUpdateServer.Areas.Identity.Data.User", b =>
-                {
-                    b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
-
-                    b.Property<string>("BucketEntityId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Discord")
-                        .HasColumnType("TEXT");
-
-                    b.HasIndex("BucketEntityId");
-
-                    b.HasDiscriminator().HasValue("User");
-                });
-
             modelBuilder.Entity("AlphabetUpdateServer.Entities.BucketFileEntity", b =>
                 {
                     b.HasOne("AlphabetUpdateServer.Entities.BucketEntity", null)
@@ -362,6 +380,21 @@ namespace AlphabetUpdateServer.Migrations
                         .IsRequired();
 
                     b.Navigation("Bucket");
+                });
+
+            modelBuilder.Entity("BucketEntityUserEntity", b =>
+                {
+                    b.HasOne("AlphabetUpdateServer.Entities.BucketEntity", null)
+                        .WithMany()
+                        .HasForeignKey("BucketsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AlphabetUpdateServer.Entities.UserEntity", null)
+                        .WithMany()
+                        .HasForeignKey("OwnersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -415,18 +448,9 @@ namespace AlphabetUpdateServer.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("AlphabetUpdateServer.Areas.Identity.Data.User", b =>
-                {
-                    b.HasOne("AlphabetUpdateServer.Entities.BucketEntity", null)
-                        .WithMany("Owners")
-                        .HasForeignKey("BucketEntityId");
-                });
-
             modelBuilder.Entity("AlphabetUpdateServer.Entities.BucketEntity", b =>
                 {
                     b.Navigation("Files");
-
-                    b.Navigation("Owners");
 
                     b.Navigation("Storages");
                 });
