@@ -5,8 +5,32 @@
     ViewData["Title"] = "Admin";
 }
 
-<h3>@ViewData["Title"]</h3>
-<partial name="_StatusMessage" for="StatusMessage" />
-<div class="row">
+<h3>Admin/Accounts</h3>
+<label>search: </label>
+<input type="text"/>
+<table class="table table-striped table-hover">
+    <tr>
+        <th>Username</th>
+        <th>Roles</th>
+        <th>Email</th>
+        <th>Discord</th>
+        <th>Actions</th>
+    </tr>
 
-</div>
+    @foreach (var user in Model.Users)
+    {
+        <tr>
+            <td>@user.User.UserName</td>
+            <td>@string.Join(',', user.Roles)</td>
+            <td>@user.User.Email</td>
+            <td>discord</td>
+            <td>
+                <a asp-area="Identity" 
+                   asp-page="/Admin/Account"
+                   asp-route-username=@user.User.UserName>
+                   edit
+                </a>
+            </td>
+        </tr>
+    }
+</table>

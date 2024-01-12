@@ -1,0 +1,48 @@
+﻿@page "/Admin/Account/{username}"
+@model AccountModel
+
+<h3 class="mb-3">Admin/Account</h3>
+<form method="post">
+    <div class="row mb-3">
+        <label for="inputUsername" class="col-sm-2 col-form-label">Username</label>
+        <div class="col-sm-10">
+            <input asp-for="Account.UserName" class="form-control" readonly>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="inputEmail" class="col-sm-2 col-form-label">Email</label>
+        <div class="col-sm-10">
+            <input asp-for="Account.Email" class="form-control" id="inputEmail">
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="inputDiscord" class="col-sm-2 col-form-label">Discord</label>
+        <div class="col-sm-10">
+            <input asp-for="Account.Discord" class="form-control" id="inputDiscord">
+        </div>
+    </div>
+    <fieldset class="row mb-3">
+        <legend class="col-form-label col-sm-2 pt-0">Roles</legend>
+        <div class="col-sm-10">
+            @for (int i = 0; i < Model.RoleEnables.Length; i++)
+            {
+                <div class="form-check">
+                    <input asp-for="@Model.RoleNames[i]" type="hidden" value="@Model.RoleNames[i]" />
+                    <input asp-for="@Model.RoleEnables[i]" class="form-check-input" />
+                    <label asp-for="@Model.RoleEnables[i]" class="form-check-label">@Model.RoleNames[i]</label>
+                </div>
+            }
+        </div>
+    </fieldset>
+
+    <button type="submit" class="btn btn-primary mb-3">Update</button>
+    <button type="button" class="btn btn-danger mb-3">Delete</button>
+</form>
+
+<div class="container-fluid">
+    <h5>Buckets</h5>
+    <div class="list-group pb-3">
+        <a href="#" class="list-group-item list-group-item-action">bucket-id-1</a>
+        <a href="#" class="list-group-item list-group-item-action">bucket-id-2</a>
+    </div>
+</div>
