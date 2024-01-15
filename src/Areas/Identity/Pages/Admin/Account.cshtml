@@ -1,6 +1,12 @@
 ﻿@page "/Admin/Account/{username}"
 @model AccountModel
 
+@if (Model.Account == null || Model.RoleEnables == null || Model.RoleNames == null)
+{
+    return;
+}
+
+<h5 class="mb-3">←<a asp-area="Identity" asp-page="/Admin/Index">Admin</a></h5>
 <h3 class="mb-3">Admin/Account</h3>
 <form method="post">
     <div class="row mb-3">
@@ -35,14 +41,16 @@
         </div>
     </fieldset>
 
-    <button type="submit" class="btn btn-primary mb-3">Update</button>
-    <button type="button" class="btn btn-danger mb-3">Delete</button>
+    <button type="submit" name="action" value="update" class="btn btn-primary mb-3">Update</button>
+    <button type="submit" name="action" value="delete" class="btn btn-danger mb-3" onsubmit="return confirm('정말로 계정을 삭제할까요?')">Delete</button>
 </form>
 
 <div class="container-fluid">
     <h5>Buckets</h5>
     <div class="list-group pb-3">
-        <a href="#" class="list-group-item list-group-item-action">bucket-id-1</a>
-        <a href="#" class="list-group-item list-group-item-action">bucket-id-2</a>
+        @foreach (var bucketId in Model.BucketIds)
+        {
+            <a href="#" class="list-group-item list-group-item-action">@bucketId</a>
+        }
     </div>
 </div>

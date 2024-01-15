@@ -16,6 +16,7 @@ public class IndexModel : PageModel
     }
 
     public IEnumerable<UserWithRoles> Users { get; private set; }
+    public string? Message { get; set; }
 
     public async Task<IActionResult> OnGetAsync()
     {
@@ -30,8 +31,7 @@ public class IndexModel : PageModel
                              group user by user.User.Id into grouped
                              select new UserWithRoles(grouped.First().User, grouped.Select(u => u.Role));
 
-        //Users = await usersWithRoles.ToListAsync();
-        Users = await (users.Select(u => new UserWithRoles(u.User, new[] { u.Role }))).ToListAsync();
+        Users = await usersWithRoles.ToListAsync();
         return Page();
     }
 }
