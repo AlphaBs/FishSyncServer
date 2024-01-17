@@ -2,7 +2,7 @@ using AlphabetUpdateServer.Repositories;
 
 namespace AlphabetUpdateServer.Models.ChecksumStorages;
 
-public class FileChecksumStorageManager : IFileChecksumStorageManager
+public class FileChecksumStorageManager : IFileChecksumStorageFactory
 {
     private readonly ICachedFileChecksumRepository _cacheRepository;
     private readonly IFileChecksumStorageRepository _storageRepository;
@@ -15,7 +15,7 @@ public class FileChecksumStorageManager : IFileChecksumStorageManager
         (_cacheRepository, _storageRepository, _factoryCollection) = 
         (cacheRepository, storageRepository, factoryCollection);
 
-    public async ValueTask<IFileChecksumStorage> GetStorageForBucket(string bucketId)
+    public async ValueTask<IFileChecksumStorage> CreateStorageForBucket(string bucketId)
     {
         var entities = await _storageRepository.GetStorages(bucketId);
         var composite = new CompositeFileChecksumStorage();

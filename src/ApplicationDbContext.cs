@@ -1,5 +1,6 @@
 using AlphabetUpdateServer.Entities;
 using AlphabetUpdateServer.Models;
+using AlphabetUpdateServer.Models.Buckets;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,7 +14,7 @@ public class ApplicationDbContext : IdentityDbContext
     }
 
     public DbSet<BucketEntity> Buckets { get; set; } = null!;
-    public DbSet<BucketFileEntity> BucketFiles { get; set; } = null!;
+    public DbSet<BucketFile> BucketFiles { get; set; } = null!;
     public DbSet<FileLocation> Checksums { get; set; } = null!;
     public DbSet<FileChecksumStorageEntity> ChecksumStorages { get; set; } = null!;
     public DbSet<RFilesChecksumStorageEntity> RFilesChecksumStorages { get; set; } = null!;
@@ -36,6 +37,12 @@ public class ApplicationDbContext : IdentityDbContext
             .WithOne(e => e.Bucket)
             .HasForeignKey(e => e.BucketId)
             .IsRequired();
+
+        modelBuilder
+            .Entity<BucketFile>()
+            .HasKey(
+                nameof(BucketFile.BucketId),
+                nameof(BucketFile.Path));
 
         base.OnModelCreating(modelBuilder);
     }

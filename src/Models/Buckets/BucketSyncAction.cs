@@ -2,10 +2,7 @@ namespace AlphabetUpdateServer.Models.Buckets;
 
 public class BucketSyncAction
 {
-    public BucketSyncAction(BucketSyncFile file) => 
-        File = file;
-
-    public BucketSyncFile File { get; }
+    public BucketSyncFile? File { get; set; }
     public string? ActionType { get; set; }
     public Dictionary<string, string> Parameters { get; set; } = new();
 }

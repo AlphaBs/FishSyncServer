@@ -1,77 +1,151 @@
-using AlphabetUpdateServer.Entities;
 using AlphabetUpdateServer.Models.ChecksumStorages;
-using AlphabetUpdateServer.Repositories;
 
 namespace AlphabetUpdateServer.Models.Buckets;
 
-public class Bucket : IBucket
+public class Bucket
 {
-    private readonly IBucketFileRepository _fileRepository;
-    private readonly IFileChecksumStorage _checksumStorage;
-
     public Bucket(
         string id,
         DateTimeOffset lastUpdated,
-        IBucketFileRepository fileRepository,
-        IFileChecksumStorage checksumStorage)
+        BucketLimitations limitations)
     {
         Id = id;
         LastUpdated = lastUpdated;
-        _fileRepository = fileRepository;
-        _checksumStorage = checksumStorage;
+        Limitations = limitations;
     }
 
     public string Id { get; }
-    public DateTimeOffset LastUpdated { get; set; }
+    public DateTimeOffset LastUpdated { get; private set; }
+    public BucketLimitations Limitations { get; set; }
 
-    public ValueTask ClearFiles() =>
-        _fileRepository.UpdateFiles(Id, Enumerable.Empty<BucketFileEntity>());
-
-    public async IAsyncEnumerable<BucketFile> GetFiles()
+    public async IAsyncEnumerable<BucketFileLocation> GetFiles(
+        IFileChecksumStorage checksumStorage,
+        IEnumerable<BucketFile> files)
     {
-        // IBucketFileRepository 는 파일의 경로와 체크섬 등 메타데이터만 가지고 있으며 실제 위치는 모름
         // IFileChecksumStorage 에서 파일의 실제 위치를 찾고 파일 목록을 반환함
-        var files = await _fileRepository.GetFiles(Id);
-        var checksumFileMap = files.ToDictionary(f => f.Checksum, f => f);
+        var checksumFileMap = files.ToDictionary(f => f.Metadata.Checksum, f => f);
 
-        // 찾아야 할 체크섬 전체를 질의
-        var checksumLocations = _checksumStorage.Query(checksumFileMap.Keys);
+        // 찾아야 할 체크섬 전체를 질의해서 실제 파일의 위치 찾기
+        var checksumLocations = checksumStorage.Query(checksumFileMap.Keys);
         await foreach (var checksumLocation in checksumLocations)
         {
             var fileEntity = checksumFileMap[checksumLocation.Checksum];
             checksumFileMap.Remove(checksumLocation.Checksum);
 
-            var bucketFile = new BucketFile(
+            // 파일 위치랑 메타데이터 반환
+            yield return new BucketFileLocation(
                 Path: fileEntity.Path,
-                Size: fileEntity.Size,
-                LastUpdated: fileEntity.LastUpdated,
                 Location: checksumLocation.Location ?? string.Empty,
-                Checksum: fileEntity.Checksum);
-            yield return bucketFile;
+                Metadata: fileEntity.Metadata);
         }
 
         // ChecksumStorage 에서 찾지 못한 파일은 Location 을 null 로 하여 반환
         foreach (var file in checksumFileMap.Values)
         {
-            var bucketFile = new BucketFile(
+            yield return new BucketFileLocation(
                 Path: file.Path,
-                Size: file.Size,
-                LastUpdated: file.LastUpdated,
                 Location: null,
-                Checksum: file.Checksum);
-            yield return bucketFile;
+                Metadata: file.Metadata);
         }
     }
 
-    public async ValueTask<BucketSyncResult> Sync(IEnumerable<BucketSyncFile> files)
+    public async ValueTask<BucketSyncResult> Sync(
+        IFileChecksumStorage checksumStorage,
+        IEnumerable<BucketSyncFile> syncFiles)
     {
-        var (result, entities) = await BucketSyncProcessor.Sync(Id, _checksumStorage, files);
-
-        if (result.IsSuccess)
+        if (Limitations.IsReadOnly)
         {
-            await _fileRepository.UpdateFiles(Id, entities);
+            return BucketSyncResult.ActionRequired(BucketSyncActionFactory.ReadOnlyBucket());
+        }
+        if (Limitations.ExpiredAt < DateTimeOffset.UtcNow)
+        {
+            return BucketSyncResult.ActionRequired(BucketSyncActionFactory.ExpiredBucket());
+        }
+        
+        var actions = new List<BucketSyncAction>();
+        var bucketFiles = new List<BucketFile>();
+        var pathSet = new HashSet<string>();
+
+        // (체크섬, 파일) 쌍 만들고 유효성 검사
+        long totalSize = 0;
+        var requestChecksumFileMap = new Dictionary<string, BucketSyncFile>();
+        foreach (var syncFile in syncFiles)
+        {
+            // validation
+            if (string.IsNullOrEmpty(syncFile.Checksum) ||
+                string.IsNullOrEmpty(syncFile.Path) ||
+                syncFile.Size < 0)
+            {
+                actions.Add(BucketSyncActionFactory.InvalidFileSize(syncFile));
+            }
+            // 최대 파일 크기 초과
+            else if (syncFile.Size > Limitations.MaxFileSize)
+            {
+                actions.Add(BucketSyncActionFactory.ExceedMaxFileSize(syncFile));
+            }
+            // 중복 경로 검사
+            else if (!pathSet.Add(syncFile.Path))
+            {
+                actions.Add(BucketSyncActionFactory.DuplicatedFilePath(syncFile));
+            }
+            else
+            {
+                totalSize += syncFile.Size;
+                requestChecksumFileMap[syncFile.Checksum] = syncFile;
+            }
+        }
+        // 최대 버킷 크기 초과
+        if (totalSize > Limitations.MaxBucketSize)
+        {
+            actions.Add(BucketSyncActionFactory.ExceedMaxBucketSize());
+        }
+        // early return
+        if (actions.Any())
+        {
+            return BucketSyncResult.ActionRequired(actions);
         }
 
+        // 동기화 요청한 파일과 IFileChecksumStorage 에 등록된 파일과 비교
+        var queryFiles = checksumStorage.Query(requestChecksumFileMap.Keys);
+        var updatedAt = DateTimeOffset.UtcNow;
+
+        await foreach (var queryFile in queryFiles)
+        {
+            if (requestChecksumFileMap.TryGetValue(queryFile.Checksum, out var requestFile))
+            {
+                if (requestFile.Size != queryFile.Size) // 메타데이터 비교
+                {
+                    actions.Add(BucketSyncActionFactory.WrongFileSize(requestFile));
+                }
+                else
+                {
+                    bucketFiles.Add(new BucketFile(
+                        BucketId: Id,
+                        Path: requestFile.Path!,
+                        Metadata: new BucketFileMetadata(
+                            Size: queryFile.Size,
+                            LastUpdated: updatedAt,
+                            Checksum: queryFile.Checksum
+                        )));
+                }
+
+                // 찾은 파일은 map 에서 전부 지우고 못찾은 파일만 map 에 남겨둠
+                requestChecksumFileMap.Remove(queryFile.Checksum);
+            }
+        }
+
+        // IFileChecksumStorage 에서 찾을 수 없는 파일은 따로 작업 필요
+        foreach (var remainFile in requestChecksumFileMap.Values)
+        {
+            var action = checksumStorage.CreateSyncAction(remainFile);
+            actions.Add(action);
+        }
+        if (actions.Any())
+            return BucketSyncResult.ActionRequired(actions);
+
+        // 모든 파일의 유효성 검사가 성공한 경우에만
+        var result = BucketSyncResult.Success(bucketFiles, updatedAt);
+        LastUpdated = result.UpdatedAt;
         return result;
     }
 }

@@ -11,7 +11,7 @@ var connectionString = builder.Configuration.GetConnectionString("ApplicationDbC
 
 // Models
 builder.Services.AddTransient<IBucketFactory, BucketFactory>();
-builder.Services.AddTransient<IFileChecksumStorageManager, FileChecksumStorageManager>();
+builder.Services.AddTransient<IFileChecksumStorageFactory, FileChecksumStorageManager>();
 
 // Repositories
 builder.Services.AddTransient<IBucketRepository, BucketDbRepository>();
