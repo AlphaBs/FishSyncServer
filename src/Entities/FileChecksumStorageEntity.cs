@@ -1,8 +1,8 @@
-using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 
 namespace AlphabetUpdateServer.Entities;
 
-[PrimaryKey(nameof(BucketId), nameof(StorageId))]
+[JsonDerivedType(typeof(RFilesChecksumStorageEntity), typeDiscriminator: RFilesChecksumStorageEntity.TypeName)]
 public class FileChecksumStorageEntity
 {
     public string? BucketId { get; set; }
@@ -11,5 +11,9 @@ public class FileChecksumStorageEntity
     public string Type { get; set; } = null!;
     public bool IsReadyOnly { get; set; }
     public int Priority { get; set; }
-    public string? Location { get; set; }
+
+    public virtual string GetEntityType()
+    {
+        return Type;
+    }
 }

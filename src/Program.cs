@@ -1,23 +1,10 @@
 using AlphabetUpdateServer;
 using AlphabetUpdateServer.Areas.Identity.Data;
-using AlphabetUpdateServer.Models.Buckets;
-using AlphabetUpdateServer.Models.ChecksumStorages;
-using AlphabetUpdateServer.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("ApplicationDbContextConnection") ?? throw new InvalidOperationException("Connection string 'ApplicationDbContextConnection' not found.");
-
-// Models
-builder.Services.AddTransient<IBucketFactory, BucketFactory>();
-builder.Services.AddTransient<IFileChecksumStorageFactory, FileChecksumStorageManager>();
-
-// Repositories
-builder.Services.AddTransient<IBucketRepository, BucketDbRepository>();
-builder.Services.AddTransient<IBucketFileRepository, BucketFileDbRepository>();
-builder.Services.AddTransient<ICachedFileChecksumRepository, CachedFileChecksumDbRepository>();
-builder.Services.AddTransient<IFileChecksumStorageRepository, FileChecksumStorageDbRepository>();
 
 // Application
 builder.Services.AddControllersWithViews();

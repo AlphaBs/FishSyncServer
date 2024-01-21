@@ -15,9 +15,9 @@ public class CompositeFileChecksumStorage : IFileChecksumStorage
         _storages.Add(storage);
     }
 
-    public BucketSyncAction CreateSyncAction(string checksum)
+    public BucketSyncAction CreateSyncAction(BucketSyncFile file)
     {
-        return Storages.First(storage => !storage.IsReadOnly).CreateSyncAction(checksum);
+        return Storages.First(storage => !storage.IsReadOnly).CreateSyncAction(file);
     }
 
     public async IAsyncEnumerable<FileLocation> GetAllFiles()
@@ -41,7 +41,7 @@ public class CompositeFileChecksumStorage : IFileChecksumStorage
 
             await foreach (var file in storage.Query(checksumSet))
             {
-                checksumSet.Remove(file.Checksum);
+                checksumSet.Remove(file.Metadata.Checksum);
                 yield return file;
             }
         }

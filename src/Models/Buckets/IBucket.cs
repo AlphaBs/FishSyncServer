@@ -3,9 +3,9 @@ namespace AlphabetUpdateServer.Models.Buckets;
 public interface IBucket
 {
     string Id { get; }
-    DateTimeOffset LastUpdated { get; set; }
+    DateTimeOffset LastUpdated { get; }
+    BucketLimitations Limitations { get; set; }
 
-    IAsyncEnumerable<BucketFile> GetFiles();
-    ValueTask<BucketSyncResult> Sync(IEnumerable<BucketSyncFile> files);
-    ValueTask ClearFiles();
+    IAsyncEnumerable<BucketFileLocation> GetFiles(IEnumerable<BucketFile> files);
+    ValueTask<BucketSyncResult> Sync(IEnumerable<BucketSyncFile> syncFiles);
 }

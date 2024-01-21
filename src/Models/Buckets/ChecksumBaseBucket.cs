@@ -2,9 +2,9 @@ using AlphabetUpdateServer.Models.ChecksumStorages;
 
 namespace AlphabetUpdateServer.Models.Buckets;
 
-public class Bucket
+public class ChecksumBaseBucket
 {
-    public Bucket(
+    public ChecksumBaseBucket(
         string id,
         DateTimeOffset lastUpdated,
         BucketLimitations limitations)
@@ -17,20 +17,19 @@ public class Bucket
     public string Id { get; }
     public DateTimeOffset LastUpdated { get; private set; }
     public BucketLimitations Limitations { get; set; }
+    public virtual IEnumerable<BucketFile> Files { get; private set; } = new List<BucketFile>();
 
-    public async IAsyncEnumerable<BucketFileLocation> GetFiles(
-        IFileChecksumStorage checksumStorage,
-        IEnumerable<BucketFile> files)
+    public async IAsyncEnumerable<BucketFileLocation> GetFiles(IFileChecksumStorage checksumStorage)
     {
         // IFileChecksumStorage 에서 파일의 실제 위치를 찾고 파일 목록을 반환함
-        var checksumFileMap = files.ToDictionary(f => f.Metadata.Checksum, f => f);
+        var checksumFileMap = Files.ToDictionary(f => f.Metadata.Checksum, f => f);
 
         // 찾아야 할 체크섬 전체를 질의해서 실제 파일의 위치 찾기
         var checksumLocations = checksumStorage.Query(checksumFileMap.Keys);
         await foreach (var checksumLocation in checksumLocations)
         {
-            var fileEntity = checksumFileMap[checksumLocation.Checksum];
-            checksumFileMap.Remove(checksumLocation.Checksum);
+            var fileEntity = checksumFileMap[checksumLocation.Metadata.Checksum];
+            checksumFileMap.Remove(checksumLocation.Metadata.Checksum);
 
             // 파일 위치랑 메타데이터 반환
             yield return new BucketFileLocation(
@@ -50,8 +49,8 @@ public class Bucket
     }
 
     public async ValueTask<BucketSyncResult> Sync(
-        IFileChecksumStorage checksumStorage,
-        IEnumerable<BucketSyncFile> syncFiles)
+        IEnumerable<BucketSyncFile> syncFiles, 
+        IFileChecksumStorage checksumStorage)
     {
         if (Limitations.IsReadOnly)
         {
@@ -111,9 +110,9 @@ public class Bucket
 
         await foreach (var queryFile in queryFiles)
         {
-            if (requestChecksumFileMap.TryGetValue(queryFile.Checksum, out var requestFile))
+            if (requestChecksumFileMap.TryGetValue(queryFile.Metadata.Checksum, out var requestFile))
             {
-                if (requestFile.Size != queryFile.Size) // 메타데이터 비교
+                if (requestFile.Size != queryFile.Metadata.Size) // 메타데이터 비교
                 {
                     actions.Add(BucketSyncActionFactory.WrongFileSize(requestFile));
                 }
@@ -123,14 +122,14 @@ public class Bucket
                         BucketId: Id,
                         Path: requestFile.Path!,
                         Metadata: new BucketFileMetadata(
-                            Size: queryFile.Size,
+                            Size: queryFile.Metadata.Size,
                             LastUpdated: updatedAt,
-                            Checksum: queryFile.Checksum
+                            Checksum: queryFile.Metadata.Checksum
                         )));
                 }
 
                 // 찾은 파일은 map 에서 전부 지우고 못찾은 파일만 map 에 남겨둠
-                requestChecksumFileMap.Remove(queryFile.Checksum);
+                requestChecksumFileMap.Remove(queryFile.Metadata.Checksum);
             }
         }
 
@@ -144,8 +143,14 @@ public class Bucket
             return BucketSyncResult.ActionRequired(actions);
 
         // 모든 파일의 유효성 검사가 성공한 경우에만
-        var result = BucketSyncResult.Success(bucketFiles, updatedAt);
-        LastUpdated = result.UpdatedAt;
+        var result = BucketSyncResult.Success(updatedAt);
+        UpdateFiles(bucketFiles, updatedAt);
         return result;
+    }
+
+    public void UpdateFiles(IEnumerable<BucketFile> files, DateTimeOffset updatedAt)
+    {
+        Files = files;
+        LastUpdated = updatedAt;
     }
 }

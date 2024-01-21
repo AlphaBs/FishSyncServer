@@ -2,11 +2,10 @@ namespace AlphabetUpdateServer.Models.Buckets;
 
 public class BucketSyncResult
 {
-    public static BucketSyncResult Success(IEnumerable<BucketFile> files, DateTimeOffset updatedAt) =>
+    public static BucketSyncResult Success(DateTimeOffset updatedAt) =>
         new BucketSyncResult(
             true, 
             Enumerable.Empty<BucketSyncAction>(), 
-            files,
             updatedAt);
 
     public static BucketSyncResult ActionRequired(BucketSyncAction action) =>
@@ -16,19 +15,16 @@ public class BucketSyncResult
         new BucketSyncResult(
             false, 
             actions,
-            Enumerable.Empty<BucketFile>(), 
             DateTimeOffset.MinValue);
 
     public BucketSyncResult(
         bool isSuccess, 
-        IEnumerable<BucketSyncAction> actions, 
-        IEnumerable<BucketFile> files,
+        IEnumerable<BucketSyncAction> actions,
         DateTimeOffset updatedAt) =>
-        (IsSuccess, RequiredActions, Files, UpdatedAt) = 
-        (isSuccess, actions, files, updatedAt);
+        (IsSuccess, RequiredActions, UpdatedAt) = 
+        (isSuccess, actions, updatedAt);
 
     public bool IsSuccess { get; }
     public IEnumerable<BucketSyncAction> RequiredActions { get; }
-    public IEnumerable<BucketFile> Files { get; }
     public DateTimeOffset UpdatedAt { get; }
 }
