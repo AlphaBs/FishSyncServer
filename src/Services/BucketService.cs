@@ -26,6 +26,16 @@ public class BucketService
         return bucket;
     }
 
+    public Task AddNewBucket(string id, BucketLimitations limitations) =>
+        AddNewBucket(id, DateTimeOffset.UtcNow, limitations);
+
+    public async Task AddNewBucket(string id, DateTimeOffset lastUpdated, BucketLimitations limitations)
+    {
+        var bucket = new ChecksumBaseBucket(id, lastUpdated, limitations);
+        _dbContext.Buckets.Add(bucket);
+        await _dbContext.SaveChangesAsync();
+    }
+
     public async Task UpdateBucket(ChecksumBaseBucket bucket)
     {
         await _dbContext.SaveChangesAsync();

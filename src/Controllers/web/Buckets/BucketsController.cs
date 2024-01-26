@@ -1,4 +1,7 @@
+using AlphabetUpdateServer.DTOs;
+using AlphabetUpdateServer.Models.Buckets;
 using AlphabetUpdateServer.Services;
+using AlphabetUpdateServer.ViewModels;
 using AlphabetUpdateServer.ViewModels.Buckets;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,6 +17,7 @@ public class BucketsController : Controller
         _bucketService = bucketService;
     }
 
+    [HttpGet]
     public async Task<ActionResult> GetAsync()
     {
         var buckets = await _bucketService.GetAllBuckets();
@@ -21,5 +25,22 @@ public class BucketsController : Controller
         {
             Buckets = buckets.ToArray()
         });
+    }
+
+    public ActionResult GetAddAsync()
+    {
+        return View("Views/Buckets/Add");
+    }
+
+    [HttpPost("add")]
+    public async Task<ActionResult> PostAddAsync(AddBucketViewModel request)
+    {
+        if (string.IsNullOrEmpty(request.Id) || request.Limitations == null)
+        {
+            return BadRequest();
+        }
+
+        await _bucketService.AddNewBucket(request.Id, request.Limitations);
+        return NoContent();
     }
 }
