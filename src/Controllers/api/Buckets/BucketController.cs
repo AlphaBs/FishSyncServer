@@ -3,22 +3,22 @@ using AlphabetUpdateServer.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace AlphabetUpdateServer.Controllers.Buckets;
+namespace AlphabetUpdateServer.Controllers.Api.Buckets;
 
-[Route("buckets")]
+[Route("api/buckets")]
 public class BucketController : Controller
 {
-    private readonly ApplicationDbContext _dbContext;
+    private readonly BucketService _bucketService;
 
-    public BucketController(ApplicationDbContext dbContext)
+    public BucketController(BucketService bucketService)
     {
-        _dbContext = dbContext;
+        _bucketService = bucketService;
     }
 
     [HttpGet]
     public async Task<ActionResult> Index()
     {
-        var buckets = await _dbContext.Buckets.ToListAsync();
+        var buckets = await _bucketService.GetAllBuckets();
         return Ok(new 
         {
             Buckets = buckets.Select(bucket => bucket.Id)
@@ -28,9 +28,7 @@ public class BucketController : Controller
     [HttpGet("{id}")]
     public async Task<ActionResult> GetBucket(string id)
     {
-        var bucket = await _dbContext.Buckets
-            .Where(bucket => bucket.Id == id)
-            .FirstOrDefaultAsync();
+        var bucket = await _bucketService.GetBucketById(id);
         if (bucket == null)
         {
             return NotFound();

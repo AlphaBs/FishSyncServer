@@ -2,9 +2,9 @@ using AlphabetUpdateServer.Entities;
 using AlphabetUpdateServer.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace AlphabetUpdateServer.Controllers.Buckets;
+namespace AlphabetUpdateServer.Controllers.Api.Buckets;
 
-[Route("buckets/{bucket}/storages")]
+[Route("api/buckets/{bucket}/storages")]
 public class BucketStorageController : Controller
 {
     private ChecksumStorageService _checksumStorageService;

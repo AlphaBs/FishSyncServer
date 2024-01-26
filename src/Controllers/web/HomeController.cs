@@ -2,8 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using AlphabetUpdateServer.Models;
 
-namespace AlphabetUpdateServer.Controllers;
+namespace AlphabetUpdateServer.Controllers.Web;
 
+[Route("web")]
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;

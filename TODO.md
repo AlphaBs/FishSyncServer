@@ -5,6 +5,25 @@
 - [x] 감사: sync 로그 언제 누가
 - [x] Bucket 종류: ChecksumBaseBucket, PathBaseBucket, RemoteBucket
 
+# WEB
+
+웹에서는 버킷 상태 확인, 설정 변경 정도만 가능하고 한 페이지에서 모든 정보를 다 뿌려줌
+- GET /buckets?owner={owner-id}
+- GET /buckets/{bucket-id}
+- GET /buckets/{bucket-id}/storages
+
+- GET /bucket-indexes?q={search-query}&private={true|false}
+- GET /bucket-indexes/{index-id}
+- PUT /bucket-indexes/{index-id}
+- POST /bucket-indexes/{index-id}
+- DELETE /bucket-indexes/{index-id}
+- POST /bucket-indexes/{index-id}/buckets
+- DELETE /bucket-indexes/{index-id}/buckets/{bucket-id}
+
+- GET /caches/checksums
+- POST /caches/checksums/purge
+- POST /caches/checksums/update
+
 # API
 
 - GET /buckets?owner={owner-id}
@@ -16,20 +35,9 @@
 - GET /buckets/{bucket-id}/storages/{storage-id}
 - POST /buckets/{bucket-id}/sync
 
-- GET /bucket-indexes?q={search-query}&private={true|false}
 - GET /bucket-indexes/{index-id}
-- PUT /bucket-indexes/{index-id}
-- POST /bucket-indexes/{index-id}
-- DELETE /bucket-indexes/{index-id}
-
-- GET /caches/checksums
-- POST /caches/checksums/purge
-- POST /caches/checksums/update
-
-- GET /users
-- PUT /users/{user-id}
-- POST /users/{user-id}
-- DELETE /users/{user-id}
+- POST /bucket-indexes/{index-id}/buckets
+- DELETE /bucket-indexes/{index-id}/buckets/{bucket-id}
 
 - POST /auth/login
 - POST /auth/logout

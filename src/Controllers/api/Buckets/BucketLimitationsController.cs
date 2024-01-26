@@ -1,25 +1,23 @@
+using AlphabetUpdateServer.Models.Buckets;
 using AlphabetUpdateServer.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
-namespace AlphabetUpdateServer.Models.Buckets;
+namespace AlphabetUpdateServer.Controllers.Api.Buckets;
 
-[Route("buckets/{id}/limitations")]
+[Route("api/buckets/{id}/limitations")]
 public class BucketLimitationsController : Controller
 {
-    private readonly ApplicationDbContext _dbContext;
+    private readonly BucketService _bucketService;
 
-    public BucketLimitationsController(ApplicationDbContext dbContext)
+    public BucketLimitationsController(BucketService bucketService)
     {
-        _dbContext = dbContext;
+        _bucketService = bucketService;
     }
 
     [HttpGet]
     public async Task<ActionResult> Index(string id)
     {
-        var bucket = await _dbContext.Buckets
-            .Where(bucket => bucket.Id == id)
-            .FirstOrDefaultAsync();
+        var bucket = await _bucketService.GetBucketById(id);
         if (bucket == null)
         {
             return NotFound();
@@ -31,16 +29,14 @@ public class BucketLimitationsController : Controller
     [HttpPut]
     public async Task<ActionResult> Put(string id, BucketLimitations updateTo)
     {
-        var bucket = await _dbContext.Buckets
-            .Where(bucket => bucket.Id == id)
-            .FirstOrDefaultAsync();
+        var bucket = await _bucketService.GetBucketById(id);
         if (bucket == null)
         {
             return NotFound();
         }
 
         bucket.Limitations = updateTo;
-        await _dbContext.SaveChangesAsync();
+        await _bucketService.UpdateBucket(bucket);
         return NoContent();
     }
 }

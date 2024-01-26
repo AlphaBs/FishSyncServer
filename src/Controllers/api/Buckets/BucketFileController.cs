@@ -4,21 +4,21 @@ using AlphabetUpdateServer.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace AlphabetUpdateServer.Controllers.Buckets;
+namespace AlphabetUpdateServer.Controllers.Api.Buckets;
 
-[Route("buckets/{id}")]
+[Route("api/buckets/{id}")]
 public class BucketFileController : Controller
 {
-    private readonly ApplicationDbContext _dbContext;
+    private readonly BucketService _bucketService;
     private readonly ChecksumStorageService _checksumStorageService;
     private readonly ILogger<BucketFileController> _logger;
 
     public BucketFileController(
-        ApplicationDbContext dbContext,
+        BucketService bucketService,
         ChecksumStorageService checksumStorageService,
         ILogger<BucketFileController> logger)
     {
-        _dbContext = dbContext;
+        _bucketService = bucketService;
         _checksumStorageService = checksumStorageService;
         _logger = logger;
     }
@@ -26,9 +26,7 @@ public class BucketFileController : Controller
     [HttpGet("files")]
     public async Task<ActionResult> GetFiles(string id)
     {
-        var bucket = await _dbContext.Buckets
-            .Where(bucket => bucket.Id == id)
-            .FirstOrDefaultAsync();
+        var bucket = await _bucketService.GetBucketById(id);
         if (bucket == null)
         {
             return NotFound();
@@ -52,9 +50,7 @@ public class BucketFileController : Controller
             return BadRequest("request.Files was null");
         }
 
-        var bucket = await _dbContext.Buckets
-            .Where(bucket => bucket.Id == id)
-            .FirstOrDefaultAsync();
+        var bucket = await _bucketService.GetBucketById(id);
         if (bucket == null)
         {
             return NotFound();
@@ -71,7 +67,7 @@ public class BucketFileController : Controller
         var result = await bucket.Sync(syncFiles, checksumStorage);
         if (result.IsSuccess)
         {
-            await _dbContext.SaveChangesAsync();
+            await _bucketService.UpdateBucket(bucket);
             return Ok(result.UpdatedAt);
         }
         else
