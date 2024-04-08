@@ -1,6 +1,6 @@
 using AlphabetUpdateServer.Models.Buckets;
 
-namespace AlphabetUpdateServer.ViewModels;
+namespace AlphabetUpdateServer.ViewModels.Buckets;
 
 public class AddBucketViewModel
 {

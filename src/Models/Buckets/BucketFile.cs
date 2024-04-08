@@ -1,6 +1,6 @@
 namespace AlphabetUpdateServer.Models.Buckets;
 
 public record BucketFile(
-    string BucketId,
-    string Path,
-    BucketFileMetadata Metadata);
+    string Path, 
+    string? Location,
+    FileMetadata Metadata);

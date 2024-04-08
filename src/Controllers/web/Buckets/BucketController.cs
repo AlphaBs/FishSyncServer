@@ -1,4 +1,3 @@
-using AlphabetUpdateServer.Models.Buckets;
 using AlphabetUpdateServer.Services;
 using AlphabetUpdateServer.ViewModels.Buckets;
 using Microsoft.AspNetCore.Mvc;
@@ -8,34 +7,26 @@ namespace AlphabetUpdateServer.Controllers.Web.Buckets;
 [Route("web/buckets/{bucket}")]
 public class BucketController : Controller
 {
-    private readonly BucketService _bucketService;
-    private readonly ChecksumStorageService _checksumStorageService;
+    private readonly ChecksumStorageBucketService _bucketService;
 
-    public BucketController(
-        BucketService bucketService, 
-        ChecksumStorageService checksumStorageService)
+    public BucketController(ChecksumStorageBucketService bucketService)
     {
         _bucketService = bucketService;
-        _checksumStorageService = checksumStorageService;
     }
 
     [HttpGet]
     public async Task<ActionResult> GetAsync(string id)
     {
-        var bucket = await _bucketService.GetBucketById(id);
+        var bucket = await _bucketService.FindBucketById(id);
         if (bucket == null)
         {
             return NotFound();
         }
-        var checksumStorage = await _checksumStorageService.CreateStorageForBucket(id);
-        var files = new List<BucketFileLocation>();
-        await foreach (var file in bucket.GetFiles(checksumStorage))
-        {
-            files.Add(file);
-        }
 
+        var files = await bucket.GetFiles();
         return View("Views/Buckets/Bucket", new BucketViewModel
         {
+            BucketId = id,
             Bucket = bucket,
             Files = files
         });

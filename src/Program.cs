@@ -10,7 +10,7 @@ var connectionString = builder.Configuration.GetConnectionString("ApplicationDbC
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 builder.Services.AddDbContext<ApplicationDbContext>(opt => opt
-    .UseLazyLoadingProxies()
+    //.UseLazyLoadingProxies()
     .UseSqlite("Data Source=local.db"));
 builder.Services.AddDefaultIdentity<User>()
     .AddRoles<IdentityRole>()

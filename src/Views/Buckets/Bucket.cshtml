@@ -1,7 +1,7 @@
 @model BucketViewModel
 
 <h5 class="mb-3">←<a asp-controller="Buckets">Buckets</a></h5>
-<h3 class="mb-3">Buckets/@Model.Bucket.Id</h3>
+<h3 class="mb-3">Buckets/@Model.BucketId</h3>
 <form method="post">
     <div class="row mb-3">
         <label for="inputIsReadOnly" class="col-sm-2 col-form-label">IsReadOnly</label>
@@ -48,7 +48,7 @@
             <th>-</th>
             <th>-</th>
         </tr>
-        @foreach (AlphabetUpdateServer.Models.Buckets.BucketFileLocation file in Model.Files)
+        @foreach (AlphabetUpdateServer.Models.Buckets.BucketFile file in Model.Files)
         {
             <tr>
                 <th><i class="bi bi-file-earmark"></i></th>

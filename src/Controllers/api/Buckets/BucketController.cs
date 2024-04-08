@@ -1,16 +1,15 @@
 using AlphabetUpdateServer.DTOs;
 using AlphabetUpdateServer.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace AlphabetUpdateServer.Controllers.Api.Buckets;
 
 [Route("api/buckets")]
 public class BucketController : Controller
 {
-    private readonly BucketService _bucketService;
+    private readonly ChecksumStorageBucketService _bucketService;
 
-    public BucketController(BucketService bucketService)
+    public BucketController(ChecksumStorageBucketService bucketService)
     {
         _bucketService = bucketService;
     }
@@ -28,7 +27,7 @@ public class BucketController : Controller
     [HttpGet("{id}")]
     public async Task<ActionResult> GetBucket(string id)
     {
-        var bucket = await _bucketService.GetBucketById(id);
+        var bucket = await _bucketService.FindBucketById(id);
         if (bucket == null)
         {
             return NotFound();

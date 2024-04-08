@@ -1,7 +1,4 @@
-using AlphabetUpdateServer.DTOs;
-using AlphabetUpdateServer.Models.Buckets;
 using AlphabetUpdateServer.Services;
-using AlphabetUpdateServer.ViewModels;
 using AlphabetUpdateServer.ViewModels.Buckets;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,9 +7,9 @@ namespace AlphabetUpdateServer.Controllers.Web.Buckets;
 [Route("web/buckets")]
 public class BucketsController : Controller
 {
-    private readonly BucketService _bucketService;
+    private readonly ChecksumStorageBucketService _bucketService;
 
-    public BucketsController(BucketService bucketService)
+    public BucketsController(ChecksumStorageBucketService bucketService)
     {
         _bucketService = bucketService;
     }
@@ -40,7 +37,7 @@ public class BucketsController : Controller
             return BadRequest();
         }
 
-        await _bucketService.AddNewBucket(request.Id, request.Limitations);
+        await _bucketService.CreateBucket(request.Id, request.Limitations);
         return NoContent();
     }
 }

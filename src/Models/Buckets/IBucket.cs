@@ -2,10 +2,10 @@ namespace AlphabetUpdateServer.Models.Buckets;
 
 public interface IBucket
 {
-    string Id { get; }
     DateTimeOffset LastUpdated { get; }
-    BucketLimitations Limitations { get; set; }
+    BucketLimitations Limitations { get; }
 
-    IAsyncEnumerable<BucketFileLocation> GetFiles(IEnumerable<BucketFile> files);
+    ValueTask<IEnumerable<BucketFile>> GetFiles();
     ValueTask<BucketSyncResult> Sync(IEnumerable<BucketSyncFile> syncFiles);
+    ValueTask UpdateFiles(IEnumerable<BucketFile> files, DateTimeOffset updatedAt);
 }

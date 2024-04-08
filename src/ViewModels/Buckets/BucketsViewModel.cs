@@ -1,8 +1,8 @@
-using AlphabetUpdateServer.Models.Buckets;
+using AlphabetUpdateServer.Services;
 
 namespace AlphabetUpdateServer.ViewModels.Buckets;
 
 public class BucketsViewModel
 {
-    public ChecksumBaseBucket[] Buckets { get; init; } = null!;
+    public BucketListItem[] Buckets { get; init; } = null!;
 }

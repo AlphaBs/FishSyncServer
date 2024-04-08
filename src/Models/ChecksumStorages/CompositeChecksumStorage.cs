@@ -1,26 +1,24 @@
-using AlphabetUpdateServer.Models.Buckets;
-
 namespace AlphabetUpdateServer.Models.ChecksumStorages;
 
-public class CompositeFileChecksumStorage : IFileChecksumStorage
+public class CompositeChecksumStorage : IChecksumStorage
 {
+    private readonly List<IChecksumStorage> _storages = new();
+
     public bool IsReadOnly => 
         !Storages.Any() || Storages.All(storage => storage.IsReadOnly);
+    public IEnumerable<IChecksumStorage> Storages => _storages;
 
-    private readonly List<IFileChecksumStorage> _storages = new();
-    public IEnumerable<IFileChecksumStorage> Storages => _storages;
-
-    public void AddStorage(IFileChecksumStorage storage)
+    public void AddStorage(IChecksumStorage storage)
     {
         _storages.Add(storage);
     }
 
-    public BucketSyncAction CreateSyncAction(BucketSyncFile file)
+    public SyncAction CreateSyncAction(string checksum)
     {
-        return Storages.First(storage => !storage.IsReadOnly).CreateSyncAction(file);
+        return Storages.First(storage => !storage.IsReadOnly).CreateSyncAction(checksum);
     }
 
-    public async IAsyncEnumerable<FileLocation> GetAllFiles()
+    public async IAsyncEnumerable<ChecksumStorageFile> GetAllFiles()
     {
         foreach (var storage in Storages)
         {
@@ -31,7 +29,7 @@ public class CompositeFileChecksumStorage : IFileChecksumStorage
         }
     }
 
-    public async IAsyncEnumerable<FileLocation> Query(IEnumerable<string> checksums)
+    public async IAsyncEnumerable<ChecksumStorageFile> Query(IEnumerable<string> checksums)
     {
         var checksumSet = new HashSet<string>(checksums);
         foreach (var storage in Storages)

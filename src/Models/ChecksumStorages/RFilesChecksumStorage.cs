@@ -4,41 +4,41 @@ using RFiles.NET;
 
 namespace AlphabetUpdateServer.Models.ChecksumStorages;
 
-public class RFilesChecksumStorage : IFileChecksumStorage
+public class RFilesChecksumStorage : IChecksumStorage
 {
-    private readonly string _storage;
     private readonly RFilesClient _client;
 
     public RFilesChecksumStorage(
-        string storage, 
         string host, 
         bool isReadOnly,
         HttpClient httpClient)
     {
         Host = host;
         IsReadOnly = isReadOnly;
-        _storage = storage;
         _client = new RFilesClient(host, httpClient, JsonSerializerOptions.Default);
     }
 
-    public string Host { get; }
     public bool IsReadOnly { get; private set; }
+    public string Host { get; }
 
-    public BucketSyncAction CreateSyncAction(BucketSyncFile syncFile)
+    public SyncAction CreateSyncAction(string checksum)
     {
         if (IsReadOnly)
         {
             throw new InvalidOperationException("ReadOnly storage");
         }
 
-        return new BucketSyncAction
-        {
-            ActionType = BucketSyncActionTypes.Http,
-            File = syncFile
-        };
+        return new SyncAction
+        (
+            Type: BucketSyncActionTypes.Http,
+            Parameters: new Dictionary<string, string>()
+            {
+
+            }
+        );
     }
 
-    public async IAsyncEnumerable<FileLocation> GetAllFiles()
+    public async IAsyncEnumerable<ChecksumStorageFile> GetAllFiles()
     {
         var objects = await _client.GetAllObjects();
         var locations = objects.Select(toFileLocation);
@@ -48,7 +48,7 @@ public class RFilesChecksumStorage : IFileChecksumStorage
         }
     }
 
-    public async IAsyncEnumerable<FileLocation> Query(IEnumerable<string> checksums)
+    public async IAsyncEnumerable<ChecksumStorageFile> Query(IEnumerable<string> checksums)
     {
         var objects = await _client.Query(checksums);
         var locations = objects.Select(toFileLocation);
@@ -58,12 +58,16 @@ public class RFilesChecksumStorage : IFileChecksumStorage
         }
     }
 
-    private FileLocation toFileLocation(RFilesObjectMetadata metadata) =>
-        new FileLocation(
-            metadata: new BucketFileMetadata(
+    private ChecksumStorageFile toFileLocation(RFilesObjectMetadata metadata) =>
+        new ChecksumStorageFile
+        (
+            Checksum: metadata.Hash,
+            Location: _client.GetObjectUri(metadata.Hash).ToString(),
+            Metadata: new FileMetadata
+            (
                 Size: metadata.Size,
                 LastUpdated: metadata.Uploaded,
-                Checksum: metadata.Hash),
-            storage: _storage,  
-            location: _client.GetObjectUri(metadata.Hash).ToString());
+                Checksum: metadata.Hash
+            )
+        );
 }

@@ -26,70 +26,35 @@ namespace AlphabetUpdateServer.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "AspNetUsers",
+                name: "ChecksumStorageFileCaches",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "TEXT", nullable: false),
-                    UserName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    NormalizedUserName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    Email = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    NormalizedEmail = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    EmailConfirmed = table.Column<bool>(type: "INTEGER", nullable: false),
-                    PasswordHash = table.Column<string>(type: "TEXT", nullable: true),
-                    SecurityStamp = table.Column<string>(type: "TEXT", nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "TEXT", nullable: true),
-                    PhoneNumber = table.Column<string>(type: "TEXT", nullable: true),
-                    PhoneNumberConfirmed = table.Column<bool>(type: "INTEGER", nullable: false),
-                    TwoFactorEnabled = table.Column<bool>(type: "INTEGER", nullable: false),
-                    LockoutEnd = table.Column<DateTimeOffset>(type: "TEXT", nullable: true),
-                    LockoutEnabled = table.Column<bool>(type: "INTEGER", nullable: false),
-                    AccessFailedCount = table.Column<int>(type: "INTEGER", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AspNetUsers", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Buckets",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "TEXT", nullable: false),
-                    Status = table.Column<string>(type: "TEXT", nullable: true),
-                    LastUpdated = table.Column<DateTime>(type: "TEXT", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Buckets", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Checksums",
-                columns: table => new
-                {
+                    StorageId = table.Column<string>(type: "TEXT", nullable: false),
                     Checksum = table.Column<string>(type: "TEXT", nullable: false),
-                    Location = table.Column<string>(type: "TEXT", nullable: false),
-                    Storage = table.Column<string>(type: "TEXT", nullable: false),
-                    Size = table.Column<long>(type: "INTEGER", nullable: false)
+                    Exists = table.Column<bool>(type: "INTEGER", nullable: false),
+                    CachedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
+                    Location = table.Column<string>(type: "TEXT", nullable: true),
+                    Size = table.Column<long>(type: "INTEGER", nullable: false),
+                    LastUpdated = table.Column<DateTimeOffset>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Checksums", x => new { x.Location, x.Checksum });
+                    table.PrimaryKey("PK_ChecksumStorageFileCaches", x => new { x.StorageId, x.Checksum });
                 });
 
             migrationBuilder.CreateTable(
-                name: "UserEntity",
+                name: "ChecksumStorages",
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "TEXT", nullable: false),
-                    Password = table.Column<string>(type: "TEXT", nullable: false),
-                    CreatedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
-                    Role = table.Column<string>(type: "TEXT", nullable: false),
-                    Email = table.Column<string>(type: "TEXT", nullable: true)
+                    Type = table.Column<string>(type: "TEXT", maxLength: 34, nullable: false),
+                    IsReadyOnly = table.Column<bool>(type: "INTEGER", nullable: false),
+                    Host = table.Column<string>(type: "TEXT", nullable: true),
+                    ClientSecret = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserEntity", x => x.Id);
+                    table.PrimaryKey("PK_ChecksumStorages", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -109,6 +74,85 @@ namespace AlphabetUpdateServer.Migrations
                         name: "FK_AspNetRoleClaims_AspNetRoles_RoleId",
                         column: x => x.RoleId,
                         principalTable: "AspNetRoles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Buckets",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "TEXT", nullable: false),
+                    LastUpdated = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
+                    ChecksumStorageId = table.Column<string>(type: "TEXT", nullable: false),
+                    Limitations_ExpiredAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
+                    Limitations_IsReadOnly = table.Column<bool>(type: "INTEGER", nullable: false),
+                    Limitations_MaxBucketSize = table.Column<long>(type: "INTEGER", nullable: false),
+                    Limitations_MaxFileSize = table.Column<long>(type: "INTEGER", nullable: false),
+                    Limitations_MaxNumberOfFiles = table.Column<long>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Buckets", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Buckets_ChecksumStorages_ChecksumStorageId",
+                        column: x => x.ChecksumStorageId,
+                        principalTable: "ChecksumStorages",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AspNetUsers",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "TEXT", nullable: false),
+                    Discriminator = table.Column<string>(type: "TEXT", maxLength: 13, nullable: false),
+                    Discord = table.Column<string>(type: "TEXT", nullable: true),
+                    ChecksumStorageBucketEntityId = table.Column<string>(type: "TEXT", nullable: true),
+                    UserName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
+                    NormalizedUserName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
+                    Email = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
+                    NormalizedEmail = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
+                    EmailConfirmed = table.Column<bool>(type: "INTEGER", nullable: false),
+                    PasswordHash = table.Column<string>(type: "TEXT", nullable: true),
+                    SecurityStamp = table.Column<string>(type: "TEXT", nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "TEXT", nullable: true),
+                    PhoneNumber = table.Column<string>(type: "TEXT", nullable: true),
+                    PhoneNumberConfirmed = table.Column<bool>(type: "INTEGER", nullable: false),
+                    TwoFactorEnabled = table.Column<bool>(type: "INTEGER", nullable: false),
+                    LockoutEnd = table.Column<DateTimeOffset>(type: "TEXT", nullable: true),
+                    LockoutEnabled = table.Column<bool>(type: "INTEGER", nullable: false),
+                    AccessFailedCount = table.Column<int>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AspNetUsers_Buckets_ChecksumStorageBucketEntityId",
+                        column: x => x.ChecksumStorageBucketEntityId,
+                        principalTable: "Buckets",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "BucketFiles",
+                columns: table => new
+                {
+                    BucketId = table.Column<string>(type: "TEXT", nullable: false),
+                    Location = table.Column<string>(type: "TEXT", nullable: false),
+                    Path = table.Column<string>(type: "TEXT", nullable: false),
+                    Metadata_Checksum = table.Column<string>(type: "TEXT", nullable: false),
+                    Metadata_LastUpdated = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
+                    Metadata_Size = table.Column<long>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BucketFiles", x => new { x.BucketId, x.Location });
+                    table.ForeignKey(
+                        name: "FK_BucketFiles_Buckets_BucketId",
+                        column: x => x.BucketId,
+                        principalTable: "Buckets",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -198,74 +242,6 @@ namespace AlphabetUpdateServer.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateTable(
-                name: "BucketFiles",
-                columns: table => new
-                {
-                    BucketId = table.Column<string>(type: "TEXT", nullable: false),
-                    Path = table.Column<string>(type: "TEXT", nullable: false),
-                    Size = table.Column<long>(type: "INTEGER", nullable: false),
-                    LastUpdated = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
-                    Checksum = table.Column<string>(type: "TEXT", nullable: false),
-                    BucketEntityId = table.Column<string>(type: "TEXT", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_BucketFiles", x => new { x.BucketId, x.Path });
-                    table.ForeignKey(
-                        name: "FK_BucketFiles_Buckets_BucketEntityId",
-                        column: x => x.BucketEntityId,
-                        principalTable: "Buckets",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ChecksumStorages",
-                columns: table => new
-                {
-                    BucketId = table.Column<string>(type: "TEXT", nullable: false),
-                    StorageId = table.Column<string>(type: "TEXT", nullable: false),
-                    Type = table.Column<string>(type: "TEXT", maxLength: 34, nullable: false),
-                    IsReadyOnly = table.Column<bool>(type: "INTEGER", nullable: false),
-                    Priority = table.Column<int>(type: "INTEGER", nullable: false),
-                    Location = table.Column<string>(type: "TEXT", nullable: true),
-                    ClientSecret = table.Column<string>(type: "TEXT", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ChecksumStorages", x => new { x.BucketId, x.StorageId });
-                    table.ForeignKey(
-                        name: "FK_ChecksumStorages_Buckets_BucketId",
-                        column: x => x.BucketId,
-                        principalTable: "Buckets",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "BucketEntityUserEntity",
-                columns: table => new
-                {
-                    BucketsId = table.Column<string>(type: "TEXT", nullable: false),
-                    OwnersId = table.Column<string>(type: "TEXT", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_BucketEntityUserEntity", x => new { x.BucketsId, x.OwnersId });
-                    table.ForeignKey(
-                        name: "FK_BucketEntityUserEntity_Buckets_BucketsId",
-                        column: x => x.BucketsId,
-                        principalTable: "Buckets",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_BucketEntityUserEntity_UserEntity_OwnersId",
-                        column: x => x.OwnersId,
-                        principalTable: "UserEntity",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -298,20 +274,20 @@ namespace AlphabetUpdateServer.Migrations
                 column: "NormalizedEmail");
 
             migrationBuilder.CreateIndex(
+                name: "IX_AspNetUsers_ChecksumStorageBucketEntityId",
+                table: "AspNetUsers",
+                column: "ChecksumStorageBucketEntityId");
+
+            migrationBuilder.CreateIndex(
                 name: "UserNameIndex",
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_BucketEntityUserEntity_OwnersId",
-                table: "BucketEntityUserEntity",
-                column: "OwnersId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_BucketFiles_BucketEntityId",
-                table: "BucketFiles",
-                column: "BucketEntityId");
+                name: "IX_Buckets_ChecksumStorageId",
+                table: "Buckets",
+                column: "ChecksumStorageId");
         }
 
         /// <inheritdoc />
@@ -333,16 +309,10 @@ namespace AlphabetUpdateServer.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "BucketEntityUserEntity");
-
-            migrationBuilder.DropTable(
                 name: "BucketFiles");
 
             migrationBuilder.DropTable(
-                name: "Checksums");
-
-            migrationBuilder.DropTable(
-                name: "ChecksumStorages");
+                name: "ChecksumStorageFileCaches");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
@@ -351,10 +321,10 @@ namespace AlphabetUpdateServer.Migrations
                 name: "AspNetUsers");
 
             migrationBuilder.DropTable(
-                name: "UserEntity");
+                name: "Buckets");
 
             migrationBuilder.DropTable(
-                name: "Buckets");
+                name: "ChecksumStorages");
         }
     }
 }

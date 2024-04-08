@@ -6,5 +6,5 @@ public class BucketFilesDTO
 {
     public string? Id { get; set; }
     public DateTimeOffset LastUpdated { get; set; }
-    public IAsyncEnumerable<BucketFileLocation>? Files { get; set; }
+    public BucketFile[] Files { get; set; } = [];
 }

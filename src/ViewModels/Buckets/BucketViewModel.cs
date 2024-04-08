@@ -4,6 +4,7 @@ namespace AlphabetUpdateServer.ViewModels.Buckets;
 
 public class BucketViewModel
 {
-    public ChecksumBaseBucket Bucket { get; init; } = null!;
-    public IEnumerable<BucketFileLocation> Files { get; init; } = null!;
+    public string BucketId { get; init; } = null!;
+    public ChecksumStorageBucket Bucket { get; init; } = null!;
+    public IEnumerable<BucketFile> Files { get; init; } = null!;
 }

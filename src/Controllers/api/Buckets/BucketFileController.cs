@@ -2,43 +2,38 @@ using AlphabetUpdateServer.DTOs;
 using AlphabetUpdateServer.Models.Buckets;
 using AlphabetUpdateServer.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace AlphabetUpdateServer.Controllers.Api.Buckets;
 
 [Route("api/buckets/{id}")]
 public class BucketFileController : Controller
 {
-    private readonly BucketService _bucketService;
-    private readonly ChecksumStorageService _checksumStorageService;
+    private readonly ChecksumStorageBucketService _bucketService;
     private readonly ILogger<BucketFileController> _logger;
 
     public BucketFileController(
-        BucketService bucketService,
-        ChecksumStorageService checksumStorageService,
+        ChecksumStorageBucketService bucketService,
         ILogger<BucketFileController> logger)
     {
         _bucketService = bucketService;
-        _checksumStorageService = checksumStorageService;
         _logger = logger;
     }
 
     [HttpGet("files")]
     public async Task<ActionResult> GetFiles(string id)
     {
-        var bucket = await _bucketService.GetBucketById(id);
+        var bucket = await _bucketService.FindBucketById(id);
         if (bucket == null)
         {
             return NotFound();
         }
 
-        var checksumStorage = await _checksumStorageService.CreateStorageForBucket(id);
-        var files = bucket.GetFiles(checksumStorage);
+        var files = await bucket.GetFiles();
         return Ok(new BucketFilesDTO
         {
-            Id = bucket.Id,
+            Id = id,
             LastUpdated = bucket.LastUpdated,
-            Files = files
+            Files = files.ToArray()
         });
     }
 
@@ -50,13 +45,12 @@ public class BucketFileController : Controller
             return BadRequest("request.Files was null");
         }
 
-        var bucket = await _bucketService.GetBucketById(id);
+        var bucket = await _bucketService.FindBucketById(id);
         if (bucket == null)
         {
             return NotFound();
         }
 
-        var checksumStorage = await _checksumStorageService.CreateStorageForBucket(id);
         var syncFiles = request.Files.Select(f => new BucketSyncFile
         {
             Path = f.Path,
@@ -64,10 +58,10 @@ public class BucketFileController : Controller
             Checksum = f.Checksum
         });
 
-        var result = await bucket.Sync(syncFiles, checksumStorage);
+        var result = await bucket.Sync(syncFiles);
         if (result.IsSuccess)
         {
-            await _bucketService.UpdateBucket(bucket);
+            await _bucketService.UpdateBucket(id, bucket);
             return Ok(result.UpdatedAt);
         }
         else

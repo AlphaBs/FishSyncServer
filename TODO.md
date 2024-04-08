@@ -1,3 +1,5 @@
+# FishSyncServer
+
 - [o] RFiles.NET 으로 IFileChecksumStorage 구현
 - [x] Entity 의 EF.core 의존성 제거 -> ApplicationDbContext 로 이동
 - [x] LocalFileChecksumStorage 구현
