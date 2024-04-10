@@ -12,8 +12,8 @@
         @foreach (var bucket in Model.Buckets)
         {
             <tr>
-                <th>bucket.Id</th>
-                <th>me</th>
+                <td>@bucket.Id</td>
+                <td>@bucket.Owners</td>
             </tr>
         }
     </tbody>

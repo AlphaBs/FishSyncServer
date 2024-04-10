@@ -50,16 +50,21 @@ public class ChecksumStorageBucketService
         return bucket;
     }
 
-    public Task CreateBucket(string id, BucketLimitations limitations) =>
-        CreateBucket(id, DateTimeOffset.UtcNow, limitations);
+    public Task CreateBucket(string id, BucketLimitations limitations, string storageId) =>
+        CreateBucket(id, DateTimeOffset.UtcNow, limitations, storageId);
 
-    public async Task CreateBucket(string id, DateTimeOffset lastUpdated, BucketLimitations limitations)
+    public async Task CreateBucket(
+        string id, 
+        DateTimeOffset lastUpdated, 
+        BucketLimitations limitations, 
+        string storageId)
     {
         var bucket = new ChecksumStorageBucketEntity
         {
             Id = id,
             Limitations = limitations,
             LastUpdated = lastUpdated,
+            ChecksumStorageId = storageId,
         };
 
         _dbContext.Buckets.Add(bucket);

@@ -18,26 +18,27 @@ public class BucketsController : Controller
     public async Task<ActionResult> GetAsync()
     {
         var buckets = await _bucketService.GetAllBuckets();
-        return View("Views/Buckets/Index", new BucketsViewModel
+        return View("/Views/Buckets/Index.cshtml", new BucketsViewModel
         {
-            Buckets = buckets.ToArray()
+            Buckets = buckets.ToList()
         });
     }
 
+    [HttpGet("add")]
     public ActionResult GetAddAsync()
     {
-        return View("Views/Buckets/Add");
+        return View("/Views/Buckets/Add.cshtml");
     }
 
     [HttpPost("add")]
     public async Task<ActionResult> PostAddAsync(AddBucketViewModel request)
     {
-        if (string.IsNullOrEmpty(request.Id) || request.Limitations == null)
+        if (string.IsNullOrEmpty(request.Id) || request.Limitations == null || string.IsNullOrEmpty(request.StorageId))
         {
             return BadRequest();
         }
 
-        await _bucketService.CreateBucket(request.Id, request.Limitations);
+        await _bucketService.CreateBucket(request.Id, request.Limitations, request.StorageId);
         return NoContent();
     }
 }

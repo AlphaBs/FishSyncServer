@@ -6,4 +6,5 @@ public class AddBucketViewModel
 {
     public string? Id { get; set; }
     public BucketLimitations? Limitations { get; set; }
+    public string? StorageId { get; set; }
 }

@@ -47,7 +47,9 @@ public class ApplicationDbContext : IdentityDbContext
             .ComplexProperty(p => p.Metadata);
 
         modelBuilder.Entity<FileChecksumStorageEntity>()
-            .HasDiscriminator(e => e.Type);
+            .HasDiscriminator(e => e.Type)
+            .HasValue<FileChecksumStorageEntity>("base")
+            .HasValue<RFilesChecksumStorageEntity>("rfiles");
 
         modelBuilder.Entity<RFilesChecksumStorageEntity>()
             .HasBaseType<FileChecksumStorageEntity>();

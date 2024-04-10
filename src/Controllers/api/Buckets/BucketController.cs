@@ -41,4 +41,22 @@ public class BucketController : Controller
         };
         return Ok(dto);
     }
+
+    [HttpPost("{id}/sync")]
+    public async Task<ActionResult> SyncBucket(string id, BucketSyncRequestDTO body)
+    {
+        if (body?.Files == null)
+        {
+            return BadRequest();
+        }
+
+        var bucket = await _bucketService.FindBucketById(id);
+        if (bucket == null)
+        {
+            return NotFound();
+        }
+
+        var result = await bucket.Sync(body.Files);
+        return Ok(result);
+    }
 }

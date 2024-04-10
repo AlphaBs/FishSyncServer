@@ -1,5 +1,6 @@
 using AlphabetUpdateServer;
 using AlphabetUpdateServer.Areas.Identity.Data;
+using AlphabetUpdateServer.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,11 +11,15 @@ var connectionString = builder.Configuration.GetConnectionString("ApplicationDbC
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 builder.Services.AddDbContext<ApplicationDbContext>(opt => opt
-    //.UseLazyLoadingProxies()
     .UseSqlite("Data Source=local.db"));
 builder.Services.AddDefaultIdentity<User>()
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
+builder.Services.AddHttpClient();
+
+// Services
+builder.Services.AddTransient<ChecksumStorageBucketService>();
+builder.Services.AddTransient<RFilesChecksumStorageService>();
 
 // Configurations
 builder.Services.Configure<IdentityOptions>(options =>

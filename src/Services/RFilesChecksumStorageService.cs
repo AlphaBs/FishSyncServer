@@ -22,23 +22,33 @@ public class RFilesChecksumStorageService
         return storage is RFilesChecksumStorage;
     }
 
-    public async Task<IEnumerable<IChecksumStorage>> GetAllStorages()
+    public async Task<IEnumerable<ChecksumStorageListItem>> GetAllStorages()
     {
         var storageEntities = await _dbContext.RFilesChecksumStorages.ToListAsync();
-        var storages = storageEntities.Select(entityToStorage);
+        var storages = storageEntities.Select(entity => 
+            new ChecksumStorageListItem(
+                Id: entity.Id, 
+                Type: entity.Type, 
+                IsReadonly: entity.IsReadonly));
         return storages;
     }
 
     public async Task<IChecksumStorage?> FindStorageById(string storageId)
     {
-        var entity = await _dbContext.RFilesChecksumStorages
-            .Where(entity => entity.Id == storageId)
-            .FirstOrDefaultAsync();
+        var entity = await FindEntityById(storageId);
 
         if (entity == null)
             return null;
 
         return entityToStorage(entity);
+    }
+
+    public async Task<RFilesChecksumStorageEntity?> FindEntityById(string storageId)
+    {
+        var entity = await _dbContext.RFilesChecksumStorages
+            .Where(e => e.Id == storageId)
+            .FirstOrDefaultAsync();
+        return entity;
     }
 
     public async Task AddStorage(RFilesChecksumStorageEntity storage)
@@ -59,7 +69,7 @@ public class RFilesChecksumStorageService
     {
         return new RFilesChecksumStorage(
             host: entity.Host, 
-            isReadOnly: entity.IsReadyOnly, 
+            isReadOnly: entity.IsReadonly, 
             httpClient: _httpClientFactory.CreateClient());
     }
 }

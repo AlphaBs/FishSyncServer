@@ -1,0 +1,22 @@
+@model ChecksumStoragesViewModel
+
+<h3 class="mb-3">ChecksumStorages</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Type</th>
+            <th>IsReadonly</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var checksumStorage in Model.ChecksumStorages)
+        {
+            <tr>
+                <td>@checksumStorage.Id</td>
+                <td>@checksumStorage.Type</td>
+                <td>@checksumStorage.IsReadonly</td>
+            </tr>
+        }
+    </tbody>
+</table>

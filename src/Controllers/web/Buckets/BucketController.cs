@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AlphabetUpdateServer.Controllers.Web.Buckets;
 
-[Route("web/buckets/{bucket}")]
+[Route("web/buckets/{bucketId}")]
 public class BucketController : Controller
 {
     private readonly ChecksumStorageBucketService _bucketService;
@@ -15,18 +15,18 @@ public class BucketController : Controller
     }
 
     [HttpGet]
-    public async Task<ActionResult> GetAsync(string id)
+    public async Task<ActionResult> GetAsync(string bucketId)
     {
-        var bucket = await _bucketService.FindBucketById(id);
+        var bucket = await _bucketService.FindBucketById(bucketId);
         if (bucket == null)
         {
             return NotFound();
         }
 
         var files = await bucket.GetFiles();
-        return View("Views/Buckets/Bucket", new BucketViewModel
+        return View("/Views/Buckets/Bucket.cshtml", new BucketViewModel
         {
-            BucketId = id,
+            BucketId = bucketId,
             Bucket = bucket,
             Files = files
         });

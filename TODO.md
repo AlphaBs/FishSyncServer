@@ -29,13 +29,18 @@
 # API
 
 - GET /buckets?owner={owner-id}
-- GET /buckets/{bucket-id}
-- PUT /buckets/{bucket-id}
-- GET /buckets/{bucket-id}/limitations
-- GET /buckets/{bucket-id}/files
-- GET /buckets/{bucket-id}/storages
-- GET /buckets/{bucket-id}/storages/{storage-id}
-- POST /buckets/{bucket-id}/sync
+- GET /buckets/common/{bucket-id}
+- GET /buckets/common/{bucket-id}/limitations
+- GET /buckets/common/{bucket-id}/files
+- GET /buckets/checksum-storage-bucket/{bucket-id}
+- PUT /buckets/checksum-storage-bucket/{bucket-id}
+- POST /buckets/common/{bucket-id}/sync
+
+- GET /checksum-storages
+- GET /checksum-storages/common/{storage-id}
+- DELETE /checksum-storages/common/{storage-id}
+- GET /checksum-storages/rfiles/{storage-id}
+- PUT /checksum-storages/rfiles/{storage-id}
 
 - GET /bucket-indexes/{index-id}
 - POST /bucket-indexes/{index-id}/buckets

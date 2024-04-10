@@ -4,5 +4,5 @@ namespace AlphabetUpdateServer.ViewModels.Buckets;
 
 public class BucketsViewModel
 {
-    public BucketListItem[] Buckets { get; init; } = null!;
+    public IReadOnlyCollection<BucketListItem> Buckets { get; init; } = null!;
 }
