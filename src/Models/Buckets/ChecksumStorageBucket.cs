@@ -89,7 +89,9 @@ public class ChecksumStorageBucket : IBucket
         }
 
         // 동기화 요청한 파일과 IFileChecksumStorage 에 등록된 파일과 비교
-        var queryFiles = checksumStorage.Query(requestChecksumFileMap.Keys);
+        var syncResult = checksumStorage.Sync(requestChecksumFileMap.Keys);
+        
+
         var updatedAt = DateTimeOffset.UtcNow;
 
         await foreach (var queryFile in queryFiles)

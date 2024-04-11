@@ -1,3 +1,4 @@
+
 namespace AlphabetUpdateServer.Models.ChecksumStorages;
 
 public class CachedChecksumStorage : IChecksumStorage
@@ -21,7 +22,6 @@ public class CachedChecksumStorage : IChecksumStorage
         (storage, repository, maxCacheAge);
 
     public bool IsReadOnly => _storage.IsReadOnly;
-    public SyncAction CreateSyncAction(string checksum) => _storage.CreateSyncAction(checksum);
 
     public async IAsyncEnumerable<ChecksumStorageFile> GetAllFiles()
     {
@@ -71,8 +71,7 @@ public class CachedChecksumStorage : IChecksumStorage
             }
 
         // 남은 캐시 삭제
-        await _repository.RemoveCaches(cacheStates.Keys);
-
+        _repository.RemoveCaches(cacheStates.Keys);
         await _repository.SaveChanges();
     }
 
@@ -80,7 +79,7 @@ public class CachedChecksumStorage : IChecksumStorage
     {
         // 캐시에서 찾을 수 있는 것 먼저 처리
         var cacheStates = checksums.ToDictionary(checksum => checksum, _ => CacheStates.NotFound);
-        var caches = await _repository.Query(checksums);
+        var caches = await _repository.Query(cacheStates.Keys);
         foreach (var cache in caches)
         {
             if (isExpiredCache(cache))
@@ -135,6 +134,24 @@ public class CachedChecksumStorage : IChecksumStorage
 
             await _repository.SaveChanges();
         }
+    }
+
+    public async Task<ChecksumStorageSyncResult> Sync(IEnumerable<string> checksums)
+    {
+        // Sync 작업은 캐시된 데이터를 이용하지 않음
+        var syncResult = await _storage.Sync(checksums);
+
+        // 응답된 데이터 캐시
+        var files = syncResult.SuccessFiles;
+        _repository.RemoveCaches(files.Select(f => f.Checksum));
+        foreach (var file in files)
+        {
+            var cache = ChecksumStorageFileCache.CreateExistentCache(file.Checksum, file.Location, file.Metadata);
+            _repository.AddCache(cache);
+        }
+        await _repository.SaveChanges();
+
+        return syncResult;
     }
 
     private bool isExpiredCache(ChecksumStorageFileCache cache)

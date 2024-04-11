@@ -39,12 +39,12 @@ public class ChecksumStorageFileCacheDb : IChecksumStorageFileCacheRepository
         _dbContext.Update(entity);
     }
 
-    public async Task RemoveCaches(IEnumerable<string> checksums)
+    public void RemoveCaches(IEnumerable<string> checksums)
     {
         var checksumList = checksums.ToList();
-        await _dbContext.ChecksumStorageFileCaches
-            .Where(entity => entity.StorageId == _storageId && checksumList.Contains(entity.Checksum))
-            .ExecuteDeleteAsync();
+        var deleteEntities = _dbContext.ChecksumStorageFileCaches
+            .Where(entity => entity.StorageId == _storageId && checksumList.Contains(entity.Checksum));
+        _dbContext.ChecksumStorageFileCaches.RemoveRange(deleteEntities);
     }
 
     public async Task RemoveAllCaches()
