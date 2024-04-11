@@ -7,5 +7,5 @@ public class BucketDTO
     public string? Id { get; set; }
     public DateTimeOffset? LastUpdated { get; set; }
     public BucketLimitations? Limitations { get; set; }
-    
+    public BucketFile[]? Files { get; set; }
 }

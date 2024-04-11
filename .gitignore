@@ -399,3 +399,5 @@ FodyWeavers.xsd
 
 # app db
 local.db
+*.db-shm
+*.db-wal

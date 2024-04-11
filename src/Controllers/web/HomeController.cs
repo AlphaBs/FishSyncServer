@@ -4,6 +4,7 @@ using AlphabetUpdateServer.Models;
 
 namespace AlphabetUpdateServer.Controllers.Web;
 
+[ApiExplorerSettings(IgnoreApi = true)]
 [Route("web")]
 public class HomeController : Controller
 {

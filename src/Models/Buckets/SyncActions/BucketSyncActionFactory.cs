@@ -1,3 +1,5 @@
+using AlphabetUpdateServer.Models.Buckets.SyncActions;
+
 namespace AlphabetUpdateServer.Models.Buckets;
 
 public class BucketSyncActionFactory
@@ -34,5 +36,13 @@ public class BucketSyncActionFactory
         )
     );
 
-    
+    public static BucketSyncAction UnknownError(BucketSyncFile file) => new BucketSyncAction
+    (
+        Path: file.Path ?? throw new ArgumentException("empty file path"),
+        Action: new SyncAction
+        (
+            Type: BucketSyncActionTypes.UnknownError,
+            Parameters: null
+        )
+    );
 }

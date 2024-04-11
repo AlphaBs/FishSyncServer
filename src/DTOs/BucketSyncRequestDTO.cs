@@ -1,8 +1,10 @@
 using AlphabetUpdateServer.Models.Buckets;
+using System.Text.Json.Serialization;
 
 namespace AlphabetUpdateServer.DTOs;
 
 public class BucketSyncRequestDTO
 {
-    public IEnumerable<BucketSyncFile>? Files { get; set; }
+    [JsonPropertyName("files")]
+    public List<BucketSyncFile>? Files { get; set; }
 }

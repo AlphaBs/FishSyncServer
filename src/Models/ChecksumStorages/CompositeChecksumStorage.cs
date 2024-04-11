@@ -1,3 +1,4 @@
+
 namespace AlphabetUpdateServer.Models.ChecksumStorages;
 
 public class CompositeChecksumStorage : IChecksumStorage
@@ -11,11 +12,6 @@ public class CompositeChecksumStorage : IChecksumStorage
     public void AddStorage(IChecksumStorage storage)
     {
         _storages.Add(storage);
-    }
-
-    public SyncAction CreateSyncAction(string checksum)
-    {
-        return Storages.First(storage => !storage.IsReadOnly).CreateSyncAction(checksum);
     }
 
     public async IAsyncEnumerable<ChecksumStorageFile> GetAllFiles()
@@ -43,5 +39,10 @@ public class CompositeChecksumStorage : IChecksumStorage
                 yield return file;
             }
         }
+    }
+
+    public Task<ChecksumStorageSyncResult> Sync(IEnumerable<string> checksums)
+    {
+        return Storages.First(storage => storage.IsReadOnly).Sync(checksums);
     }
 }

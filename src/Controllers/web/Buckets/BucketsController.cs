@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AlphabetUpdateServer.Controllers.Web.Buckets;
 
+[ApiExplorerSettings(IgnoreApi = true)]
 [Route("web/buckets")]
 public class BucketsController : Controller
 {

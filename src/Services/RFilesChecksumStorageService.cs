@@ -1,5 +1,6 @@
 using AlphabetUpdateServer.Entities;
 using AlphabetUpdateServer.Models.ChecksumStorages;
+using AlphabetUpdateServer.Models.ChecksumStorages.RFiles;
 using Microsoft.EntityFrameworkCore;
 
 namespace AlphabetUpdateServer.Services;
@@ -24,13 +25,14 @@ public class RFilesChecksumStorageService
 
     public async Task<IEnumerable<ChecksumStorageListItem>> GetAllStorages()
     {
-        var storageEntities = await _dbContext.RFilesChecksumStorages.ToListAsync();
-        var storages = storageEntities.Select(entity => 
-            new ChecksumStorageListItem(
-                Id: entity.Id, 
-                Type: entity.Type, 
-                IsReadonly: entity.IsReadonly));
-        return storages;
+        return await _dbContext.RFilesChecksumStorages
+            .Select(entity => 
+                new ChecksumStorageListItem(
+                    entity.Id,
+                    entity.Type,
+                    entity.IsReadonly
+                ))
+            .ToListAsync();
     }
 
     public async Task<IChecksumStorage?> FindStorageById(string storageId)
@@ -69,6 +71,7 @@ public class RFilesChecksumStorageService
     {
         return new RFilesChecksumStorage(
             host: entity.Host, 
+            clientSecret: entity.ClientSecret,
             isReadOnly: entity.IsReadonly, 
             httpClient: _httpClientFactory.CreateClient());
     }

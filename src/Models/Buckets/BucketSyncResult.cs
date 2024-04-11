@@ -1,3 +1,5 @@
+using AlphabetUpdateServer.Models.Buckets.SyncActions;
+
 namespace AlphabetUpdateServer.Models.Buckets;
 
 public class BucketSyncResult

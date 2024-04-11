@@ -1,4 +1,4 @@
-namespace AlphabetUpdateServer.Models.Buckets;
+namespace AlphabetUpdateServer.Models.Buckets.SyncActions;
 
 public record BucketSyncAction
 (

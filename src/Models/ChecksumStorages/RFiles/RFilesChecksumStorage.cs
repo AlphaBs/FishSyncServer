@@ -9,12 +9,14 @@ public class RFilesChecksumStorage : IChecksumStorage
 
     public RFilesChecksumStorage(
         string host, 
+        string clientSecret,
         bool isReadOnly,
         HttpClient httpClient)
     {
         Host = host;
         IsReadOnly = isReadOnly;
         _rClient = new RFilesClient(host, httpClient, JsonSerializerOptions.Default);
+        _rClient.ClientSecret = clientSecret;
     }
 
     public bool IsReadOnly { get; private set; }
@@ -57,14 +59,32 @@ public class RFilesChecksumStorage : IChecksumStorage
                 )
             ));
 
-        var actions = syncResult.Uploads.Select(request =>
-            new SyncAction
+        var actions = syncResult.Uploads.Select(createSyncAction);
+        return new ChecksumStorageSyncResult(files.ToList(), actions.ToList());
+    }
+
+    private ChecksumStorageSyncAction createSyncAction(RFilesUploadRequest request)
+    {
+        var parameters = new Dictionary<string, string>()
+        {
+            ["method"] = request.Method,
+            ["url"] = request.Url,
+        };
+        
+        foreach (var kv in request.Headers)
+        {
+            parameters["headers." + kv.Key] = kv.Value;
+        }
+
+        return new ChecksumStorageSyncAction
+        (
+            Checksum: request.Hash,
+            Action: new SyncAction
             (
                 Type: "Http",
-                Parameters: new Dictionary<string, string>()
-            ));
-
-        return new ChecksumStorageSyncResult(files.ToList(), actions.ToList());
+                Parameters: parameters
+            )
+        );
     }
 
     private ChecksumStorageFile toFileLocation(RFilesObjectMetadata metadata) =>

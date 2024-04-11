@@ -12,7 +12,7 @@
 웹에서는 버킷 상태 확인, 설정 변경 정도만 가능하고 한 페이지에서 모든 정보를 다 뿌려줌
 - GET /buckets?owner={owner-id}
 - GET /buckets/{bucket-id}
-- GET /buckets/{bucket-id}/storages
+- GET /buckets/{bucket-id}/caches
 
 - GET /bucket-indexes?q={search-query}&private={true|false}
 - GET /bucket-indexes/{index-id}
@@ -26,6 +26,12 @@
 - POST /caches/checksums/purge
 - POST /caches/checksums/update
 
+- GET /checksum-storages
+- GET /checksum-storages/common/{storage-id}
+- DELETE /checksum-storages/common/{storage-id}
+- PUT /checksum-storages/rfiles/{storage-id}
+- POST /checksum-storages/rfiles/{storage-id}
+
 # API
 
 - GET /buckets?owner={owner-id}
@@ -38,9 +44,6 @@
 
 - GET /checksum-storages
 - GET /checksum-storages/common/{storage-id}
-- DELETE /checksum-storages/common/{storage-id}
-- GET /checksum-storages/rfiles/{storage-id}
-- PUT /checksum-storages/rfiles/{storage-id}
 
 - GET /bucket-indexes/{index-id}
 - POST /bucket-indexes/{index-id}/buckets

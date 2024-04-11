@@ -5,7 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AlphabetUpdateServer.Controllers.Web.ChecksumStorages;
 
-[Route("web/checksum-storages")]
+[ApiExplorerSettings(IgnoreApi = true)]
+[Route("web/checksum-storages/common")]
 public class ChecksumStoragesController : Controller
 {
     private readonly RFilesChecksumStorageService _checksumStorageService;

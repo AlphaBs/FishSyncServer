@@ -1,4 +1,3 @@
-
 namespace AlphabetUpdateServer.Models.ChecksumStorages;
 
 public class CachedChecksumStorage : IChecksumStorage
@@ -51,24 +50,24 @@ public class CachedChecksumStorage : IChecksumStorage
 
         // 캐시 갱신
         foreach (var newFile in newFiles)
+        {
+            var cache = ChecksumStorageFileCache.CreateExistentCache(
+                newFile.Metadata.Checksum,
+                newFile.Location,
+                newFile.Metadata);
+
+            if (cacheStates.TryGetValue(newFile.Metadata.Checksum, out var state))
             {
-                var cache = ChecksumStorageFileCache.CreateExistentCache(
-                    newFile.Metadata.Checksum,
-                    newFile.Location,
-                    newFile.Metadata);
+                if (state == CacheStates.Expired)
+                    _repository.UpdateCache(cache);
 
-                if (cacheStates.TryGetValue(newFile.Metadata.Checksum, out var state))
-                {
-                    if (state == CacheStates.Expired)
-                        _repository.UpdateCache(cache);
-
-                    cacheStates.Remove(newFile.Metadata.Checksum);
-                }
-                else
-                {
-                    _repository.AddCache(cache);
-                }
+                cacheStates.Remove(newFile.Metadata.Checksum);
             }
+            else
+            {
+                _repository.AddCache(cache);
+            }
+        }
 
         // 남은 캐시 삭제
         _repository.RemoveCaches(cacheStates.Keys);
