@@ -25,11 +25,26 @@ public class BucketController : Controller
         }
 
         var files = await bucket.GetFiles();
+        var storageId = await _bucketService.GetStorageId(bucketId);
         return View("/Views/Buckets/Bucket.cshtml", new BucketViewModel
         {
-            BucketId = bucketId,
-            Bucket = bucket,
-            Files = files
+            Id = bucketId,
+            Limitations = bucket.Limitations,
+            LastUpdated = bucket.LastUpdated,
+            Files = files,
+            StorageId = storageId,
         });
+    }
+
+    [HttpPost]
+    public async Task<ActionResult> PostAsync(string bucketId, BucketViewModel request)
+    {
+        if (request.Limitations == null || string.IsNullOrEmpty(request.StorageId))
+        {
+            return BadRequest();
+        }
+
+        await _bucketService.UpdateLimitationsAndStorageId(bucketId, request.Limitations, request.StorageId);
+        return NoContent();
     }
 }

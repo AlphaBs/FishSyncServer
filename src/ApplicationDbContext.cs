@@ -41,7 +41,7 @@ public class ApplicationDbContext : IdentityDbContext
             .HasKey(
             [
                 nameof(BucketFileEntity.BucketId),
-                nameof(BucketFileEntity.Location)
+                nameof(BucketFileEntity.Path)
             ]);
         modelBuilder.Entity<BucketFileEntity>()
             .ComplexProperty(p => p.Metadata);

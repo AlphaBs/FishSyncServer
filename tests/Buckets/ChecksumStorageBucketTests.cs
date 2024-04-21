@@ -35,7 +35,6 @@ public class ChecksumStorageBucketTests
                 )
             )
         ]);
-        storage.SyncActionFactory = checksum => new Models.SyncAction(checksum, null!);
         TestChecksumStorage = storage;
     }
 
@@ -72,6 +71,39 @@ public class ChecksumStorageBucketTests
     }
 
     [Fact]
+    public async Task successful_sync_same_checksum_but_different_path()
+    {
+        // Given
+        var bucket = CreateTestBucket(BucketLimitations.NoLimits);
+
+        // When
+        var syncResult = await bucket.Sync(
+        [
+            new BucketSyncFile
+            {
+                Path = "file1.zip",
+                Size = 1001,
+                Checksum = "file1_checksum"
+            },
+            new BucketSyncFile
+            {
+                Path = "file2.zip",
+                Size = 1001,
+                Checksum = "file1_checksum"
+            }
+        ]);
+
+        // Then
+        Assert.True(syncResult.IsSuccess);
+        Assert.Empty(syncResult.RequiredActions);
+
+        var actualFiles = await bucket.GetFiles();
+        Assert.Equal(["file1.zip", "file2.zip"], actualFiles.Select(file => file.Path));
+        Assert.Equal(["file1_checksum", "file1_checksum"], actualFiles.Select(file => file.Metadata.Checksum));
+        Assert.Equal([1001, 1001], actualFiles.Select(file => file.Metadata.Size));
+    }
+
+    [Fact]
     public async Task create_sync_action_for_single_nonexistent_file()
     {
         // Given
@@ -94,7 +126,6 @@ public class ChecksumStorageBucketTests
 
         var action = Assert.Single(syncResult.RequiredActions);
         Assert.Equal("file?.zip", action.Path);
-        Assert.Equal("file?_checksum", action.Action.Type);
     }
 
     [Fact]
@@ -126,7 +157,6 @@ public class ChecksumStorageBucketTests
 
         var action = Assert.Single(syncResult.RequiredActions);
         Assert.Equal("file?.zip", action.Path);
-        Assert.Equal("file?_checksum", action.Action.Type);
     }
 
     [Fact]

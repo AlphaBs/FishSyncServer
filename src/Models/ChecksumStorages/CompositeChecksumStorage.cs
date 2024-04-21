@@ -43,6 +43,6 @@ public class CompositeChecksumStorage : IChecksumStorage
 
     public Task<ChecksumStorageSyncResult> Sync(IEnumerable<string> checksums)
     {
-        return Storages.First(storage => storage.IsReadOnly).Sync(checksums);
+        return Storages.First(storage => !storage.IsReadOnly).Sync(checksums);
     }
 }

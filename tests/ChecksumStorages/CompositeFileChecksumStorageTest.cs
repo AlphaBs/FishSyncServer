@@ -41,42 +41,26 @@ public class CompositeFileChecksumStorageTest
     }
 
     [Fact]
-    public void CreateSyncAction_return_first_writeable_storage()
-    {
-        // Given
-        var storage = new CompositeChecksumStorage();
-        storage.AddStorage(createMockStorage(isReadOnly: true));
-        storage.AddStorage(createMockStorage(isReadOnly: false));
-        storage.AddStorage(createMockStorage(isReadOnly: true));
-
-        // When
-        var action = storage.CreateSyncAction(TestChecksum);
-
-        // Then
-        Assert.Equal(TestChecksum, action.Type);
-    }
-
-    [Fact]
-    public void CreateSyncAction_throws_when_no_storage()
+    public async Task sync_throws_when_no_storage()
     {
         var storage = new CompositeChecksumStorage();
-        Assert.Throws<InvalidOperationException>(() =>
+        await Assert.ThrowsAsync<InvalidOperationException>(async () =>
         {
-            storage.CreateSyncAction(TestChecksum);
+            await storage.Sync([TestChecksum]);
         });
     }
 
     [Fact]
-    public void CreateSyncAction_throws_when_no_writeable_storage()
+    public async Task sync_throws_when_no_writeable_storage()
     {
         var storage = new CompositeChecksumStorage();
         storage.AddStorage(createMockStorage(isReadOnly: true));
         storage.AddStorage(createMockStorage(isReadOnly: true));
         storage.AddStorage(createMockStorage(isReadOnly: true));
 
-        Assert.Throws<InvalidOperationException>(() =>
+        await Assert.ThrowsAsync<InvalidOperationException>(async () =>
         {
-            storage.CreateSyncAction(TestChecksum);
+            await storage.Sync([TestChecksum]);
         });
     }
 
@@ -164,8 +148,7 @@ public class CompositeFileChecksumStorageTest
     {
         return new InMemoryChecksumStorage()
         {
-            IsReadOnly = isReadOnly,
-            SyncActionFactory = checksum => new SyncAction(checksum, null)
+            IsReadOnly = isReadOnly
         };
     }
 

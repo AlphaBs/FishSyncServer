@@ -31,6 +31,7 @@ public class ChecksumStorageBucketService
     {
         var entity = await _dbContext.Buckets
             .Where(bucket => bucket.Id == id)
+            .Include(bucket => bucket.Files)
             .FirstOrDefaultAsync();
 
         if (entity == null)
@@ -48,6 +49,14 @@ public class ChecksumStorageBucketService
             entity.Files.Select(entityToFile), 
             entity.LastUpdated);
         return bucket;
+    }
+
+    public async Task<string> GetStorageId(string id)
+    {
+        return await _dbContext.Buckets
+            .Where(bucket => bucket.Id == id)
+            .Select(entity => entity.ChecksumStorageId)
+            .FirstOrDefaultAsync() ?? throw new KeyNotFoundException(id);
     }
 
     public Task CreateBucket(string id, BucketLimitations limitations, string storageId) =>
@@ -71,20 +80,31 @@ public class ChecksumStorageBucketService
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task UpdateBucket(string id, ChecksumStorageBucket bucket)
+    public async Task UpdateFiles(string id, ChecksumStorageBucket bucket)
+    {
+        var bucketEntity = await _dbContext.Buckets
+            .FirstOrDefaultAsync(entity => entity.Id == id);
+        if (bucketEntity == null)
+            throw new InvalidOperationException("Create bucket first");
+
+        var files = await bucket.GetFiles();
+        bucketEntity.Files.Clear();
+        bucketEntity.Files.AddRange(files.Select(file => fileToEntity(id, file)));
+        bucketEntity.LastUpdated = bucket.LastUpdated;
+
+        await _dbContext.SaveChangesAsync();
+    }
+
+    public async Task UpdateLimitationsAndStorageId(string id, BucketLimitations limitations, string storageId)
     {
         var entity = await _dbContext.Buckets
             .FirstOrDefaultAsync(entity => entity.Id == id);
-
         if (entity == null)
-            throw new InvalidOperationException("Create a bucket first");
+            throw new InvalidOperationException("Create bucket first");
 
-        var files = await bucket.GetFiles();
-        entity.Files = files
-            .Select(file => fileToEntity(id, file))
-            .ToList();
-        entity.LastUpdated = bucket.LastUpdated;
-        entity.Limitations = bucket.Limitations;
+        entity.Limitations = limitations;
+        entity.ChecksumStorageId = storageId;
+        await _dbContext.SaveChangesAsync();
     }
 
     private BucketFileEntity fileToEntity(string id, BucketFile file)

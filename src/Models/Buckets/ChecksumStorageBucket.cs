@@ -45,7 +45,7 @@ public class ChecksumStorageBucket : IBucket
         // (체크섬, 파일) 쌍 만들고 유효성 검사
         long totalSize = 0;
         long fileCount = 0;
-        var requestChecksumFileMap = new Dictionary<string, BucketSyncFile>();
+        var requestChecksumFileMap = new Dictionary<string, List<BucketSyncFile>>();
         foreach (var syncFile in syncFiles)
         {
             fileCount++;
@@ -70,7 +70,9 @@ public class ChecksumStorageBucket : IBucket
             else
             {
                 totalSize += syncFile.Size;
-                requestChecksumFileMap[syncFile.Checksum] = syncFile;
+                if (!requestChecksumFileMap.TryGetValue(syncFile.Checksum, out var syncFileList))
+                    requestChecksumFileMap[syncFile.Checksum] = syncFileList = new List<BucketSyncFile>();
+                syncFileList.Add(syncFile);
             }
 
             // 최대 버킷 크기 초과
@@ -97,23 +99,26 @@ public class ChecksumStorageBucket : IBucket
         // ChecksumStorage 에서 찾은 파일
         foreach (var checksumStorageFile in syncResult.SuccessFiles)
         {
-            if (requestChecksumFileMap.TryGetValue(checksumStorageFile.Checksum, out var requestFile))
+            if (requestChecksumFileMap.TryGetValue(checksumStorageFile.Checksum, out var requestFiles))
             {
-                if (requestFile.Size != checksumStorageFile.Metadata.Size) // 메타데이터 비교
+                foreach (var requestFile in requestFiles)
                 {
-                    actions.Add(BucketSyncActionFactory.WrongFileSize(requestFile));
-                }
-                else
-                {
-                    bucketFiles.Add(new BucketFile
-                    (
-                        Path: requestFile.Path!,
-                        Location: checksumStorageFile.Location,
-                        Metadata: new FileMetadata(
-                        Size: checksumStorageFile.Metadata.Size,
-                        LastUpdated: updatedAt,
-                        Checksum: checksumStorageFile.Metadata.Checksum
-                    )));
+                    if (requestFile.Size != checksumStorageFile.Metadata.Size) // 메타데이터 비교
+                    {
+                        actions.Add(BucketSyncActionFactory.WrongFileSize(requestFile));
+                    }
+                    else
+                    {
+                        bucketFiles.Add(new BucketFile
+                        (
+                            Path: requestFile.Path!,
+                            Location: checksumStorageFile.Location,
+                            Metadata: new FileMetadata(
+                            Size: checksumStorageFile.Metadata.Size,
+                            LastUpdated: updatedAt,
+                            Checksum: checksumStorageFile.Metadata.Checksum
+                        )));
+                    }
                 }
 
                 // 찾은 파일은 map 에서 전부 지우고 못찾은 파일만 map 에 남겨둠
@@ -124,16 +129,18 @@ public class ChecksumStorageBucket : IBucket
         // ChecksumStorage 에서 SyncAction 이 필요한 파일
         foreach (var action in syncResult.RequiredActions)
         {
-            if (requestChecksumFileMap.TryGetValue(action.Checksum, out var requestFile))
+            if (requestChecksumFileMap.TryGetValue(action.Checksum, out var requestFiles))
             {
-                actions.Add(new BucketSyncAction(requestFile.Path!, action.Action));
-                requestChecksumFileMap.Remove(action.Checksum);
-
+                foreach (var requestFile in requestFiles)
+                {
+                    actions.Add(new BucketSyncAction(requestFile.Path!, action.Action));
+                    requestChecksumFileMap.Remove(action.Checksum);
+                }
             }
         }
 
         // ChecksumStorage 에서 처리하지 못한 파일
-        foreach (var remainFile in requestChecksumFileMap.Values)
+        foreach (var remainFile in requestChecksumFileMap.Values.SelectMany(list => list))
         {
             // 파일 유효성 검사가 끝난 파일만 map 에 남아있어야 함
             Debug.Assert(!string.IsNullOrEmpty(remainFile.Path));

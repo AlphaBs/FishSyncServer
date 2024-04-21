@@ -32,7 +32,7 @@ public class BucketsController : Controller
     }
 
     [HttpPost("add")]
-    public async Task<ActionResult> PostAddAsync(AddBucketViewModel request)
+    public async Task<ActionResult> PostAddAsync(BucketViewModel request)
     {
         if (string.IsNullOrEmpty(request.Id) || request.Limitations == null || string.IsNullOrEmpty(request.StorageId))
         {

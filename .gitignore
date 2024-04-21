@@ -401,3 +401,4 @@ FodyWeavers.xsd
 local.db
 *.db-shm
 *.db-wal
+/src/local.db

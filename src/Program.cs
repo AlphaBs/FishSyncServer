@@ -11,7 +11,8 @@ var connectionString = builder.Configuration.GetConnectionString("ApplicationDbC
 // Application
 builder.Services.AddMvc();
 builder.Services.AddDbContext<ApplicationDbContext>(options => options
-    .UseSqlite("Data Source=local.db"));
+    .UseSqlite("Data Source=local.db")
+    .EnableSensitiveDataLogging(true));
 builder.Services.AddDefaultIdentity<User>()
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();

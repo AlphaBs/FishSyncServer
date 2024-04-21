@@ -38,7 +38,7 @@ namespace AlphabetUpdateServer.Areas.Identity.Pages.Admin
 
             var userRoles = await _userManager.GetRolesAsync(user);
             await updateRoles(userRoles);
-            await getBucketIds(username);
+            //await getBucketIds(username);
             return Page();
         }
 
@@ -120,11 +120,6 @@ namespace AlphabetUpdateServer.Areas.Identity.Pages.Admin
             var roleKVs = roleDict.ToArray();
             RoleNames = roleKVs.Select(kv => kv.Key).ToArray();
             RoleEnables = roleKVs.Select(kv => kv.Value).ToArray();
-        }
-
-        private async Task getBucketIds(string username)
-        {
-
         }
     }
 }

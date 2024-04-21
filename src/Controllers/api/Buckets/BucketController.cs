@@ -24,12 +24,13 @@ public class BucketController : ControllerBase
     /// 버킷 목록 가져오기
     /// </summary>
     [HttpGet]
+    [ProducesResponseType<BucketListDTO>(StatusCodes.Status200OK)]
     public async Task<ActionResult> Index()
     {
         var buckets = await _bucketService.GetAllBuckets();
-        return Ok(new 
+        return Ok(new BucketListDTO
         {
-            Buckets = buckets.Select(bucket => bucket.Id)
+            Buckets = buckets.Select(bucket => bucket.Id).ToList()
         });
     }
 
@@ -137,12 +138,12 @@ public class BucketController : ControllerBase
         var result = await bucket.Sync(files.Files);
         if (result.IsSuccess)
         {
-            await _bucketService.UpdateBucket(id, bucket);
-            return Ok(result.UpdatedAt);
+            await _bucketService.UpdateFiles(id, bucket);
+            return Ok(result);
         }
         else
         {
-            return Ok(result.RequiredActions);
+            return Ok(result);
         }
     }
 }

@@ -6,7 +6,6 @@ public class InMemoryChecksumStorage : IChecksumStorage
     private readonly Dictionary<string, ChecksumStorageFile> _storage = new();
 
     public bool IsReadOnly { get; set; }
-    public Func<IEnumerable<string>, ChecksumStorageSyncResult>? SyncActionFactory { get; set; }
 
     public IAsyncEnumerable<ChecksumStorageFile> GetAllFiles()
     {
@@ -31,9 +30,24 @@ public class InMemoryChecksumStorage : IChecksumStorage
 
     public Task<ChecksumStorageSyncResult> Sync(IEnumerable<string> checksums)
     {
-        if (IsReadOnly || SyncActionFactory == null)
-            throw new InvalidOperationException();
-        return Task.FromResult(SyncActionFactory(checksums));
+        var files = new List<ChecksumStorageFile>();
+        var actions = new List<ChecksumStorageSyncAction>();
+
+        foreach (var checksum in checksums)
+        {
+            if (_storage.TryGetValue(checksum, out var location))
+            {
+                files.Add(location);
+            }
+            else
+            {
+                var action = new SyncAction("InMemoryChecksumStorage", null);
+                actions.Add(new ChecksumStorageSyncAction(checksum, action));
+            }
+        }
+
+        var result = new ChecksumStorageSyncResult(files, actions);
+        return Task.FromResult(result);
     }
 
     public void Add(ChecksumStorageFile location)
