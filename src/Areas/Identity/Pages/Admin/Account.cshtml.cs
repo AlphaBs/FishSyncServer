@@ -1,7 +1,6 @@
 using AlphabetUpdateServer.Areas.Identity.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 
@@ -29,6 +28,11 @@ namespace AlphabetUpdateServer.Areas.Identity.Pages.Admin
 
         public async Task<IActionResult> OnGetAsync(string username)
         {
+            if (!User.IsInRole(UserRoleNames.UserAdmin))
+            {
+                return Forbid();
+            }
+
             var user = await _userManager.FindByNameAsync(username);
             if (user == null)
             {
@@ -44,6 +48,11 @@ namespace AlphabetUpdateServer.Areas.Identity.Pages.Admin
 
         public async Task<IActionResult> OnPostAsync(string username)
         {
+            if (!User.IsInRole(UserRoleNames.UserAdmin))
+            {
+                return Forbid();
+            }
+
             if (Action == "update")
             {
                 return await update(username);
@@ -81,17 +90,24 @@ namespace AlphabetUpdateServer.Areas.Identity.Pages.Admin
 
             var userRoles = await _userManager.GetRolesAsync(updatedUser);
             var userRoleSet = new HashSet<string>(userRoles);
-            var roleResolver = 
-                (bool isEnabled) => RoleEnables
-                    .Where(r => r == isEnabled)
-                    .Select((_, i) => i)
-                    .Select(i => RoleNames[i])
-                    .Where(r => userRoleSet.Contains(r) != isEnabled); // set에 없는것만 enable, set에 있는것만 disable
 
-            var enabledRoles = roleResolver(true);
-            var disabledRoles = roleResolver(false);
-            await _userManager.AddToRolesAsync(updatedUser, enabledRoles);
-            await _userManager.RemoveFromRolesAsync(updatedUser, disabledRoles);
+            IEnumerable<string> getChangedRole(bool changedTo)
+            {
+                for (int i = 0; i < RoleEnables.Length; i++)
+                {
+                    if (RoleEnables[i] == changedTo)
+                    {
+                        var isEnabledBefore = userRoleSet.Contains(RoleNames[i]);
+                        if (RoleEnables[i] && !isEnabledBefore)
+                            yield return RoleNames[i];
+                        else if (!RoleEnables[i] && isEnabledBefore)
+                            yield return RoleNames[i];
+                    }
+                }
+            }
+
+            await _userManager.AddToRolesAsync(updatedUser, getChangedRole(true));
+            await _userManager.RemoveFromRolesAsync(updatedUser, getChangedRole(false));
             
             await updateRoles(userRoles);
             return Page();

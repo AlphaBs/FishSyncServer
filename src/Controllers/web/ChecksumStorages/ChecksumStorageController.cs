@@ -1,10 +1,13 @@
+using AlphabetUpdateServer.Areas.Identity.Data;
 using AlphabetUpdateServer.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AlphabetUpdateServer.Controllers.Web.ChecksumStorages;
 
 [ApiExplorerSettings(IgnoreApi = true)]
 [Route("web/checksum-storages/common/{storageId}")]
+[Authorize(Roles = UserRoleNames.StorageAdmin)]
 public class ChecksumStorageController : Controller
 {
     private readonly RFilesChecksumStorageService _storageService;

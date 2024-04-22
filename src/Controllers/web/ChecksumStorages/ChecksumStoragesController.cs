@@ -1,6 +1,8 @@
+using AlphabetUpdateServer.Areas.Identity.Data;
 using AlphabetUpdateServer.Entities;
 using AlphabetUpdateServer.Services;
 using AlphabetUpdateServer.ViewModels.ChecksumStorages;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AlphabetUpdateServer.Controllers.Web.ChecksumStorages;
@@ -17,6 +19,7 @@ public class ChecksumStoragesController : Controller
     }
 
     [HttpGet]
+    [Authorize(Roles = UserRoleNames.StorageAdmin)]
     public async Task<ActionResult> Index()
     {
         var storages = await _checksumStorageService.GetAllStorages();
@@ -27,12 +30,14 @@ public class ChecksumStoragesController : Controller
     }
 
     [HttpGet("add")]
+    [Authorize(Roles = UserRoleNames.StorageAdmin)]
     public ActionResult GetAdd()
     {
         return View("/Views/ChecksumStorages/Add.cshtml");
     }
 
     [HttpPost("add")]
+    [Authorize(Roles = UserRoleNames.StorageAdmin)]
     public async Task<ActionResult> PostAdd(AddChecksumStorageViewModel request)
     {
         if (string.IsNullOrEmpty(request.Id) || string.IsNullOrEmpty(request.Host) || string.IsNullOrEmpty(request.ClientSecret))

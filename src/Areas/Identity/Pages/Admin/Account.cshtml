@@ -7,47 +7,47 @@
 }
 
 <h5 class="mb-3">←<a asp-area="Identity" asp-page="/Admin/Index">Admin</a></h5>
-<h3 class="mb-3">Admin/Account</h3>
-<form method="post">
-    <div class="row mb-3">
-        <label for="inputUsername" class="col-sm-2 col-form-label">Username</label>
-        <div class="col-sm-10">
-            <input asp-for="Account.UserName" class="form-control" readonly>
+<div class="container">
+    <h3 class="row mb-3">@Model.Account.UserName</h3>
+    <form method="post" onsubmit="return confirm('정말로 업데이트할까요?')">
+        <div class="row mb-3">
+            <label for="inputUsername" class="col-sm-2 col-form-label">Username</label>
+            <div class="col-sm-10">
+                <input asp-for="Account.UserName" class="form-control" readonly>
+            </div>
         </div>
-    </div>
-    <div class="row mb-3">
-        <label for="inputEmail" class="col-sm-2 col-form-label">Email</label>
-        <div class="col-sm-10">
-            <input asp-for="Account.Email" class="form-control" id="inputEmail">
+        <div class="row mb-3">
+            <label for="inputEmail" class="col-sm-2 col-form-label">Email</label>
+            <div class="col-sm-10">
+                <input asp-for="Account.Email" class="form-control" id="inputEmail">
+            </div>
         </div>
-    </div>
-    <div class="row mb-3">
-        <label for="inputDiscord" class="col-sm-2 col-form-label">Discord</label>
-        <div class="col-sm-10">
-            <input asp-for="Account.Discord" class="form-control" id="inputDiscord">
+        <div class="row mb-3">
+            <label for="inputDiscord" class="col-sm-2 col-form-label">Discord</label>
+            <div class="col-sm-10">
+                <input asp-for="Account.Discord" class="form-control" id="inputDiscord">
+            </div>
         </div>
-    </div>
-    <fieldset class="row mb-3">
-        <legend class="col-form-label col-sm-2 pt-0">Roles</legend>
-        <div class="col-sm-10">
-            @for (int i = 0; i < Model.RoleEnables.Length; i++)
-            {
-                <div class="form-check">
-                    <input asp-for="@Model.RoleNames[i]" type="hidden" value="@Model.RoleNames[i]" />
-                    <input asp-for="@Model.RoleEnables[i]" class="form-check-input" />
-                    <label asp-for="@Model.RoleEnables[i]" class="form-check-label">@Model.RoleNames[i]</label>
-                </div>
-            }
-        </div>
-    </fieldset>
+        <fieldset class="row mb-3">
+            <legend class="col-form-label col-sm-2 pt-0">Roles</legend>
+            <div class="col-sm-10">
+                @for (int i = 0; i < Model.RoleEnables.Length; i++)
+                {
+                    <div class="form-check">
+                        <input asp-for="@Model.RoleNames[i]" type="hidden" value="@Model.RoleNames[i]" />
+                        <input asp-for="@Model.RoleEnables[i]" class="form-check-input" />
+                        <label asp-for="@Model.RoleEnables[i]" class="form-check-label">@Model.RoleNames[i]</label>
+                    </div>
+                }
+            </div>
+        </fieldset>
 
-    <button type="submit" name="action" value="update" class="btn btn-primary mb-3">Update</button>
-    <button type="submit" name="action" value="delete" class="btn btn-danger mb-3" onsubmit="return confirm('정말로 계정을 삭제할까요?')">Delete</button>
-</form>
+        <button type="submit" name="action" value="update" class="btn btn-primary mb-3">Update</button>
+        <button type="submit" name="action" value="delete" class="btn btn-danger mb-3">Delete</button>
+    </form>
 
-<div class="container-fluid">
-    <h5>Buckets</h5>
-    <div class="list-group pb-3">
+    <h5 class="row">Buckets</h5>
+    <div class="row list-group pb-3">
         @foreach (var bucketId in Model.BucketIds)
         {
             <a href="#" class="list-group-item list-group-item-action">@bucketId</a>

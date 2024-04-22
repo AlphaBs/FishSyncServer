@@ -1,5 +1,8 @@
+using AlphabetUpdateServer.Areas.Identity.Data;
 using AlphabetUpdateServer.Services;
 using AlphabetUpdateServer.ViewModels.Buckets;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AlphabetUpdateServer.Controllers.Web.Buckets;
@@ -37,6 +40,7 @@ public class BucketController : Controller
     }
 
     [HttpPost]
+    [Authorize(Roles = UserRoleNames.BucketAdmin)]
     public async Task<ActionResult> Post(string bucketId, BucketViewModel request)
     {
         if (request.Limitations == null || string.IsNullOrEmpty(request.StorageId))

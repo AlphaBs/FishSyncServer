@@ -1,6 +1,9 @@
+using AlphabetUpdateServer.Areas.Identity.Data;
 using AlphabetUpdateServer.DTOs;
 using AlphabetUpdateServer.Models.Buckets;
 using AlphabetUpdateServer.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AlphabetUpdateServer.Controllers.Api.Buckets;
@@ -122,6 +125,7 @@ public class BucketController : ControllerBase
     [ProducesResponseType<BucketSyncResult>(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(void), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
+    [Authorize(AuthenticationSchemes = JwtAuthService.SchemeName, Roles = UserRoleNames.BucketUser)]
     public async Task<ActionResult> PostSync(string id, BucketSyncRequestDTO files)
     {
         if (files?.Files == null)
