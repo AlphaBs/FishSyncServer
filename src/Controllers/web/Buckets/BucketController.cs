@@ -16,7 +16,7 @@ public class BucketController : Controller
     }
 
     [HttpGet]
-    public async Task<ActionResult> GetAsync(string bucketId)
+    public async Task<ActionResult> Index(string bucketId)
     {
         var bucket = await _bucketService.FindBucketById(bucketId);
         if (bucket == null)
@@ -37,7 +37,7 @@ public class BucketController : Controller
     }
 
     [HttpPost]
-    public async Task<ActionResult> PostAsync(string bucketId, BucketViewModel request)
+    public async Task<ActionResult> Post(string bucketId, BucketViewModel request)
     {
         if (request.Limitations == null || string.IsNullOrEmpty(request.StorageId))
         {

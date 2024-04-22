@@ -8,6 +8,6 @@ public class IndexController : Controller
 {
     public ActionResult Index()
     {
-        return View("/Views/Index.cshtml");
+        return RedirectToActionPermanent("Index", "Home");
     }
 }

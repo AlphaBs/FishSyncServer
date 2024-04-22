@@ -23,9 +23,9 @@ namespace AlphabetUpdateServer.Areas.Identity.Pages.Admin
 
         public User? Account { get; set; } = null!;
         public string? Action { get; set; } = null!;
-        public string[]? RoleNames { get; set; } = null!;
-        public bool[]? RoleEnables { get; set; } = null!;
-        public string[]? BucketIds { get; set; } = null!;
+        public string[] RoleNames { get; set; } = [];
+        public bool[] RoleEnables { get; set; } = [];
+        public string[] BucketIds { get; set; } = [];
 
         public async Task<IActionResult> OnGetAsync(string username)
         {

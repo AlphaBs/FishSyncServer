@@ -1,7 +1,7 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Profile";
+    ViewData["Title"] = "프로필";
     ViewData["ActivePage"] = ManageNavPages.Index;
 }
 
@@ -13,23 +13,23 @@
             <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
             <div class="form-floating mb-3">
                 <input asp-for="Username" class="form-control" disabled />
-                <label asp-for="Username" class="form-label"></label>
+                <label asp-for="Username" class="form-label">아이디</label>
             </div>
             <div class="form-floating mb-3">
                 <input asp-for="Role" class="form-control" disabled/>
                 <label asp-for="Role" class="form-label"></label>
             </div>
             <div class="form-floating mb-3">
-                <input asp-for="Input.Email" class="form-control" placeholder="Please enter your email address."/>
-                <label asp-for="Input.Email" class="form-label"></label>
+                <input asp-for="Input.Email" class="form-control" placeholder="이메일 주소 입력"/>
+                <label asp-for="Input.Email" class="form-label">이메일</label>
                 <span asp-validation-for="Input.Email" class="text-danger"></span>
             </div>
             <div class="form-floating mb-3">
-                <input asp-for="Input.Discord" class="form-control" placeholder="Please enter your discord"/>
-                <label asp-for="Input.Discord" class="form-label"></label>
+                <input asp-for="Input.Discord" class="form-control" placeholder="디스코드 연락처 입력"/>
+                <label asp-for="Input.Discord" class="form-label">디스코드 연락처</label>
                 <span asp-validation-for="Input.Discord" class="text-danger"></span>
             </div>
-            <button id="update-profile-button" type="submit" class="w-100 btn btn-lg btn-primary">Save</button>
+            <button id="update-profile-button" type="submit" class="w-100 btn btn-lg btn-primary">저장</button>
         </form>
     </div>
 </div>

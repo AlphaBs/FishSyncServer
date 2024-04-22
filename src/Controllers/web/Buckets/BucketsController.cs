@@ -16,7 +16,7 @@ public class BucketsController : Controller
     }
 
     [HttpGet]
-    public async Task<ActionResult> GetAsync()
+    public async Task<ActionResult> Index()
     {
         var buckets = await _bucketService.GetAllBuckets();
         return View("/Views/Buckets/Index.cshtml", new BucketsViewModel
@@ -26,13 +26,13 @@ public class BucketsController : Controller
     }
 
     [HttpGet("add")]
-    public ActionResult GetAddAsync()
+    public ActionResult GetAdd()
     {
         return View("/Views/Buckets/Add.cshtml");
     }
 
     [HttpPost("add")]
-    public async Task<ActionResult> PostAddAsync(BucketViewModel request)
+    public async Task<ActionResult> PostAdd(BucketViewModel request)
     {
         if (string.IsNullOrEmpty(request.Id) || request.Limitations == null || string.IsNullOrEmpty(request.StorageId))
         {

@@ -17,7 +17,7 @@ public class ChecksumStoragesController : Controller
     }
 
     [HttpGet]
-    public async Task<ActionResult> GetAsync()
+    public async Task<ActionResult> Index()
     {
         var storages = await _checksumStorageService.GetAllStorages();
         return View("/Views/ChecksumStorages/Index.cshtml", new ChecksumStoragesViewModel
@@ -27,13 +27,13 @@ public class ChecksumStoragesController : Controller
     }
 
     [HttpGet("add")]
-    public ActionResult GetAddAsync()
+    public ActionResult GetAdd()
     {
         return View("/Views/ChecksumStorages/Add.cshtml");
     }
 
     [HttpPost("add")]
-    public async Task<ActionResult> PostAddAsync(AddChecksumStorageViewModel request)
+    public async Task<ActionResult> PostAdd(AddChecksumStorageViewModel request)
     {
         if (string.IsNullOrEmpty(request.Id) || string.IsNullOrEmpty(request.Host) || string.IsNullOrEmpty(request.ClientSecret))
             return BadRequest();

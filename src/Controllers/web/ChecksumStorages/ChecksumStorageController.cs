@@ -15,7 +15,7 @@ public class ChecksumStorageController : Controller
     }
 
     [HttpGet]
-    public async Task<ActionResult> GetAsync(string storageId)
+    public async Task<ActionResult> Index(string storageId)
     {
         var storage = await _storageService.FindEntityById(storageId);
         if (storage == null)
