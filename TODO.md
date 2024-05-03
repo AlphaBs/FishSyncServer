@@ -1,14 +1,15 @@
 # FishSyncServer
 
-- [x] JWT authentication
-- [x] 전체적인 authorization
-- [x] bucket files 목록에서 size, lastupdated 사람이 보기쉽게 포매팅, url 링크도
+- [o] JWT authentication
+- [o] 전체적인 authorization
+- [o] bucket files 목록에서 size, lastupdated 사람이 보기쉽게 포매팅, url 링크도
 - [o] RFiles.NET 으로 IFileChecksumStorage 구현
 - [x] Entity 의 EF.core 의존성 제거 -> ApplicationDbContext 로 이동
 - [x] LocalFileChecksumStorage 구현
 - [x] User: 회원가입 로그인 인증 버킷 권한
 - [x] 감사: sync 로그 언제 누가
 - [x] Bucket 종류: ChecksumBaseBucket, PathBaseBucket, RemoteBucket
+- [x] Sync 횟수 제한
 
 # WEB
 

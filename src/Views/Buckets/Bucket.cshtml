@@ -1,7 +1,13 @@
+@using Humanizer;
+@using NeoSmart.PrettySize;
+
 @model BucketViewModel
 
 @{
     ViewData["Title"] = Model.Id;
+
+    string readableSize(long size) => new PrettySize(size).Format(UnitBase.Base10);
+    string readableDateTime(DateTimeOffset dt) => dt.Humanize();
 }
 
 <h5 class="mb-3">←<a asp-controller="Buckets">버킷 목록</a></h5>
@@ -50,7 +56,6 @@
 <table class="table table-hover table-sm">
     <thead>
         <tr>
-            <th></th>
             <th>Name</th>
             <th>Size</th>
             <th>Checksum</th>
@@ -61,11 +66,10 @@
         @foreach (AlphabetUpdateServer.Models.Buckets.BucketFile file in Model.Files)
         {
             <tr>
-                <td><i class="bi bi-file-earmark"></i></td>
-                <td>@file.Path</td>
-                <td>@file.Metadata.Size</td>
-                <td>@file.Metadata.Checksum</td>
-                <td>@file.Metadata.LastUpdated</td>
+                <td data-tippy-content="@file.Location"><a href="@file.Location" target="_blank">@file.Path</a></td>
+                <td class="col-file-metadata" data-tippy-content="@file.Metadata.Size.ToString("#,#' bytes'")">@readableSize(file.Metadata.Size)</td>
+                <td class="col-file-metadata" data-tippy-content="@file.Metadata.LastUpdated.ToString("o")">@readableDateTime(file.Metadata.LastUpdated)</td>
+                <td class="col-file-metadata">@file.Metadata.Checksum</td>
             </tr>
         }
     </tbody>
