@@ -8,7 +8,7 @@ public class ChecksumStorageBucketEntity
     public string Id { get; set; } = null!;
     public BucketLimitations Limitations { get; set; } = null!;
     public List<User> Owners { get; } = [];
-    public List<BucketFileEntity> Files { get; } = new List<BucketFileEntity>();
+    public List<ChecksumStorageBucketFileEntity> Files { get; } = [];
     public DateTimeOffset LastUpdated { get; set; }
     public string ChecksumStorageId { get; set; } = null!;
 }

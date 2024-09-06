@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Linq;
 using AlphabetUpdateServer.Models.Buckets.SyncActions;
 using AlphabetUpdateServer.Models.ChecksumStorages;
 
@@ -7,24 +6,60 @@ namespace AlphabetUpdateServer.Models.Buckets;
 
 public class ChecksumStorageBucket : IBucket
 {
+    private readonly IChecksumStorage _checksumStorage;
+    
     public ChecksumStorageBucket(
         BucketLimitations limitations,
         IChecksumStorage checksumStorage)
     {
+        _checksumStorage = checksumStorage;
         LastUpdated = DateTimeOffset.MinValue;
         Limitations = limitations;
-        this.checksumStorage = checksumStorage;
     }
 
     public DateTimeOffset LastUpdated { get; private set; }
     public BucketLimitations Limitations { get; set; }
+    private IEnumerable<ChecksumStorageBucketFile> Files { get; set; } = [];
 
-    private IChecksumStorage checksumStorage;
-    private IEnumerable<BucketFile> files { get; set; } = new List<BucketFile>();
-
-    public ValueTask<IEnumerable<BucketFile>> GetFiles()
+    public async ValueTask<IEnumerable<BucketFile>> GetFiles()
     {
-        return new ValueTask<IEnumerable<BucketFile>>(files);
+        var checksumFileMap = new Dictionary<string, List<ChecksumStorageBucketFile>>();
+        foreach (var file in Files)
+        {
+            if (checksumFileMap.TryGetValue(file.Metadata.Checksum, out var checksumFiles))
+            {
+                checksumFiles.Add(file);
+            }
+            else
+            {
+                checksumFileMap[file.Metadata.Checksum] = [file];
+            }
+        }
+        
+        var checksumStorageFiles = _checksumStorage.Query(checksumFileMap.Keys);
+        var bucketFiles = new List<BucketFile>();
+        
+        await foreach (var checksumStorageFile in checksumStorageFiles)
+        {
+            if (checksumFileMap.TryGetValue(checksumStorageFile.Checksum, out var files))
+            {
+                foreach (var file in files)
+                {
+                    bucketFiles.Add(new BucketFile(file.Path, checksumStorageFile.Location, file.Metadata));
+                    checksumFileMap.Remove(checksumStorageFile.Checksum);
+                }
+            }
+        }
+
+        foreach (var remainFiles in checksumFileMap.Values)
+        {
+            foreach (var remainFile in remainFiles)
+            {
+                bucketFiles.Add(new BucketFile(remainFile.Path, "", remainFile.Metadata));
+            }
+        }
+        
+        return bucketFiles;
     }
 
     public async ValueTask<BucketSyncResult> Sync(IEnumerable<BucketSyncFile> syncFiles)
@@ -39,7 +74,7 @@ public class ChecksumStorageBucket : IBucket
         }
         
         var actions = new List<BucketSyncAction>();
-        var bucketFiles = new List<BucketFile>();
+        var bucketFiles = new List<ChecksumStorageBucketFile>();
         var pathSet = new HashSet<string>();
 
         // (체크섬, 파일) 쌍 만들고 유효성 검사
@@ -93,7 +128,7 @@ public class ChecksumStorageBucket : IBucket
         }
 
         // 동기화 요청한 파일과 ChecksumStorage 에 등록된 파일과 비교
-        var syncResult = await checksumStorage.Sync(requestChecksumFileMap.Keys);
+        var syncResult = await _checksumStorage.Sync(requestChecksumFileMap.Keys);
         var updatedAt = DateTimeOffset.UtcNow;
 
         // ChecksumStorage 에서 찾은 파일
@@ -109,15 +144,16 @@ public class ChecksumStorageBucket : IBucket
                     }
                     else
                     {
-                        bucketFiles.Add(new BucketFile
+                        bucketFiles.Add(new ChecksumStorageBucketFile
                         (
                             Path: requestFile.Path!,
-                            Location: checksumStorageFile.Location,
-                            Metadata: new FileMetadata(
-                            Size: checksumStorageFile.Metadata.Size,
-                            LastUpdated: updatedAt,
-                            Checksum: checksumStorageFile.Metadata.Checksum
-                        )));
+                            Metadata: new FileMetadata
+                            (
+                                Size: checksumStorageFile.Metadata.Size,
+                                LastUpdated: updatedAt,
+                                Checksum: checksumStorageFile.Metadata.Checksum
+                            )
+                        ));
                     }
                 }
 
@@ -157,15 +193,16 @@ public class ChecksumStorageBucket : IBucket
         else
         {
             var result = BucketSyncResult.Success(updatedAt);
-            await UpdateFiles(bucketFiles, updatedAt);
+            UpdateFiles(bucketFiles, updatedAt);
             return result;
         }
     }
 
-    public ValueTask UpdateFiles(IEnumerable<BucketFile> files, DateTimeOffset updatedAt)
+    public void UpdateFiles(
+        IEnumerable<ChecksumStorageBucketFile> updateFiles, 
+        DateTimeOffset updatedAt)
     {
-        this.files = files;
+        Files = updateFiles;
         LastUpdated = updatedAt;
-        return new ValueTask();
     }
 }

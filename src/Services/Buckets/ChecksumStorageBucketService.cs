@@ -45,7 +45,7 @@ public class ChecksumStorageBucketService
             limitations: entity.Limitations, 
             checksumStorage: checksumStorage);
 
-        await bucket.UpdateFiles(
+        bucket.UpdateFiles(
             entity.Files.Select(entityToFile), 
             entity.LastUpdated);
         return bucket;
@@ -107,24 +107,18 @@ public class ChecksumStorageBucketService
             .FirstAsync();
     }
 
-    private BucketFileEntity fileToEntity(string id, BucketFile file)
+    private ChecksumStorageBucketFile entityToFile(ChecksumStorageBucketFileEntity entity)
     {
-        return new BucketFileEntity
-        {
-            BucketId = id,
-            Path = file.Path,
-            Location = file.Location,
-            Metadata = file.Metadata
-        };
+        return new ChecksumStorageBucketFile(entity.Path, entity.Metadata);
     }
 
-    private BucketFile entityToFile(BucketFileEntity entity)
+    private ChecksumStorageBucketFileEntity fileToEntity(string bucketId, BucketFile file)
     {
-        return new BucketFile
-        (
-            Path: entity.Path,
-            Location: entity.Location,
-            Metadata: entity.Metadata
-        );
+        return new ChecksumStorageBucketFileEntity
+        {
+            BucketId = bucketId,
+            Path = file.Path,
+            Metadata = file.Metadata,
+        };
     }
 }

@@ -12,7 +12,7 @@ public class ApplicationDbContext : IdentityDbContext
     }
 
     public DbSet<ChecksumStorageBucketEntity> Buckets { get; set; } = null!;
-    public DbSet<BucketFileEntity> BucketFiles { get; set; } = null!;
+    public DbSet<ChecksumStorageBucketFileEntity> ChecksumStorageBucketFiles { get; set; } = null!;
     public DbSet<ChecksumStorageEntity> ChecksumStorages { get; set; } = null!;
     public DbSet<RFilesChecksumStorageEntity> RFilesChecksumStorages { get; set; } = null!;
     public DbSet<ObjectChecksumStorageEntity> ObjectChecksumStorages { get; set; } = null!;
@@ -38,13 +38,13 @@ public class ApplicationDbContext : IdentityDbContext
         modelBuilder.Entity<ChecksumStorageBucketEntity>()
             .ComplexProperty(e => e.Limitations);
 
-        modelBuilder.Entity<BucketFileEntity>()
+        modelBuilder.Entity<ChecksumStorageBucketFileEntity>()
             .HasKey(
             [
-                nameof(BucketFileEntity.BucketId),
-                nameof(BucketFileEntity.Path)
+                nameof(ChecksumStorageBucketFileEntity.BucketId),
+                nameof(ChecksumStorageBucketFileEntity.Path)
             ]);
-        modelBuilder.Entity<BucketFileEntity>()
+        modelBuilder.Entity<ChecksumStorageBucketFileEntity>()
             .ComplexProperty(p => p.Metadata);
 
         modelBuilder.Entity<ChecksumStorageEntity>()

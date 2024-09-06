@@ -7,5 +7,4 @@ public interface IBucket
 
     ValueTask<IEnumerable<BucketFile>> GetFiles();
     ValueTask<BucketSyncResult> Sync(IEnumerable<BucketSyncFile> syncFiles);
-    ValueTask UpdateFiles(IEnumerable<BucketFile> files, DateTimeOffset updatedAt);
 }
