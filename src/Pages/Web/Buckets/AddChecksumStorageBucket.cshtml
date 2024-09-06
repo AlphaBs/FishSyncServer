@@ -1,0 +1,64 @@
+@page
+@model AlphabetUpdateServer.Views.Web.Buckets.AddChecksumStorageBucketModel
+
+@{
+    ViewData["Title"] = "버킷 추가";
+}
+
+<h5 class="mb-3">←<a asp-page="List">버킷 목록</a></h5>
+<h3 class="mb-3">버킷 추가</h3>
+<form method="post">
+    <div class="row mb-3">
+        <label for="inputId" class="col-sm-2 col-form-label">Id</label>
+        <div class="col-sm-10">
+            <input asp-for="Id" class="form-control" id="inputId">
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="inputIsReadOnly" class="col-sm-2 col-check-label">IsReadOnly</label>
+        <div class="col-sm-10">
+            <input asp-for="Limitations.IsReadOnly" class="form-check-input" id="inputIsReadOnly">
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="inputExpiredAt" class="col-sm-2 col-form-label">ExpiredAt</label>
+        <div class="col-sm-10">
+            <input asp-for="Limitations.ExpiredAt" class="form-control" id="inputExpiredAt">
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="inputMaxBucketSize" class="col-sm-2 col-form-label">MaxBucketSize</label>
+        <div class="col-sm-10">
+            <input asp-for="Limitations.MaxBucketSize" class="form-control" id="inputMaxBucketSize">
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="inputMaxFileSize" class="col-sm-2 col-form-label">MaxFileSize</label>
+        <div class="col-sm-10">
+            <input asp-for="Limitations.MaxFileSize" class="form-control" id="inputMaxFileSize">
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="inputMaxNumberOfFiles" class="col-sm-2 col-form-label">MaxNumberOfFiles</label>
+        <div class="col-sm-10">
+            <input asp-for="Limitations.MaxNumberOfFiles" class="form-control" id="inputMaxNumberOfFiles">
+        </div>
+    </div>
+    <div class="row mb-3">
+        <label for="inputStorageId" class="col-sm-2 col-form-label">StorageId</label>
+        <div class="col-sm-10">
+            <input asp-for="StorageId" class="form-control" id="inputStorage">
+        </div>
+    </div>
+    <button type="submit" name="action" class="btn btn-primary mb-3">생성</button>
+</form>
+
+<div>
+    <a asp-page="List">Back to List</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -42,17 +42,21 @@ public class JwtAuthService
         return new SymmetricSecurityKey(Convert.FromHexString(key));
     }
 
-    public string GenerateJwt(string username, string role)
+    public string GenerateJwt(string username, IEnumerable<string> roles)
     {
         var securityKey = CreateSecurityKey(_options.Value.Key);
+        
+        var claims = new List<Claim>();
+        claims.Add(new Claim(JwtRegisteredClaimNames.Sub, username));
+        foreach (var role in roles)
+        {
+            claims.Add(new Claim(ClaimTypes.Role, role));
+        }
+        
         var token = new JwtSecurityToken(
             issuer: _options.Value.Issuer, 
             audience: _options.Value.Audience,
-            claims: 
-            [
-                new Claim(JwtRegisteredClaimNames.Sub, username),
-                new Claim(RoleClaimName, role),
-            ],
+            claims: claims,
             notBefore: DateTime.UtcNow,
             expires: DateTime.UtcNow.AddSeconds(_options.Value.ExpiresInSecond),
             signingCredentials: new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256Signature));

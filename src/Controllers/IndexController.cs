@@ -2,12 +2,13 @@
 
 namespace AlphabetUpdateServer.Controllers;
 
+[ApiController]
 [ApiExplorerSettings(IgnoreApi = true)]
-[Route("/")]
-public class IndexController : Controller
+public class IndexController : ControllerBase
 {
-    public ActionResult Index()
+    [HttpGet("/")]
+    public ActionResult OnGet()
     {
-        return RedirectToActionPermanent("Index", "Home");
+        return RedirectToPage("/Web/Home/Index");
     }
 }

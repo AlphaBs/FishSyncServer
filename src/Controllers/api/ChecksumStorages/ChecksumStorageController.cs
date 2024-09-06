@@ -7,9 +7,9 @@ namespace AlphabetUpdateServer.Controllers.Api.ChecksumStorages;
 [Route("api/checksum-storages")]
 public class ChecksumStorageController : ControllerBase
 {
-    private readonly RFilesChecksumStorageService _storageService;
+    private readonly ChecksumStorageService _storageService;
 
-    public ChecksumStorageController(RFilesChecksumStorageService service)
+    public ChecksumStorageController(ChecksumStorageService service)
     {
         _storageService = service;
     }
@@ -21,23 +21,6 @@ public class ChecksumStorageController : ControllerBase
         return Ok(new
         {
             Storages = storages
-        });
-    }
-
-    [HttpGet("common/{id}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult> GetStorage(string id)
-    {
-        var storage = await _storageService.FindEntityById(id);
-        if (storage == null)
-            return NotFound();
-
-        return Ok(new
-        {
-            storage.Id,
-            storage.IsReadonly,
-            storage.Host
         });
     }
 }

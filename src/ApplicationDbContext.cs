@@ -13,15 +13,16 @@ public class ApplicationDbContext : IdentityDbContext
 
     public DbSet<ChecksumStorageBucketEntity> Buckets { get; set; } = null!;
     public DbSet<BucketFileEntity> BucketFiles { get; set; } = null!;
-    public DbSet<FileChecksumStorageEntity> ChecksumStorages { get; set; } = null!;
+    public DbSet<ChecksumStorageEntity> ChecksumStorages { get; set; } = null!;
     public DbSet<RFilesChecksumStorageEntity> RFilesChecksumStorages { get; set; } = null!;
+    public DbSet<ObjectChecksumStorageEntity> ObjectChecksumStorages { get; set; } = null!;
     public DbSet<ChecksumStorageFileCacheEntity> ChecksumStorageFileCaches { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // 1:N relationship between ChecksumStorages(1) <-> Buckets(N)
         modelBuilder.Entity<ChecksumStorageBucketEntity>()
-            .HasOne<FileChecksumStorageEntity>()
+            .HasOne<ChecksumStorageEntity>()
             .WithMany()
             .HasForeignKey(e => e.ChecksumStorageId)
             .OnDelete(DeleteBehavior.Restrict)
@@ -46,13 +47,17 @@ public class ApplicationDbContext : IdentityDbContext
         modelBuilder.Entity<BucketFileEntity>()
             .ComplexProperty(p => p.Metadata);
 
-        modelBuilder.Entity<FileChecksumStorageEntity>()
+        modelBuilder.Entity<ChecksumStorageEntity>()
             .HasDiscriminator(e => e.Type)
-            .HasValue<FileChecksumStorageEntity>("base")
-            .HasValue<RFilesChecksumStorageEntity>("rfiles");
+            .HasValue<ChecksumStorageEntity>("base")
+            .HasValue<RFilesChecksumStorageEntity>(RFilesChecksumStorageEntity.RFilesType)
+            .HasValue<ObjectChecksumStorageEntity>(ObjectChecksumStorageEntity.ObjectType);
 
         modelBuilder.Entity<RFilesChecksumStorageEntity>()
-            .HasBaseType<FileChecksumStorageEntity>();
+            .HasBaseType<ChecksumStorageEntity>();
+
+        modelBuilder.Entity<RFilesChecksumStorageEntity>()
+            .HasBaseType<ChecksumStorageEntity>();
 
         modelBuilder.Entity<ChecksumStorageFileCacheEntity>()
             .HasKey(

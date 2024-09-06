@@ -24,7 +24,7 @@ public class BucketController : ControllerBase
     }
 
     /// <summary>
-    /// ¹öÅ¶ ¸ñ·Ï °¡Á®¿À±â
+    /// ë²„í‚· ëª©ë¡ ê°€ì ¸ì˜¤ê¸°
     /// </summary>
     [HttpGet]
     [ProducesResponseType<BucketListDTO>(StatusCodes.Status200OK)]
@@ -38,12 +38,12 @@ public class BucketController : ControllerBase
     }
 
     /// <summary>
-    /// ¹öÅ¶À» Ã£°í ³»¿ë ÀüÃ¼¸¦ ¹İÈ¯
+    /// ë²„í‚·ì„ ì°¾ê³  ë‚´ìš© ì „ì²´ë¥¼ ë°˜í™˜
     /// </summary>
-    /// <param name="id">Ã£À» ¹öÅ¶ÀÇ id</param>
-    /// <returns>Ã£Àº ¹öÅ¶</returns>
-    /// <response code="200">¼º°ø</response>
-    /// <response code="404">Ã£À» ¼ö ¾ø´Â ¹öÅ¶</response>
+    /// <param name="id">ì°¾ì„ ë²„í‚·ì˜ id</param>
+    /// <returns>ì°¾ì€ ë²„í‚·</returns>
+    /// <response code="200">ì„±ê³µ</response>
+    /// <response code="404">ì°¾ì„ ìˆ˜ ì—†ëŠ” ë²„í‚·</response>
     [HttpGet("common/{id}")]
     [ProducesResponseType<BucketDTO>(StatusCodes.Status200OK)]
     public async Task<ActionResult> GetBucket(string id)
@@ -65,12 +65,12 @@ public class BucketController : ControllerBase
     }
 
     /// <summary>
-    /// ¹öÅ¶À» Ã£°í ÆÄÀÏ ¸ñ·ÏÀ» ¹İÈ¯
+    /// ë²„í‚·ì„ ì°¾ê³  íŒŒì¼ ëª©ë¡ì„ ë°˜í™˜
     /// </summary>
-    /// <param name="id">Ã£À» ¹öÅ¶ÀÇ id</param>
-    /// <returns>ÆÄÀÏ ¸ñ·Ï</returns>
-    /// <response code="200">¼º°ø</response>
-    /// <response code="404">Ã£À» ¼ö ¾ø´Â ¹öÅ¶</response>
+    /// <param name="id">ì°¾ì„ ë²„í‚·ì˜ id</param>
+    /// <returns>íŒŒì¼ ëª©ë¡</returns>
+    /// <response code="200">ì„±ê³µ</response>
+    /// <response code="404">ì°¾ì„ ìˆ˜ ì—†ëŠ” ë²„í‚·</response>
     [HttpGet("common/{id}/files")]
     [ProducesResponseType<BucketFilesDTO>(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
@@ -92,12 +92,12 @@ public class BucketController : ControllerBase
     }
 
     /// <summary>
-    /// ¹öÅ¶À» Ã£°í Limitations ¹İÈ¯
+    /// ë²„í‚·ì„ ì°¾ê³  Limitations ë°˜í™˜
     /// </summary>
-    /// <param name="id">Ã£À» ¹öÅ¶ÀÇ id</param>
+    /// <param name="id">ì°¾ì„ ë²„í‚·ì˜ id</param>
     /// <returns>Limitations</returns>
-    /// <response code="200">¼º°ø</response>
-    /// <response code="404">Ã£À» ¼ö ¾ø´Â ¹öÅ¶</response>
+    /// <response code="200">ì„±ê³µ</response>
+    /// <response code="404">ì°¾ì„ ìˆ˜ ì—†ëŠ” ë²„í‚·</response>
     [HttpGet("common/{id}/limitations")]
     [ProducesResponseType<BucketLimitations>(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
@@ -113,14 +113,14 @@ public class BucketController : ControllerBase
     }
 
     /// <summary>
-    /// ¹öÅ¶À» Ã£°í push µ¿±âÈ­
+    /// ë²„í‚·ì„ ì°¾ê³  push ë™ê¸°í™”
     /// </summary>
-    /// <param name="id">Ã£À» ¹öÅ¶ÀÇ id</param>
-    /// <param name="files">µ¿±âÈ­ ³»¿ë</param>
-    /// <returns>µ¿±âÈ­ °á°ú</returns>
-    /// <response code="200">¼º°ø</response>
-    /// <response code="400">À¯È¿ÇÏÁö ¾ÊÀº ¿äÃ»</response>
-    /// <response code="404">Ã£À» ¼ö ¾ø´Â ¹öÅ¶</response>
+    /// <param name="id">ì°¾ì„ ë²„í‚·ì˜ id</param>
+    /// <param name="files">ë™ê¸°í™” ë‚´ìš©</param>
+    /// <returns>ë™ê¸°í™” ê²°ê³¼</returns>
+    /// <response code="200">ì„±ê³µ</response>
+    /// <response code="400">ìœ íš¨í•˜ì§€ ì•Šì€ ìš”ì²­</response>
+    /// <response code="404">ì°¾ì„ ìˆ˜ ì—†ëŠ” ë²„í‚·</response>
     [HttpPost("common/{id}/sync")]
     [ProducesResponseType<BucketSyncResult>(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(void), StatusCodes.Status400BadRequest)]

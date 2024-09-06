@@ -7,13 +7,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
+using AlphabetUpdateServer.Services.ChecksumStorages;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("ApplicationDbContextConnection") ?? 
     throw new InvalidOperationException("Connection string 'ApplicationDbContextConnection' not found.");
 
 // Application
-builder.Services.AddMvc();
+builder.Services.AddRazorPages();
+builder.Services.AddControllers();
 builder.Services.AddDbContext<ApplicationDbContext>(options => options
     .UseSqlite("Data Source=local.db")
     .EnableSensitiveDataLogging(true));
@@ -64,7 +66,13 @@ builder.Services.AddSwaggerGen(options =>
 
 // Services
 builder.Services.AddTransient<ChecksumStorageBucketService>();
+
+builder.Services.AddTransient<ChecksumStorageService>();
+builder.Services.AddTransient<IChecksumStorageProvider, ObjectChecksumStorageProvider>();
+builder.Services.AddTransient<IChecksumStorageProvider, RFilesChecksumStorageProvider>();
+builder.Services.AddTransient<ObjectChecksumStorageService>();
 builder.Services.AddTransient<RFilesChecksumStorageService>();
+
 builder.Services.AddSingleton<JwtAuthService>();
 
 // Configurations
@@ -106,7 +114,7 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapControllers();
 app.MapRazorPages();
-app.MapDefaultControllerRoute();
 
 app.Run();

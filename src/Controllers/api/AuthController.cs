@@ -4,6 +4,7 @@ using AlphabetUpdateServer.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 
@@ -14,12 +15,21 @@ namespace AlphabetUpdateServer.Controllers.Api;
 [Produces("application/json")]
 public class AuthController : ControllerBase
 {
+    private readonly UserManager<User> _userManager;
+    private readonly IUserStore<User> _userStore;
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly SignInManager<User> _signInManager;
     private readonly JwtAuthService _jwtService;
 
-    public AuthController(SignInManager<User> signInManager, JwtAuthService jwtService, RoleManager<IdentityRole> roleManager)
+    public AuthController(
+        UserManager<User> userManager,
+        IUserStore<User> userStore,
+        SignInManager<User> signInManager, 
+        JwtAuthService jwtService, 
+        RoleManager<IdentityRole> roleManager)
     {
+        _userManager = userManager;
+        _userStore = userStore;
         _signInManager = signInManager;
         _jwtService = jwtService;
         _roleManager = roleManager;
@@ -41,16 +51,14 @@ public class AuthController : ControllerBase
         }
 
         var roles = await _signInManager.UserManager.GetRolesAsync(user);
-        var role = string.Join(',', roles);
-
         var result = await _signInManager.CheckPasswordSignInAsync(user, request.Password, true);
         if (result.Succeeded)
         {
-            var token = _jwtService.GenerateJwt(request.Username, role);
+            var token = _jwtService.GenerateJwt(request.Username, roles);
             return Ok(new LoginResponseDTO
             {
                 Username = request.Username,
-                Role = role,
+                Roles = roles,
                 Token = token
             });
         }
@@ -73,13 +81,27 @@ public class AuthController : ControllerBase
         return Ok(JsonSerializer.Serialize(HttpContext.User.Claims.Select(claim => claim.ToString())));
     }
 
-    [HttpPost("init")]
-    public async Task<ActionResult> Init()
+    [HttpPost("init-role")]
+    public async Task<ActionResult> InitRole()
     {
         await _roleManager.CreateAsync(new IdentityRole("user-bucket"));
         await _roleManager.CreateAsync(new IdentityRole("admin-bucket"));
         await _roleManager.CreateAsync(new IdentityRole("admin-storage"));
         await _roleManager.CreateAsync(new IdentityRole("admin-user"));
         return NoContent();
+    }
+
+    [HttpPost("init-user")]
+    public async Task<ActionResult> InitAdmin()
+    {
+        var user = new User();
+        user.Email = "admin@example.com";
+        user.Discord = "";
+
+        await _userStore.SetUserNameAsync(user, "admin", CancellationToken.None);
+        var result = await _userManager.CreateAsync(user, "password13");
+        await _userManager.AddToRolesAsync(user, [UserRoleNames.UserAdmin, UserRoleNames.BucketAdmin, UserRoleNames.StorageAdmin, UserRoleNames.BucketUser]);
+
+        return Ok(result);
     }
 }

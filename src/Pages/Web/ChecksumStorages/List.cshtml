@@ -1,0 +1,41 @@
+﻿@page
+@model AlphabetUpdateServer.Views.Web.ChecksumStorages.ListModel
+@{
+}
+
+<h1>목록</h1>
+
+<p><a asp-page="AddObject">Add Object</a></p>
+<p><a asp-page="AddRFiles">Add RFiles</a></p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(Model => Model.Items.First().Id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(Model => Model.Items.First().Type)
+            </th>
+            <th>
+                @Html.DisplayNameFor(Model => Model.Items.First().IsReadonly)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Items)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(Model => item.Id)
+                </td>
+                <td>
+                    @Html.DisplayFor(Model => item.Type)
+                </td>
+                <td>
+                    @Html.DisplayFor(Model => item.IsReadonly)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

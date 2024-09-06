@@ -402,3 +402,5 @@ local.db
 *.db-shm
 *.db-wal
 /src/local.db
+
+.env
