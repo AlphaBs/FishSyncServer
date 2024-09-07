@@ -5,7 +5,7 @@ namespace AlphabetUpdateServer.Tests.Buckets;
 
 public class ChecksumStorageBucketTests
 {
-    private readonly IChecksumStorage TestChecksumStorage;
+    private readonly IChecksumStorage _testChecksumStorage;
 
     public ChecksumStorageBucketTests()
     {
@@ -35,19 +35,19 @@ public class ChecksumStorageBucketTests
                 )
             )
         ]);
-        TestChecksumStorage = storage;
+        _testChecksumStorage = storage;
     }
 
-    private ChecksumStorageBucket CreateTestBucket(BucketLimitations limitations)
+    private ChecksumStorageBucket createTestBucket(BucketLimitations limitations)
     {
-        return new ChecksumStorageBucket(limitations, TestChecksumStorage);
+        return new ChecksumStorageBucket(limitations, _testChecksumStorage);
     }
 
     [Fact]
     public async Task successful_sync_single_existent_file()
     {
         // Given
-        var bucket = CreateTestBucket(BucketLimitations.NoLimits);
+        var bucket = createTestBucket(BucketLimitations.NoLimits);
 
         // When
         var syncResult = await bucket.Sync(
@@ -74,7 +74,7 @@ public class ChecksumStorageBucketTests
     public async Task successful_sync_same_checksum_but_different_path()
     {
         // Given
-        var bucket = CreateTestBucket(BucketLimitations.NoLimits);
+        var bucket = createTestBucket(BucketLimitations.NoLimits);
 
         // When
         var syncResult = await bucket.Sync(
@@ -97,7 +97,7 @@ public class ChecksumStorageBucketTests
         Assert.True(syncResult.IsSuccess);
         Assert.Empty(syncResult.RequiredActions);
 
-        var actualFiles = await bucket.GetFiles();
+        var actualFiles = (await bucket.GetFiles()).ToList();
         Assert.Equal(["file1.zip", "file2.zip"], actualFiles.Select(file => file.Path));
         Assert.Equal(["file1_checksum", "file1_checksum"], actualFiles.Select(file => file.Metadata.Checksum));
         Assert.Equal([1001, 1001], actualFiles.Select(file => file.Metadata.Size));
@@ -107,7 +107,7 @@ public class ChecksumStorageBucketTests
     public async Task create_sync_action_for_single_nonexistent_file()
     {
         // Given
-        var bucket = CreateTestBucket(BucketLimitations.NoLimits);
+        var bucket = createTestBucket(BucketLimitations.NoLimits);
 
         // When
         var syncResult = await bucket.Sync(
@@ -132,7 +132,7 @@ public class ChecksumStorageBucketTests
     public async Task create_sync_action_only_for_nonexistent_file()
     {
         // Given
-        var bucket = CreateTestBucket(BucketLimitations.NoLimits);
+        var bucket = createTestBucket(BucketLimitations.NoLimits);
 
         // When
         var syncResult = await bucket.Sync(
@@ -163,7 +163,7 @@ public class ChecksumStorageBucketTests
     public async Task fail_sync_to_readonly_bucket()
     {
         // Given
-        var bucket = CreateTestBucket(new BucketLimitations
+        var bucket = createTestBucket(new BucketLimitations
         {
             IsReadOnly = true,
             ExpiredAt = DateTimeOffset.MaxValue,
@@ -195,7 +195,7 @@ public class ChecksumStorageBucketTests
     public async Task fail_sync_to_expired_bucket()
     {
         // Given
-        var bucket = CreateTestBucket(new BucketLimitations
+        var bucket = createTestBucket(new BucketLimitations
         {
             IsReadOnly = false,
             ExpiredAt = DateTimeOffset.MinValue,
@@ -227,7 +227,7 @@ public class ChecksumStorageBucketTests
     public async Task fail_sync_when_exceeding_max_bucket_size()
     {
         // Given
-        var bucket = CreateTestBucket(new BucketLimitations
+        var bucket = createTestBucket(new BucketLimitations
         {
             IsReadOnly = false,
             ExpiredAt = DateTimeOffset.MaxValue,
@@ -265,7 +265,7 @@ public class ChecksumStorageBucketTests
     public async Task fail_sync_when_exceeding_max_number_of_files()
     {
         // Given
-        var bucket = CreateTestBucket(new BucketLimitations
+        var bucket = createTestBucket(new BucketLimitations
         {
             IsReadOnly = false,
             ExpiredAt = DateTimeOffset.MaxValue,
@@ -303,7 +303,7 @@ public class ChecksumStorageBucketTests
     public async Task fail_sync_when_exceeding_max_file_size()
     {
         // Given
-        var bucket = CreateTestBucket(new BucketLimitations
+        var bucket = createTestBucket(new BucketLimitations
         {
             IsReadOnly = false,
             ExpiredAt = DateTimeOffset.MaxValue,
@@ -342,7 +342,7 @@ public class ChecksumStorageBucketTests
     public async Task fail_sync_when_the_file_has_empty_checksum()
     {
         // Given
-        var bucket = CreateTestBucket(BucketLimitations.NoLimits);
+        var bucket = createTestBucket(BucketLimitations.NoLimits);
 
         // When
         var syncResult = await bucket.Sync(
@@ -368,7 +368,7 @@ public class ChecksumStorageBucketTests
     public async Task fail_sync_when_the_file_has_empty_path()
     {
         // Given
-        var bucket = CreateTestBucket(BucketLimitations.NoLimits);
+        var bucket = createTestBucket(BucketLimitations.NoLimits);
 
         // When
         var syncResult = await bucket.Sync(
@@ -394,7 +394,7 @@ public class ChecksumStorageBucketTests
     public async Task fail_sync_when_duplicated_file_paths_are_detected()
     {
         // Given
-        var bucket = CreateTestBucket(BucketLimitations.NoLimits);
+        var bucket = createTestBucket(BucketLimitations.NoLimits);
 
         // When
         var syncResult = await bucket.Sync(
@@ -426,7 +426,7 @@ public class ChecksumStorageBucketTests
     public async Task fail_sync_when_the_requested_file_size_and_the_stored_file_size_are_different()
     {
         // Given
-        var bucket = CreateTestBucket(BucketLimitations.NoLimits);
+        var bucket = createTestBucket(BucketLimitations.NoLimits);
 
         // When
         var syncResult = await bucket.Sync(

@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
+using AlphabetUpdateServer.Models.ChecksumStorages;
 using AlphabetUpdateServer.Services.ChecksumStorages;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,6 +21,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options => options
     .UseSqlite("Data Source=local.db")
     .EnableSensitiveDataLogging(true));
 builder.Services.AddHttpClient();
+builder.Services.AddMemoryCache();
 
 // Authentication / Authorization
 var jwtOptions = builder.Configuration.GetRequiredSection(JwtOptions.SectionName).Get<JwtOptions>() ?? 
@@ -68,6 +70,7 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddTransient<ChecksumStorageBucketService>();
 
 builder.Services.AddTransient<ChecksumStorageService>();
+builder.Services.AddTransient<ChecksumStorageFileCacheFactory>();
 builder.Services.AddTransient<IChecksumStorageProvider, ObjectChecksumStorageProvider>();
 builder.Services.AddTransient<IChecksumStorageProvider, RFilesChecksumStorageProvider>();
 builder.Services.AddTransient<ObjectChecksumStorageService>();

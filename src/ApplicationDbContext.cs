@@ -16,7 +16,6 @@ public class ApplicationDbContext : IdentityDbContext
     public DbSet<ChecksumStorageEntity> ChecksumStorages { get; set; } = null!;
     public DbSet<RFilesChecksumStorageEntity> RFilesChecksumStorages { get; set; } = null!;
     public DbSet<ObjectChecksumStorageEntity> ObjectChecksumStorages { get; set; } = null!;
-    public DbSet<ChecksumStorageFileCacheEntity> ChecksumStorageFileCaches { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -58,13 +57,6 @@ public class ApplicationDbContext : IdentityDbContext
 
         modelBuilder.Entity<RFilesChecksumStorageEntity>()
             .HasBaseType<ChecksumStorageEntity>();
-
-        modelBuilder.Entity<ChecksumStorageFileCacheEntity>()
-            .HasKey(
-            [
-                nameof(ChecksumStorageFileCacheEntity.StorageId),
-                nameof(ChecksumStorageFileCacheEntity.Checksum)
-            ]);
 
         base.OnModelCreating(modelBuilder);
     }

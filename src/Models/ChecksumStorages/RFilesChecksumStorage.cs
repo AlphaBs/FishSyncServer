@@ -13,38 +13,44 @@ public class RFilesChecksumStorage : IChecksumStorage
         bool isReadOnly,
         HttpClient httpClient)
     {
-        Host = host;
         IsReadOnly = isReadOnly;
-        _rClient = new RFilesClient(host, httpClient, JsonSerializerOptions.Default);
-        _rClient.ClientSecret = clientSecret;
+        _rClient = new RFilesClient(host, httpClient, JsonSerializerOptions.Default)
+        {
+            ClientSecret = clientSecret
+        };
     }
 
-    public bool IsReadOnly { get; private set; }
-    public string Host { get; }
+    public bool IsReadOnly { get; }
 
     public async IAsyncEnumerable<ChecksumStorageFile> GetAllFiles()
     {
         var objects = await _rClient.GetAllObjects();
-        var locations = objects.Select(toFileLocation);
+        var locations = objects.Select(toChecksumStorageFile);
         foreach (var location in locations)
         {
             yield return location;
         }
     }
 
-    public async IAsyncEnumerable<ChecksumStorageFile> Query(IEnumerable<string> checksums)
+    public async Task<ChecksumStorageQueryResult> Query(IEnumerable<string> checksums)
     {
-        var objects = await _rClient.Query(checksums);
-        var locations = objects.Select(toFileLocation);
-        foreach (var location in locations)
+        var checksumSet = checksums.ToHashSet();
+        var objects = await _rClient.Query(checksumSet);
+        var files = new List<ChecksumStorageFile>();
+        foreach (var obj in objects)
         {
-            yield return location;
+            checksumSet.Remove(obj.Hash);
+            var file = toChecksumStorageFile(obj);
+            files.Add(file);
         }
+
+        return new ChecksumStorageQueryResult(files, checksumSet);
     }
 
     public async Task<ChecksumStorageSyncResult> Sync(IEnumerable<string> checksums)
     {
-        var syncResult = await _rClient.Sync(checksums);
+        var checksumSet = checksums.ToHashSet();
+        var syncResult = await _rClient.Sync(checksumSet);
 
         var files = syncResult.Objects.Select(obj => 
             new ChecksumStorageFile
@@ -87,7 +93,7 @@ public class RFilesChecksumStorage : IChecksumStorage
         );
     }
 
-    private ChecksumStorageFile toFileLocation(RFilesObjectMetadata metadata) =>
+    private ChecksumStorageFile toChecksumStorageFile(RFilesObjectMetadata metadata) =>
         new ChecksumStorageFile
         (
             Checksum: metadata.Hash,

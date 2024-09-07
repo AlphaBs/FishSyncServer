@@ -1,17 +1,11 @@
 using AlphabetUpdateServer.Models;
-using AlphabetUpdateServer.Models.Buckets;
 using AlphabetUpdateServer.Models.ChecksumStorages;
 
-namespace AlphabetUpdateServer.Tests;
+namespace AlphabetUpdateServer.Tests.ChecksumStorages;
 
 public class CompositeFileChecksumStorageTest
 {
-    private string TestChecksum;
-
-    public CompositeFileChecksumStorageTest()
-    {
-        TestChecksum = Guid.NewGuid().ToString();
-    }
+    private string TestChecksum = Guid.NewGuid().ToString();
 
     [Fact]
     public void readonly_when_no_storage()
@@ -81,7 +75,7 @@ public class CompositeFileChecksumStorageTest
     public void GetAllFiles()
     {
         // Given
-        var testFiles = new ChecksumStorageFile[]
+        var testFiles = new[]
         {
             createChecksumStorageFile("0", "0"),
             createChecksumStorageFile("1", "1"),
@@ -106,10 +100,10 @@ public class CompositeFileChecksumStorageTest
     }
 
     [Fact]
-    public void Query()
+    public async Task Query()
     {
         // Given
-        var testFiles = new ChecksumStorageFile[]
+        var testFiles = new[]
         {
             createChecksumStorageFile("0", "0"),
             createChecksumStorageFile("1", "1"),
@@ -127,21 +121,16 @@ public class CompositeFileChecksumStorageTest
         storage.AddStorage(inner2);
 
         // When
-        var queryChecksums = new string[]
+        var queryChecksums = new[]
         {
             "a", "1", "3", "6", "9"
         };
 
-        var actualFiles = storage
-            .Query(queryChecksums)
-            .ToBlockingEnumerable();
+        var queryResult = await storage.Query(queryChecksums);
 
         // Then
-        var expectedFiles = new ChecksumStorageFile[]
-        {
-            testFiles[1], testFiles[3]
-        };
-        Assert.Equal(expectedFiles, actualFiles);
+        Assert.Equal([testFiles[1], testFiles[3]], queryResult.FoundFiles);
+        Assert.Equal(["a", "6", "9"], queryResult.NotFoundChecksums);
     }
 
     private InMemoryChecksumStorage createMockStorage(bool isReadOnly)

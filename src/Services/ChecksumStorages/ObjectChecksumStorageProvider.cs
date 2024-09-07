@@ -5,10 +5,14 @@ namespace AlphabetUpdateServer.Services.ChecksumStorages;
 public class ObjectChecksumStorageProvider : IChecksumStorageProvider
 {
     private readonly ObjectChecksumStorageService _storageService;
+    private readonly ChecksumStorageFileCacheFactory _cache;
 
-    public ObjectChecksumStorageProvider(ObjectChecksumStorageService storageService)
+    public ObjectChecksumStorageProvider(
+        ObjectChecksumStorageService storageService,
+        ChecksumStorageFileCacheFactory cache)
     {
         _storageService = storageService;
+        _cache = cache;
     }
 
     public Task<IEnumerable<ChecksumStorageListItem>> GetStorages()
@@ -31,6 +35,9 @@ public class ObjectChecksumStorageProvider : IChecksumStorageProvider
             ServiceEndpoint: entity.ServiceEndpoint,
             PublicEndpoint: entity.PublicEndpoint
         );
-        return new ObjectChecksumStorage(config);
+        
+        var storage = new ObjectChecksumStorage(config);
+        var cache = _cache.Create($"ObjectChecksumStorage.{id}");
+        return new CacheChecksumStorage(storage, cache);
     }
 }

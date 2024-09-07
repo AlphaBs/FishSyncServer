@@ -12,32 +12,37 @@ public class InMemoryChecksumStorage : IChecksumStorage
         return _storage.Values.ToAsyncEnumerable();
     }
 
-    public IAsyncEnumerable<ChecksumStorageFile> Query(IEnumerable<string> checksums)
+    public Task<ChecksumStorageQueryResult> Query(IEnumerable<string> checksums)
     {
-        return query(checksums).ToAsyncEnumerable();
-    }
-
-    private IEnumerable<ChecksumStorageFile> query(IEnumerable<string> checksums)
-    {
-        foreach (var checksum in checksums)
+        var checksumSet = checksums.ToHashSet();
+        var foundFiles = new List<ChecksumStorageFile>();
+        var notFoundChecksums = new List<string>();
+        foreach (var checksum in checksumSet)
         {
-            if (_storage.TryGetValue(checksum, out var location))
+            if (_storage.TryGetValue(checksum, out var file))
             {
-                yield return location;
+                foundFiles.Add(file);
+            }
+            else
+            {
+                notFoundChecksums.Add(checksum);
             }
         }
+        var result = new ChecksumStorageQueryResult(foundFiles, notFoundChecksums);
+        return Task.FromResult(result);
     }
 
     public Task<ChecksumStorageSyncResult> Sync(IEnumerable<string> checksums)
     {
+        var checksumSet = checksums.ToHashSet();
         var files = new List<ChecksumStorageFile>();
         var actions = new List<ChecksumStorageSyncAction>();
 
-        foreach (var checksum in checksums)
+        foreach (var checksum in checksumSet)
         {
-            if (_storage.TryGetValue(checksum, out var location))
+            if (_storage.TryGetValue(checksum, out var file))
             {
-                files.Add(location);
+                files.Add(file);
             }
             else
             {
@@ -50,16 +55,21 @@ public class InMemoryChecksumStorage : IChecksumStorage
         return Task.FromResult(result);
     }
 
-    public void Add(ChecksumStorageFile location)
+    public void Add(ChecksumStorageFile file)
     {
-        _storage[location.Metadata.Checksum] = location;
+        _storage[file.Metadata.Checksum] = file;
     }
 
-    public void AddRange(IEnumerable<ChecksumStorageFile> locations)
+    public void AddRange(IEnumerable<ChecksumStorageFile> files)
     {
-        foreach (var location in locations)
+        foreach (var file in files)
         {
-            Add(location);
+            Add(file);
         }
+    }
+
+    public void Clear()
+    {
+        _storage.Clear();
     }
 }

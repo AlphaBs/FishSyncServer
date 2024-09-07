@@ -24,9 +24,7 @@ public class RFilesChecksumStorageProvider : IChecksumStorageProvider
     {
         var entity = await _storageService.FindEntityById(id);
         if (entity == null)
-        {
             return null;
-        }
         return new RFilesChecksumStorage(entity.Host, entity.ClientSecret, entity.IsReadonly, _httpClientFactory.CreateClient());
     }
 }

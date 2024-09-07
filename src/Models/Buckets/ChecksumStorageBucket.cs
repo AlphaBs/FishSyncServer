@@ -36,10 +36,10 @@ public class ChecksumStorageBucket : IBucket
             }
         }
         
-        var checksumStorageFiles = _checksumStorage.Query(checksumFileMap.Keys);
+        var queryResult = await _checksumStorage.Query(checksumFileMap.Keys);
         var bucketFiles = new List<BucketFile>();
         
-        await foreach (var checksumStorageFile in checksumStorageFiles)
+        foreach (var checksumStorageFile in queryResult.FoundFiles)
         {
             if (checksumFileMap.TryGetValue(checksumStorageFile.Checksum, out var files))
             {
@@ -48,14 +48,6 @@ public class ChecksumStorageBucket : IBucket
                     bucketFiles.Add(new BucketFile(file.Path, checksumStorageFile.Location, file.Metadata));
                     checksumFileMap.Remove(checksumStorageFile.Checksum);
                 }
-            }
-        }
-
-        foreach (var remainFiles in checksumFileMap.Values)
-        {
-            foreach (var remainFile in remainFiles)
-            {
-                bucketFiles.Add(new BucketFile(remainFile.Path, "", remainFile.Metadata));
             }
         }
         

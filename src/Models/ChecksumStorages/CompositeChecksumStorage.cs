@@ -25,20 +25,24 @@ public class CompositeChecksumStorage : IChecksumStorage
         }
     }
 
-    public async IAsyncEnumerable<ChecksumStorageFile> Query(IEnumerable<string> checksums)
+    public async Task<ChecksumStorageQueryResult> Query(IEnumerable<string> checksums)
     {
-        var checksumSet = new HashSet<string>(checksums);
+        var checksumSet = checksums.ToHashSet();
+        var foundFiles = new List<ChecksumStorageFile>();
         foreach (var storage in Storages)
         {
             if (!checksumSet.Any())
                 break;
 
-            await foreach (var file in storage.Query(checksumSet))
+            var currentResult = await storage.Query(checksumSet);
+            foreach (var file in currentResult.FoundFiles)
             {
                 checksumSet.Remove(file.Metadata.Checksum);
-                yield return file;
+                foundFiles.Add(file);
             }
         }
+
+        return new ChecksumStorageQueryResult(foundFiles, checksumSet);
     }
 
     public Task<ChecksumStorageSyncResult> Sync(IEnumerable<string> checksums)
