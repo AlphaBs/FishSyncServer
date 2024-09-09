@@ -28,6 +28,7 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Caching.Hybrid" Version="9.0.0-preview.7.24406.2" />
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="8.0.8" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.3" />
     <PackageReference Include="NeoSmart.PrettySize" Version="3.1.1" />
     <PackageReference Include="RFiles.NET" Version="0.0.4" />
