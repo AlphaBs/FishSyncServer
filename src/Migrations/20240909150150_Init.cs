@@ -1,12 +1,13 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
 namespace AlphabetUpdateServer.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,10 +16,10 @@ namespace AlphabetUpdateServer.Migrations
                 name: "AspNetRoles",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "TEXT", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    NormalizedName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "TEXT", nullable: true)
+                    Id = table.Column<string>(type: "text", nullable: false),
+                    Name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    NormalizedName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -26,31 +27,20 @@ namespace AlphabetUpdateServer.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ChecksumStorageFileCaches",
-                columns: table => new
-                {
-                    StorageId = table.Column<string>(type: "TEXT", nullable: false),
-                    Checksum = table.Column<string>(type: "TEXT", nullable: false),
-                    Exists = table.Column<bool>(type: "INTEGER", nullable: false),
-                    CachedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
-                    Location = table.Column<string>(type: "TEXT", nullable: true),
-                    Size = table.Column<long>(type: "INTEGER", nullable: false),
-                    LastUpdated = table.Column<DateTimeOffset>(type: "TEXT", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ChecksumStorageFileCaches", x => new { x.StorageId, x.Checksum });
-                });
-
-            migrationBuilder.CreateTable(
                 name: "ChecksumStorages",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "TEXT", nullable: false),
-                    Type = table.Column<string>(type: "TEXT", maxLength: 34, nullable: false),
-                    IsReadyOnly = table.Column<bool>(type: "INTEGER", nullable: false),
-                    Host = table.Column<string>(type: "TEXT", nullable: true),
-                    ClientSecret = table.Column<string>(type: "TEXT", nullable: true)
+                    Id = table.Column<string>(type: "text", nullable: false),
+                    Type = table.Column<string>(type: "character varying(8)", maxLength: 8, nullable: false),
+                    IsReadonly = table.Column<bool>(type: "boolean", nullable: false),
+                    AccessKey = table.Column<string>(type: "text", nullable: true),
+                    SecretKey = table.Column<string>(type: "text", nullable: true),
+                    BucketName = table.Column<string>(type: "text", nullable: true),
+                    Prefix = table.Column<string>(type: "text", nullable: true),
+                    ServiceEndpoint = table.Column<string>(type: "text", nullable: true),
+                    PublicEndpoint = table.Column<string>(type: "text", nullable: true),
+                    Host = table.Column<string>(type: "text", nullable: true),
+                    ClientSecret = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -61,11 +51,11 @@ namespace AlphabetUpdateServer.Migrations
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    RoleId = table.Column<string>(type: "TEXT", nullable: false),
-                    ClaimType = table.Column<string>(type: "TEXT", nullable: true),
-                    ClaimValue = table.Column<string>(type: "TEXT", nullable: true)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    RoleId = table.Column<string>(type: "text", nullable: false),
+                    ClaimType = table.Column<string>(type: "text", nullable: true),
+                    ClaimValue = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -82,14 +72,14 @@ namespace AlphabetUpdateServer.Migrations
                 name: "Buckets",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "TEXT", nullable: false),
-                    LastUpdated = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
-                    ChecksumStorageId = table.Column<string>(type: "TEXT", nullable: false),
-                    Limitations_ExpiredAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
-                    Limitations_IsReadOnly = table.Column<bool>(type: "INTEGER", nullable: false),
-                    Limitations_MaxBucketSize = table.Column<long>(type: "INTEGER", nullable: false),
-                    Limitations_MaxFileSize = table.Column<long>(type: "INTEGER", nullable: false),
-                    Limitations_MaxNumberOfFiles = table.Column<long>(type: "INTEGER", nullable: false)
+                    Id = table.Column<string>(type: "text", nullable: false),
+                    LastUpdated = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    ChecksumStorageId = table.Column<string>(type: "text", nullable: false),
+                    Limitations_ExpiredAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    Limitations_IsReadOnly = table.Column<bool>(type: "boolean", nullable: false),
+                    Limitations_MaxBucketSize = table.Column<long>(type: "bigint", nullable: false),
+                    Limitations_MaxFileSize = table.Column<long>(type: "bigint", nullable: false),
+                    Limitations_MaxNumberOfFiles = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -106,24 +96,24 @@ namespace AlphabetUpdateServer.Migrations
                 name: "AspNetUsers",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "TEXT", nullable: false),
-                    Discriminator = table.Column<string>(type: "TEXT", maxLength: 13, nullable: false),
-                    Discord = table.Column<string>(type: "TEXT", nullable: true),
-                    ChecksumStorageBucketEntityId = table.Column<string>(type: "TEXT", nullable: true),
-                    UserName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    NormalizedUserName = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    Email = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    NormalizedEmail = table.Column<string>(type: "TEXT", maxLength: 256, nullable: true),
-                    EmailConfirmed = table.Column<bool>(type: "INTEGER", nullable: false),
-                    PasswordHash = table.Column<string>(type: "TEXT", nullable: true),
-                    SecurityStamp = table.Column<string>(type: "TEXT", nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "TEXT", nullable: true),
-                    PhoneNumber = table.Column<string>(type: "TEXT", nullable: true),
-                    PhoneNumberConfirmed = table.Column<bool>(type: "INTEGER", nullable: false),
-                    TwoFactorEnabled = table.Column<bool>(type: "INTEGER", nullable: false),
-                    LockoutEnd = table.Column<DateTimeOffset>(type: "TEXT", nullable: true),
-                    LockoutEnabled = table.Column<bool>(type: "INTEGER", nullable: false),
-                    AccessFailedCount = table.Column<int>(type: "INTEGER", nullable: false)
+                    Id = table.Column<string>(type: "text", nullable: false),
+                    Discriminator = table.Column<string>(type: "character varying(13)", maxLength: 13, nullable: false),
+                    Discord = table.Column<string>(type: "text", nullable: true),
+                    ChecksumStorageBucketEntityId = table.Column<string>(type: "text", nullable: true),
+                    UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    NormalizedEmail = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
+                    EmailConfirmed = table.Column<bool>(type: "boolean", nullable: false),
+                    PasswordHash = table.Column<string>(type: "text", nullable: true),
+                    SecurityStamp = table.Column<string>(type: "text", nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "text", nullable: true),
+                    PhoneNumber = table.Column<string>(type: "text", nullable: true),
+                    PhoneNumberConfirmed = table.Column<bool>(type: "boolean", nullable: false),
+                    TwoFactorEnabled = table.Column<bool>(type: "boolean", nullable: false),
+                    LockoutEnd = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    LockoutEnabled = table.Column<bool>(type: "boolean", nullable: false),
+                    AccessFailedCount = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -136,21 +126,20 @@ namespace AlphabetUpdateServer.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "BucketFiles",
+                name: "ChecksumStorageBucketFiles",
                 columns: table => new
                 {
-                    BucketId = table.Column<string>(type: "TEXT", nullable: false),
-                    Location = table.Column<string>(type: "TEXT", nullable: false),
-                    Path = table.Column<string>(type: "TEXT", nullable: false),
-                    Metadata_Checksum = table.Column<string>(type: "TEXT", nullable: false),
-                    Metadata_LastUpdated = table.Column<DateTimeOffset>(type: "TEXT", nullable: false),
-                    Metadata_Size = table.Column<long>(type: "INTEGER", nullable: false)
+                    BucketId = table.Column<string>(type: "text", nullable: false),
+                    Path = table.Column<string>(type: "text", nullable: false),
+                    Metadata_Checksum = table.Column<string>(type: "text", nullable: false),
+                    Metadata_LastUpdated = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    Metadata_Size = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_BucketFiles", x => new { x.BucketId, x.Location });
+                    table.PrimaryKey("PK_ChecksumStorageBucketFiles", x => new { x.BucketId, x.Path });
                     table.ForeignKey(
-                        name: "FK_BucketFiles_Buckets_BucketId",
+                        name: "FK_ChecksumStorageBucketFiles_Buckets_BucketId",
                         column: x => x.BucketId,
                         principalTable: "Buckets",
                         principalColumn: "Id",
@@ -161,11 +150,11 @@ namespace AlphabetUpdateServer.Migrations
                 name: "AspNetUserClaims",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    UserId = table.Column<string>(type: "TEXT", nullable: false),
-                    ClaimType = table.Column<string>(type: "TEXT", nullable: true),
-                    ClaimValue = table.Column<string>(type: "TEXT", nullable: true)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    ClaimType = table.Column<string>(type: "text", nullable: true),
+                    ClaimValue = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -182,10 +171,10 @@ namespace AlphabetUpdateServer.Migrations
                 name: "AspNetUserLogins",
                 columns: table => new
                 {
-                    LoginProvider = table.Column<string>(type: "TEXT", maxLength: 128, nullable: false),
-                    ProviderKey = table.Column<string>(type: "TEXT", maxLength: 128, nullable: false),
-                    ProviderDisplayName = table.Column<string>(type: "TEXT", nullable: true),
-                    UserId = table.Column<string>(type: "TEXT", nullable: false)
+                    LoginProvider = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    ProviderKey = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    ProviderDisplayName = table.Column<string>(type: "text", nullable: true),
+                    UserId = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -202,8 +191,8 @@ namespace AlphabetUpdateServer.Migrations
                 name: "AspNetUserRoles",
                 columns: table => new
                 {
-                    UserId = table.Column<string>(type: "TEXT", nullable: false),
-                    RoleId = table.Column<string>(type: "TEXT", nullable: false)
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    RoleId = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -226,10 +215,10 @@ namespace AlphabetUpdateServer.Migrations
                 name: "AspNetUserTokens",
                 columns: table => new
                 {
-                    UserId = table.Column<string>(type: "TEXT", nullable: false),
-                    LoginProvider = table.Column<string>(type: "TEXT", maxLength: 128, nullable: false),
-                    Name = table.Column<string>(type: "TEXT", maxLength: 128, nullable: false),
-                    Value = table.Column<string>(type: "TEXT", nullable: true)
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    LoginProvider = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    Name = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    Value = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -309,10 +298,7 @@ namespace AlphabetUpdateServer.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "BucketFiles");
-
-            migrationBuilder.DropTable(
-                name: "ChecksumStorageFileCaches");
+                name: "ChecksumStorageBucketFiles");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");

@@ -34,7 +34,7 @@ public class ChecksumStorageFileCache
             });
     }
 
-    public async Task<ChecksumStorageFile?> TryGetFile(string checksum)
+    public async Task<ChecksumStorageFile?> GetFile(string checksum)
     {
         var data = await _cache.GetAsync(getCacheKey(checksum));
         if (data == null)

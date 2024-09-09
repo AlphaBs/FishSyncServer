@@ -16,8 +16,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddControllers();
 builder.Services.AddDbContext<ApplicationDbContext>(options => options
-    .UseSqlite(builder.Configuration.GetConnectionString("Sqlite") 
-               ?? throw new InvalidOperationException("ConnectionString Sqlite was empty"))
+    .UseNpgsql(builder.Configuration.GetConnectionString("Postgres") 
+               ?? throw new InvalidOperationException("ConnectionString Postgres was empty"))
     .EnableSensitiveDataLogging(true));
 builder.Services.AddHttpClient();
 builder.Services.AddStackExchangeRedisCache(options =>
