@@ -6,83 +6,56 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
 namespace AlphabetUpdateServer.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240409113338_update")]
-    partial class update
+    [Migration("20240909150150_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "8.0.0");
+            modelBuilder
+                .HasAnnotation("ProductVersion", "8.0.7")
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            modelBuilder.Entity("AlphabetUpdateServer.Entities.BucketFileEntity", b =>
-                {
-                    b.Property<string>("BucketId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Location")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Path")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.ComplexProperty<Dictionary<string, object>>("Metadata", "AlphabetUpdateServer.Entities.BucketFileEntity.Metadata#FileMetadata", b1 =>
-                        {
-                            b1.IsRequired();
-
-                            b1.Property<string>("Checksum")
-                                .IsRequired()
-                                .HasColumnType("TEXT");
-
-                            b1.Property<DateTimeOffset>("LastUpdated")
-                                .HasColumnType("TEXT");
-
-                            b1.Property<long>("Size")
-                                .HasColumnType("INTEGER");
-                        });
-
-                    b.HasKey("BucketId", "Location");
-
-                    b.ToTable("BucketFiles");
-                });
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("AlphabetUpdateServer.Entities.ChecksumStorageBucketEntity", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("ChecksumStorageId")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<DateTimeOffset>("LastUpdated")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("timestamp with time zone");
 
                     b.ComplexProperty<Dictionary<string, object>>("Limitations", "AlphabetUpdateServer.Entities.ChecksumStorageBucketEntity.Limitations#BucketLimitations", b1 =>
                         {
                             b1.IsRequired();
 
                             b1.Property<DateTimeOffset>("ExpiredAt")
-                                .HasColumnType("TEXT");
+                                .HasColumnType("timestamp with time zone");
 
                             b1.Property<bool>("IsReadOnly")
-                                .HasColumnType("INTEGER");
+                                .HasColumnType("boolean");
 
                             b1.Property<long>("MaxBucketSize")
-                                .HasColumnType("INTEGER");
+                                .HasColumnType("bigint");
 
                             b1.Property<long>("MaxFileSize")
-                                .HasColumnType("INTEGER");
+                                .HasColumnType("bigint");
 
                             b1.Property<long>("MaxNumberOfFiles")
-                                .HasColumnType("INTEGER");
+                                .HasColumnType("bigint");
                         });
 
                     b.HasKey("Id");
@@ -92,52 +65,52 @@ namespace AlphabetUpdateServer.Migrations
                     b.ToTable("Buckets");
                 });
 
-            modelBuilder.Entity("AlphabetUpdateServer.Entities.ChecksumStorageFileCacheEntity", b =>
+            modelBuilder.Entity("AlphabetUpdateServer.Entities.ChecksumStorageBucketFileEntity", b =>
                 {
-                    b.Property<string>("StorageId")
-                        .HasColumnType("TEXT");
+                    b.Property<string>("BucketId")
+                        .HasColumnType("text");
 
-                    b.Property<string>("Checksum")
-                        .HasColumnType("TEXT");
+                    b.Property<string>("Path")
+                        .HasColumnType("text");
 
-                    b.Property<DateTimeOffset>("CachedAt")
-                        .HasColumnType("TEXT");
+                    b.ComplexProperty<Dictionary<string, object>>("Metadata", "AlphabetUpdateServer.Entities.ChecksumStorageBucketFileEntity.Metadata#FileMetadata", b1 =>
+                        {
+                            b1.IsRequired();
 
-                    b.Property<bool>("Exists")
-                        .HasColumnType("INTEGER");
+                            b1.Property<string>("Checksum")
+                                .IsRequired()
+                                .HasColumnType("text");
 
-                    b.Property<DateTimeOffset>("LastUpdated")
-                        .HasColumnType("TEXT");
+                            b1.Property<DateTimeOffset>("LastUpdated")
+                                .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Location")
-                        .HasColumnType("TEXT");
+                            b1.Property<long>("Size")
+                                .HasColumnType("bigint");
+                        });
 
-                    b.Property<long>("Size")
-                        .HasColumnType("INTEGER");
+                    b.HasKey("BucketId", "Path");
 
-                    b.HasKey("StorageId", "Checksum");
-
-                    b.ToTable("ChecksumStorageFileCaches");
+                    b.ToTable("ChecksumStorageBucketFiles");
                 });
 
-            modelBuilder.Entity("AlphabetUpdateServer.Entities.FileChecksumStorageEntity", b =>
+            modelBuilder.Entity("AlphabetUpdateServer.Entities.ChecksumStorageEntity", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<bool>("IsReadonly")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Type")
                         .IsRequired()
-                        .HasMaxLength(34)
-                        .HasColumnType("TEXT");
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)");
 
                     b.HasKey("Id");
 
                     b.ToTable("ChecksumStorages");
 
-                    b.HasDiscriminator<string>("Type").HasValue("FileChecksumStorageEntity");
+                    b.HasDiscriminator<string>("Type").HasValue("base");
 
                     b.UseTphMappingStrategy();
                 });
@@ -145,19 +118,19 @@ namespace AlphabetUpdateServer.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
                         .HasMaxLength(256)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("character varying(256)");
 
                     b.Property<string>("NormalizedName")
                         .HasMaxLength(256)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("character varying(256)");
 
                     b.HasKey("Id");
 
@@ -172,17 +145,19 @@ namespace AlphabetUpdateServer.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ClaimType")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("ClaimValue")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("RoleId")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -194,59 +169,59 @@ namespace AlphabetUpdateServer.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUser", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<int>("AccessFailedCount")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("Discriminator")
                         .IsRequired()
                         .HasMaxLength(13)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("character varying(13)");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("character varying(256)");
 
                     b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("character varying(256)");
 
                     b.Property<string>("NormalizedUserName")
                         .HasMaxLength(256)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("character varying(256)");
 
                     b.Property<string>("PasswordHash")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("PhoneNumber")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("SecurityStamp")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("character varying(256)");
 
                     b.HasKey("Id");
 
@@ -268,17 +243,19 @@ namespace AlphabetUpdateServer.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ClaimType")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("ClaimValue")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -291,18 +268,18 @@ namespace AlphabetUpdateServer.Migrations
                 {
                     b.Property<string>("LoginProvider")
                         .HasMaxLength(128)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("ProviderKey")
                         .HasMaxLength(128)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("ProviderDisplayName")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.HasKey("LoginProvider", "ProviderKey");
 
@@ -314,10 +291,10 @@ namespace AlphabetUpdateServer.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
                 {
                     b.Property<string>("UserId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("RoleId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.HasKey("UserId", "RoleId");
 
@@ -329,36 +306,67 @@ namespace AlphabetUpdateServer.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
                     b.Property<string>("UserId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("LoginProvider")
                         .HasMaxLength(128)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("Name")
                         .HasMaxLength(128)
-                        .HasColumnType("TEXT");
+                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("Value")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("AlphabetUpdateServer.Entities.ObjectChecksumStorageEntity", b =>
+                {
+                    b.HasBaseType("AlphabetUpdateServer.Entities.ChecksumStorageEntity");
+
+                    b.Property<string>("AccessKey")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("BucketName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Prefix")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PublicEndpoint")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("SecretKey")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ServiceEndpoint")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasDiscriminator().HasValue("object");
+                });
+
             modelBuilder.Entity("AlphabetUpdateServer.Entities.RFilesChecksumStorageEntity", b =>
                 {
-                    b.HasBaseType("AlphabetUpdateServer.Entities.FileChecksumStorageEntity");
+                    b.HasBaseType("AlphabetUpdateServer.Entities.ChecksumStorageEntity");
 
                     b.Property<string>("ClientSecret")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("Host")
                         .IsRequired()
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
-                    b.HasDiscriminator().HasValue("RFilesChecksumStorageEntity");
+                    b.HasDiscriminator().HasValue("rfiles");
                 });
 
             modelBuilder.Entity("AlphabetUpdateServer.Areas.Identity.Data.User", b =>
@@ -366,31 +374,31 @@ namespace AlphabetUpdateServer.Migrations
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
 
                     b.Property<string>("ChecksumStorageBucketEntityId")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.Property<string>("Discord")
-                        .HasColumnType("TEXT");
+                        .HasColumnType("text");
 
                     b.HasIndex("ChecksumStorageBucketEntityId");
 
                     b.HasDiscriminator().HasValue("User");
                 });
 
-            modelBuilder.Entity("AlphabetUpdateServer.Entities.BucketFileEntity", b =>
+            modelBuilder.Entity("AlphabetUpdateServer.Entities.ChecksumStorageBucketEntity", b =>
+                {
+                    b.HasOne("AlphabetUpdateServer.Entities.ChecksumStorageEntity", null)
+                        .WithMany()
+                        .HasForeignKey("ChecksumStorageId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("AlphabetUpdateServer.Entities.ChecksumStorageBucketFileEntity", b =>
                 {
                     b.HasOne("AlphabetUpdateServer.Entities.ChecksumStorageBucketEntity", null)
                         .WithMany("Files")
                         .HasForeignKey("BucketId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("AlphabetUpdateServer.Entities.ChecksumStorageBucketEntity", b =>
-                {
-                    b.HasOne("AlphabetUpdateServer.Entities.FileChecksumStorageEntity", null)
-                        .WithMany()
-                        .HasForeignKey("ChecksumStorageId")
-                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 

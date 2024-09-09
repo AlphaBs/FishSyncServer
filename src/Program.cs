@@ -11,17 +11,21 @@ using AlphabetUpdateServer.Models.ChecksumStorages;
 using AlphabetUpdateServer.Services.ChecksumStorages;
 
 var builder = WebApplication.CreateBuilder(args);
-var connectionString = builder.Configuration.GetConnectionString("ApplicationDbContextConnection") ?? 
-    throw new InvalidOperationException("Connection string 'ApplicationDbContextConnection' not found.");
 
 // Application
 builder.Services.AddRazorPages();
 builder.Services.AddControllers();
 builder.Services.AddDbContext<ApplicationDbContext>(options => options
-    .UseSqlite("Data Source=local.db")
+    .UseNpgsql(builder.Configuration.GetConnectionString("Postgres") 
+               ?? throw new InvalidOperationException("ConnectionString Postgres was empty"))
     .EnableSensitiveDataLogging(true));
 builder.Services.AddHttpClient();
-builder.Services.AddMemoryCache();
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration.GetConnectionString("RedisCache")
+        ?? throw new InvalidOperationException("ConnectionString RedisCache was empty");
+    options.InstanceName = "FishServer";
+});
 
 // Authentication / Authorization
 var jwtOptions = builder.Configuration.GetRequiredSection(JwtOptions.SectionName).Get<JwtOptions>() ?? 

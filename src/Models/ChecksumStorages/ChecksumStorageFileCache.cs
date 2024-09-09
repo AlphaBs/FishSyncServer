@@ -1,33 +1,45 @@
-﻿using Microsoft.Extensions.Caching.Hybrid;
-using Microsoft.Extensions.Caching.Memory;
+﻿using System.Text.Json;
+using Microsoft.Extensions.Caching.Distributed;
 
 namespace AlphabetUpdateServer.Models.ChecksumStorages;
 
 public class ChecksumStorageFileCache
 {
-    private readonly IMemoryCache _cache;
+    private static readonly JsonSerializerOptions SerializerOptions = new()
+    {
+        WriteIndented = false,
+    };
+    
+    private readonly IDistributedCache _cache;
     public string CacheNamespace { get; }
     
-    public ChecksumStorageFileCache(IMemoryCache cache, string cacheNamespace)
+    public ChecksumStorageFileCache(IDistributedCache cache, string cacheNamespace)
     {
         _cache = cache;
         CacheNamespace = cacheNamespace;
     }
     
-    public void SetFile(ChecksumStorageFile file)
+    public async Task SetFile(ChecksumStorageFile file)
     {
-        _cache.Set(
+        using var ms = new MemoryStream();
+        JsonSerializer.Serialize(ms, file, SerializerOptions); // MemoryStream do not have async methods
+        ms.Position = 0;
+        
+        await _cache.SetAsync(
             getCacheKey(file.Checksum), 
-            file,
-            new MemoryCacheEntryOptions
+            ms.ToArray(),
+            new DistributedCacheEntryOptions
             {
                 AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1)
             });
     }
 
-    public bool TryGetFile(string checksum, out ChecksumStorageFile? file)
+    public async Task<ChecksumStorageFile?> GetFile(string checksum)
     {
-        return _cache.TryGetValue(getCacheKey(checksum), out file);
+        var data = await _cache.GetAsync(getCacheKey(checksum));
+        if (data == null)
+            return null;
+        return JsonSerializer.Deserialize<ChecksumStorageFile>(data);
     }
     
     private string getCacheKey(string checksum) => $"{CacheNamespace}:{checksum}";
