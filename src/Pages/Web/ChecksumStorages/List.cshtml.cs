@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace AlphabetUpdateServer.Views.Web.ChecksumStorages;
+namespace AlphabetUpdateServer.Pages.Web.ChecksumStorages;
 
 [Authorize(Roles = UserRoleNames.StorageAdmin)]
 public class ListModel : PageModel

@@ -1,10 +1,11 @@
 using AlphabetUpdateServer.Areas.Identity.Data;
+using AlphabetUpdateServer.Entities;
 using AlphabetUpdateServer.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace AlphabetUpdateServer.Views.Web.ChecksumStorages;
+namespace AlphabetUpdateServer.Pages.Web.ChecksumStorages;
 
 [Authorize(Roles = UserRoleNames.StorageAdmin)]
 public class EditObjectModel : PageModel
@@ -16,68 +17,46 @@ public class EditObjectModel : PageModel
         _storageService = storageService;
     }
 
-    [BindProperty]
-    public string Id { get; set; } = default!;
-
-    [BindProperty]
-    public bool IsReadonly { get; set; } = false;
-
-    [BindProperty]
-    public string AccessKey { get; set; } = default!;
-
-    [BindProperty]
-    public string SecretKey { get; set; } = default!;
-
-    [BindProperty]
-    public string BucketName { get; set; } = default!;
-
-    [BindProperty]
-    public string Prefix { get; set; } = default!;
-
-    [BindProperty]
-    public string PublicEndpoint { get; set; } = default!;
+    [BindProperty] 
+    public ObjectChecksumStorageEntity Entity { get; set; } = new();
 
     public async Task<ActionResult> OnGetAsync(string id)
     {
-        Id = id;
-
-        var entity = await _storageService.FindEntityById(Id);
+        var entity = await _storageService.FindEntityById(id);
         if (entity == null)
         {
             return NotFound();
         }
 
-        IsReadonly = entity.IsReadonly;
-        AccessKey = entity.AccessKey;
-        SecretKey = entity.SecretKey;
-        BucketName = entity.BucketName;
-        Prefix = entity.Prefix;
-        PublicEndpoint = entity.PublicEndpoint;
-
+        Entity = entity;
         return Page();
     }
 
     public async Task<ActionResult> OnPostEdit(string id)
     {
-        Id = id;
-
         if (!ModelState.IsValid)
         {
             return Page();
         }
 
-        var entity = await _storageService.FindEntityById(Id);
+        if (Entity.Id != id)
+        {
+            return NotFound();
+        }
+        
+        var entity = await _storageService.FindEntityById(id);
         if (entity == null)
         {
             return NotFound();
         }
 
-        entity.IsReadonly = IsReadonly;
-        entity.AccessKey = AccessKey;
-        entity.SecretKey = SecretKey;
-        entity.BucketName = BucketName;
-        entity.Prefix = Prefix;
-        entity.PublicEndpoint = PublicEndpoint;
+        entity.IsReadonly = Entity.IsReadonly;
+        entity.AccessKey = Entity.AccessKey;
+        entity.SecretKey = Entity.SecretKey;
+        entity.BucketName = Entity.BucketName;
+        entity.Prefix = Entity.Prefix;
+        entity.PublicEndpoint = Entity.PublicEndpoint;
+        entity.ServiceEndpoint = Entity.ServiceEndpoint;
         await _storageService.Update(entity);
 
         return RedirectToPage("EditObject", entity.Id);
@@ -85,8 +64,7 @@ public class EditObjectModel : PageModel
 
     public async Task<ActionResult> OnPostDelete(string id)
     {
-        Id = id;
-        var deleted = await _storageService.Delete(Id);
+        var deleted = await _storageService.Delete(id);
 
         if (deleted)
         {

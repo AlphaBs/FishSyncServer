@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace AlphabetUpdateServer.Views.Web.ChecksumStorages;
+namespace AlphabetUpdateServer.Pages.Web.ChecksumStorages;
 
 [Authorize(Roles = UserRoleNames.StorageAdmin)]
 public class EditRFilesModel : PageModel
@@ -17,34 +17,57 @@ public class EditRFilesModel : PageModel
         _storageService = storageService;
     }
 
-    [BindProperty]
-    public string Id { get; set; } = default!;
+    [BindProperty] public RFilesChecksumStorageEntity Entity { get; set; } = new();
 
-    [BindProperty]
-    public bool IsReadonly { get; set; } = false;
+    public async Task<ActionResult> OnGetAsync(string id)
+    {
+        var entity = await _storageService.FindEntityById(id);
+        if (entity == null)
+        {
+            return NotFound();
+        }
 
-    [BindProperty]
-    public string Endpoint { get; set; } = default!;
-
-    [BindProperty]
-    public string? ClientSecret { get; set; }
-
-    public async Task<ActionResult> OnPostAsync()
+        Entity = entity;
+        return Page();
+    }
+    
+    public async Task<ActionResult> OnPostAsync(string id)
     {
         if (!ModelState.IsValid)
         {
             return Page();
         }
 
-        var entity = new RFilesChecksumStorageEntity
+        if (Entity.Id != id)
         {
-            Id = Id,
-            IsReadonly = IsReadonly,
-            Host = Endpoint,
-            ClientSecret = ClientSecret,
-        };
-        await _storageService.Create(entity);
+            return NotFound();
+        }
 
-        return RedirectToPage("./List");
+        var entity = await _storageService.FindEntityById(id);
+        if (entity == null)
+        {
+            return NotFound();
+        }
+
+        entity.IsReadonly = entity.IsReadonly;
+        entity.ClientSecret = entity.ClientSecret;
+        entity.Host = entity.Host;
+        await _storageService.Update(entity);
+        
+        return RedirectToPage("EditRFiles");
+    }
+    
+    public async Task<ActionResult> OnPostDelete(string id)
+    {
+        var deleted = await _storageService.Delete(id);
+
+        if (deleted)
+        {
+            return RedirectToPage("List");
+        }
+        else
+        {
+            return NotFound();
+        }
     }
 }

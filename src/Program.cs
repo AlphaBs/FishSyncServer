@@ -19,6 +19,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options => options
     .UseNpgsql(builder.Configuration.GetConnectionString("Postgres") 
                ?? throw new InvalidOperationException("ConnectionString Postgres was empty"))
     .EnableSensitiveDataLogging(true));
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 builder.Services.AddHttpClient();
 builder.Services.AddStackExchangeRedisCache(options =>
 {

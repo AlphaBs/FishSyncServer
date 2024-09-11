@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace AlphabetUpdateServer.Views.Web.ChecksumStorages;
+namespace AlphabetUpdateServer.Pages.Web.ChecksumStorages;
 
 [Authorize(Roles = UserRoleNames.StorageAdmin)]
 public class AddRFilesModel : PageModel
@@ -17,17 +17,7 @@ public class AddRFilesModel : PageModel
         _storageService = storageService;
     }
 
-    [BindProperty]
-    public string Id { get; set; } = default!;
-
-    [BindProperty]
-    public bool IsReadonly { get; set; } = false;
-
-    [BindProperty]
-    public string Endpoint { get; set; } = default!;
-
-    [BindProperty]
-    public string? ClientSecret { get; set; }
+    [BindProperty] public RFilesChecksumStorageEntity Entity { get; set; } = new();
 
     public async Task<ActionResult> OnPostAsync()
     {
@@ -38,10 +28,10 @@ public class AddRFilesModel : PageModel
 
         var entity = new RFilesChecksumStorageEntity
         {
-            Id = Id,
-            IsReadonly = IsReadonly,
-            Host = Endpoint,
-            ClientSecret = ClientSecret,
+            Id = Entity.Id,
+            IsReadonly = Entity.IsReadonly,
+            Host = Entity.Host,
+            ClientSecret = Entity.ClientSecret,
         };
         await _storageService.Create(entity);
 

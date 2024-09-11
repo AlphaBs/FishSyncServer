@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace AlphabetUpdateServer.Entities;
 
 public class RFilesChecksumStorageEntity : ChecksumStorageEntity
@@ -9,6 +11,11 @@ public class RFilesChecksumStorageEntity : ChecksumStorageEntity
         Type = RFilesType;
     }
 
+    [Required]
+    [MaxLength(128)]
     public string Host { get; set; } = null!;
+    
+    [Required]
+    [MaxLength(128)]
     public string? ClientSecret { get; set; }
 }

@@ -42,15 +42,21 @@ public class CacheChecksumStorage : IChecksumStorage
                 notFoundChecksums.Add(checksum);
             }
         }
-        
-        var result = await _checksumStorage.Query(notFoundChecksums);
-        foreach (var file in result.FoundFiles)
+
+        if (notFoundChecksums.Any())
         {
-            foundFiles.Add(file);
-            await _cache.SetFile(file);
+            var result = await _checksumStorage.Query(notFoundChecksums);
+            foreach (var file in result.FoundFiles)
+            {
+                foundFiles.Add(file);
+                await _cache.SetFile(file);
+            }
+            return new ChecksumStorageQueryResult(foundFiles, result.NotFoundChecksums);
         }
-        
-        return new ChecksumStorageQueryResult(foundFiles, result.NotFoundChecksums);
+        else
+        {
+            return new ChecksumStorageQueryResult(foundFiles, []);
+        }
     }
 
     public async Task<ChecksumStorageSyncResult> Sync(IEnumerable<string> checksums)
@@ -70,16 +76,23 @@ public class CacheChecksumStorage : IChecksumStorage
                 notFoundChecksums.Add(checksum);
             }
         }
-        
-        var result = await _checksumStorage.Sync(notFoundChecksums);
-        foreach (var file in result.SuccessFiles)
+
+        if (notFoundChecksums.Any())
         {
-            foundFiles[file.Checksum] = file;
-            await _cache.SetFile(file);
+            var result = await _checksumStorage.Sync(notFoundChecksums);
+            foreach (var file in result.SuccessFiles)
+            {
+                foundFiles[file.Checksum] = file;
+                await _cache.SetFile(file);
+            }
+
+            return new ChecksumStorageSyncResult(
+                foundFiles.Values,
+                result.RequiredActions);
         }
-        
-        return new ChecksumStorageSyncResult(
-            foundFiles.Values, 
-            result.RequiredActions);
+        else
+        {
+            return new ChecksumStorageSyncResult(foundFiles.Values, []);
+        }
     }
 }

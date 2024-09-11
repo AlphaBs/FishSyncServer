@@ -6,13 +6,16 @@ public class RFilesChecksumStorageProvider : IChecksumStorageProvider
 {
     private readonly RFilesChecksumStorageService _storageService;
     private readonly IHttpClientFactory _httpClientFactory;
+    private readonly ChecksumStorageFileCacheFactory _cache;
 
     public RFilesChecksumStorageProvider(
         IHttpClientFactory httpClientFactory,
-        RFilesChecksumStorageService storageService)
+        RFilesChecksumStorageService storageService,
+        ChecksumStorageFileCacheFactory cache)
     {
         _httpClientFactory = httpClientFactory;
         _storageService = storageService;
+        _cache = cache;
     }
 
     public async Task<IEnumerable<ChecksumStorageListItem>> GetStorages()
@@ -25,6 +28,13 @@ public class RFilesChecksumStorageProvider : IChecksumStorageProvider
         var entity = await _storageService.FindEntityById(id);
         if (entity == null)
             return null;
-        return new RFilesChecksumStorage(entity.Host, entity.ClientSecret, entity.IsReadonly, _httpClientFactory.CreateClient());
+        
+        var storage = new RFilesChecksumStorage(
+            entity.Host, 
+            entity.ClientSecret, 
+            entity.IsReadonly, 
+            _httpClientFactory.CreateClient());
+        var cache = _cache.Create($"RFilesChecksumStorage.{id}");
+        return new CacheChecksumStorage(storage, cache);
     }
 }

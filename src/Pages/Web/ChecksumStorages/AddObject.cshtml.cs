@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace AlphabetUpdateServer.Views.Web.ChecksumStorages;
+namespace AlphabetUpdateServer.Pages.Web.ChecksumStorages;
 
 [Authorize(Roles = UserRoleNames.StorageAdmin)]
 public class AddObjectModel : PageModel
@@ -17,26 +17,7 @@ public class AddObjectModel : PageModel
         _storageService = storageService;
     }
 
-    [BindProperty]
-    public string Id { get; set; } = default!;
-
-    [BindProperty]
-    public bool IsReadonly { get; set; } = false;
-
-    [BindProperty]
-    public string AccessKey { get; set; } = default!;
-
-    [BindProperty]
-    public string SecretKey { get; set; } = default!;
-
-    [BindProperty]
-    public string BucketName { get; set; } = default!;
-
-    [BindProperty]
-    public string Prefix { get; set; } = default!;
-
-    [BindProperty]
-    public string PublicEndpoint { get; set; } = default!;
+    [BindProperty] public ObjectChecksumStorageEntity Entity { get; set; } = new();
 
     public async Task<ActionResult> OnPostAsync()
     {
@@ -47,13 +28,14 @@ public class AddObjectModel : PageModel
 
         var entity = new ObjectChecksumStorageEntity
         {
-            Id = Id,
-            IsReadonly = IsReadonly,
-            AccessKey = AccessKey,
-            SecretKey = SecretKey,
-            BucketName = BucketName,
-            PublicEndpoint = PublicEndpoint,
-            Prefix = Prefix
+            Id = Entity.Id,
+            IsReadonly = Entity.IsReadonly,
+            AccessKey = Entity.AccessKey,
+            SecretKey = Entity.SecretKey,
+            BucketName = Entity.BucketName,
+            ServiceEndpoint = Entity.ServiceEndpoint,
+            PublicEndpoint = Entity.PublicEndpoint,
+            Prefix = Entity.Prefix
         };
         await _storageService.Create(entity);
 

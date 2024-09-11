@@ -1,5 +1,5 @@
 ﻿@page "{Id}"
-@model AlphabetUpdateServer.Views.Web.ChecksumStorages.EditRFilesModel
+@model AlphabetUpdateServer.Pages.Web.ChecksumStorages.EditRFilesModel
 @{
 }
 
@@ -11,28 +11,37 @@
         <form method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="Id" class="control-label"></label>
-                <input asp-for="Id" class="form-control" />
-                <span asp-validation-for="Id" class="text-danger"></span>
+                <label asp-for="Entity.Id" class="control-label"></label>
+                <input asp-for="Entity.Id" class="form-control" />
+                <span asp-validation-for="Entity.Id" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="IsReadonly" class="form-check-label"></label>
-                <input asp-for="IsReadonly" class="form-check-input" />
-                <span asp-validation-for="IsReadonly" class="text-danger"></span>
+                <label asp-for="Entity.IsReadonly" class="form-check-label"></label>
+                <input asp-for="Entity.IsReadonly" class="form-check-input" />
+                <span asp-validation-for="Entity.IsReadonly" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Endpoint" class="control-label"></label>
-                <input asp-for="Endpoint" class="form-control" />
-                <span asp-validation-for="Endpoint" class="text-danger"></span>
+                <label asp-for="Entity.Host" class="control-label"></label>
+                <input asp-for="Entity.Host" class="form-control" />
+                <span asp-validation-for="Entity.Host" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="ClientSecret" class="control-label"></label>
-                <input asp-for="ClientSecret" class="form-control"/>
-                <span asp-validation-for="ClientSecret" class="text-danger"></span>
+                <label asp-for="Entity.ClientSecret" class="control-label"></label>
+                <input asp-for="Entity.ClientSecret" class="form-control"/>
+                <span asp-validation-for="Entity.ClientSecret" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-page-handler="Delete" method="post">
+            <input asp-for="Entity.Id" type="hidden"/>
+            <input type="submit" Value="Delete" class="btn btn-danger"/>
         </form>
     </div>
 </div>

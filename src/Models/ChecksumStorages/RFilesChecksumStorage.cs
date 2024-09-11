@@ -35,6 +35,11 @@ public class RFilesChecksumStorage : IChecksumStorage
     public async Task<ChecksumStorageQueryResult> Query(IEnumerable<string> checksums)
     {
         var checksumSet = checksums.ToHashSet();
+        if (!checksumSet.Any())
+        {
+            return new ChecksumStorageQueryResult([], []);
+        }
+        
         var objects = await _rClient.Query(checksumSet);
         var files = new List<ChecksumStorageFile>();
         foreach (var obj in objects)
@@ -50,6 +55,10 @@ public class RFilesChecksumStorage : IChecksumStorage
     public async Task<ChecksumStorageSyncResult> Sync(IEnumerable<string> checksums)
     {
         var checksumSet = checksums.ToHashSet();
+        if (!checksumSet.Any())
+        {
+            return new ChecksumStorageSyncResult([], []);
+        }
         var syncResult = await _rClient.Sync(checksumSet);
 
         var files = syncResult.Objects.Select(obj => 
