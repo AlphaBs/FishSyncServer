@@ -53,4 +53,5 @@ COPY --from=build /app .
 # and https://github.com/dotnet/dotnet-docker/discussions/4764
 USER $APP_UID
 
+EXPOSE 8080
 ENTRYPOINT ["dotnet", "AlphabetUpdateServer.dll"]
