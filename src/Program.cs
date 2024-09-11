@@ -12,6 +12,8 @@ using AlphabetUpdateServer.Services.ChecksumStorages;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration.AddEnvironmentVariables("FISH_");
+
 // Application
 builder.Services.AddRazorPages();
 builder.Services.AddControllers();
