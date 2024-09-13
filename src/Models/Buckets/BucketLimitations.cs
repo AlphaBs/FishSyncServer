@@ -1,19 +1,30 @@
+using System.ComponentModel;
+
 namespace AlphabetUpdateServer.Models.Buckets;
 
 public class BucketLimitations
 {
-    public readonly static BucketLimitations NoLimits = new BucketLimitations
+    public static readonly BucketLimitations NoLimits = new BucketLimitations
     {
         IsReadOnly = false,
-        MaxFileSize = int.MaxValue,
-        MaxNumberOfFiles = int.MaxValue,
-        MaxBucketSize = int.MaxValue,
+        MaxFileSize = long.MaxValue,
+        MaxNumberOfFiles = long.MaxValue,
+        MaxBucketSize = long.MaxValue,
         ExpiredAt = DateTimeOffset.MaxValue
     };
 
+    [DisplayName("읽기 전용")]
     public bool IsReadOnly { get; set; }
+    
+    [DisplayName("최대 파일 크기")]
     public long MaxFileSize { get; set; }
+    
+    [DisplayName("최대 파일 수")]
     public long MaxNumberOfFiles { get; set; }
+    
+    [DisplayName("최대 버킷 용량")]
     public long MaxBucketSize { get; set; }
+    
+    [DisplayName("사용 만료일")]
     public DateTimeOffset ExpiredAt { get; set; }
 }

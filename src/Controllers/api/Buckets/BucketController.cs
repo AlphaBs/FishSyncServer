@@ -1,4 +1,4 @@
-using AlphabetUpdateServer.Areas.Identity.Data;
+﻿using AlphabetUpdateServer.Areas.Identity.Data;
 using AlphabetUpdateServer.DTOs;
 using AlphabetUpdateServer.Models.Buckets;
 using AlphabetUpdateServer.Services;
@@ -139,15 +139,32 @@ public class BucketController : ControllerBase
             return NotFound();
         }
 
-        var result = await bucket.Sync(files.Files);
-        if (result.IsSuccess)
+        try
         {
-            await _bucketService.UpdateFiles(id, bucket);
+            var result = await bucket.Sync(files.Files);
+            if (result.IsSuccess)
+            {
+                await _bucketService.UpdateFiles(id, bucket);
+            }
+
             return Ok(result);
         }
-        else
+        catch (BucketLimitationException ex)
         {
-            return Ok(result);
+            var detail = ex.Reason switch
+            {
+                BucketLimitationException.ReadonlyBucket => "읽기 전용 버킷입니다.",
+                BucketLimitationException.ExpiredBucket => "사용 기간이 만료되었습니다.",
+                BucketLimitationException.ExceedMaxBucketSize => "버킷 용량을 초과하였습니다.",
+                BucketLimitationException.ExceedMaxNumberOfFiles => "업로드 가능한 최대 파일 수를 초과하였습니다.",
+                _ => "사용 불가능한 버킷입니다."
+            };
+            
+            return Problem(
+                type: "https://fish.alphabeta.pw/web/errors/bucket-limitations.html",
+                title: "버킷 사용 제한",
+                statusCode: 403,
+                detail: detail);
         }
     }
 }

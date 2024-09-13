@@ -29,6 +29,7 @@ builder.Services.AddStackExchangeRedisCache(options =>
         ?? throw new InvalidOperationException("ConnectionString RedisCache was empty");
     options.InstanceName = "FishServer";
 });
+builder.Services.AddProblemDetails();
 
 // Authentication / Authorization
 var jwtOptions = builder.Configuration.GetRequiredSection(JwtOptions.SectionName).Get<JwtOptions>() ?? 
