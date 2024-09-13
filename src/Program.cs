@@ -30,6 +30,7 @@ builder.Services.AddStackExchangeRedisCache(options =>
     options.InstanceName = "FishServer";
 });
 builder.Services.AddProblemDetails();
+builder.Services.AddHealthChecks();
 
 // Authentication / Authorization
 var jwtOptions = builder.Configuration.GetRequiredSection(JwtOptions.SectionName).Get<JwtOptions>() ?? 
@@ -106,17 +107,20 @@ builder.Services.AddOptions<JwtOptions>()
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+app.UseSwagger();
+app.UseSwaggerUI();
+
+app.MapHealthChecks("/healthz");
+app.UseExceptionHandler("/api/error");
+app.UseStatusCodePages();
+
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseDeveloperExceptionPage();
 }
-else
-{
-    app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
-}
+
+// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+app.UseHsts();
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

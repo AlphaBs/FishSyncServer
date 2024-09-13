@@ -55,4 +55,5 @@ COPY --from=build /app .
 USER $APP_UID
 
 EXPOSE 8080
+HEALTHCHECK CMD curl --fail http://localhost:8080/healthz || exit
 ENTRYPOINT ["dotnet", "AlphabetUpdateServer.dll"]
