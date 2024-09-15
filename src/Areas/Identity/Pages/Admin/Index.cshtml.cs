@@ -1,4 +1,5 @@
 using AlphabetUpdateServer.Areas.Identity.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -6,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AlphabetUpdateServer.Areas.Identity.Pages.Admin;
 
+[Authorize(Roles = UserRoleNames.UserAdmin)]
 public class IndexModel : PageModel
 {
     ApplicationDbContext _dbContext;
