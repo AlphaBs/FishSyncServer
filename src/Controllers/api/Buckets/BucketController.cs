@@ -120,11 +120,15 @@ public class BucketController : ControllerBase
     /// <returns>동기화 결과</returns>
     /// <response code="200">성공</response>
     /// <response code="400">유효하지 않은 요청</response>
+    /// <response code="403">동기화 거부</response>
     /// <response code="404">찾을 수 없는 버킷</response>
+    /// <response code="503">서버 점검 중</response>
     [HttpPost("common/{id}/sync")]
     [ProducesResponseType<BucketSyncResult>(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(void), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(void), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(void), StatusCodes.Status503ServiceUnavailable)]
     [Authorize(AuthenticationSchemes = JwtAuthService.SchemeName, Roles = UserRoleNames.BucketUser)]
     public async Task<ActionResult> PostSync(string id, BucketSyncRequestDTO files)
     {
@@ -133,14 +137,14 @@ public class BucketController : ControllerBase
             return BadRequest();
         }
 
-        var bucket = await _bucketService.FindBucketById(id);
-        if (bucket == null)
-        {
-            return NotFound();
-        }
-
         try
         {
+            var bucket = await _bucketService.FindBucketById(id);
+            if (bucket == null)
+            {
+                return NotFound();
+            }
+
             var result = await bucket.Sync(files.Files);
             if (result.IsSuccess)
             {
@@ -159,12 +163,18 @@ public class BucketController : ControllerBase
                 BucketLimitationException.ExceedMaxNumberOfFiles => "업로드 가능한 최대 파일 수를 초과하였습니다.",
                 _ => "사용 불가능한 버킷입니다."
             };
-            
+
             return Problem(
                 type: "https://fish.alphabeta.pw/web/errors/bucket-limitations.html",
                 title: "버킷 사용 제한",
                 statusCode: 403,
                 detail: detail);
+        }
+        catch (ServiceMaintenanceException)
+        {
+            return Problem(
+                title: "서버 점검중",
+                statusCode: 503);
         }
     }
 }

@@ -11,6 +11,7 @@ public class ApplicationDbContext : IdentityDbContext
 
     }
 
+    public DbSet<ConfigEntity> Configs { get; set; } = null!;
     public DbSet<ChecksumStorageBucketEntity> Buckets { get; set; } = null!;
     public DbSet<ChecksumStorageBucketFileEntity> ChecksumStorageBucketFiles { get; set; } = null!;
     public DbSet<ChecksumStorageEntity> ChecksumStorages { get; set; } = null!;

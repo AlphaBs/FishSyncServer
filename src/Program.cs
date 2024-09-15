@@ -76,6 +76,8 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 // Services
+builder.Services.AddTransient<ConfigService>();
+
 builder.Services.AddTransient<ChecksumStorageBucketService>();
 
 builder.Services.AddTransient<ChecksumStorageService>();

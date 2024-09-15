@@ -7,13 +7,16 @@ namespace AlphabetUpdateServer.Services;
 public class ChecksumStorageBucketService
 {
     private readonly ChecksumStorageService _checksumStorageService;
+    private readonly ConfigService _configService;
     private readonly ApplicationDbContext _dbContext;
 
     public ChecksumStorageBucketService(
-        ChecksumStorageService checksumStorageService, 
+        ChecksumStorageService checksumStorageService,
+        ConfigService configService,
         ApplicationDbContext dbContext)
     {
         _checksumStorageService = checksumStorageService;
+        _configService = configService;
         _dbContext = dbContext;
     }
 
@@ -40,7 +43,7 @@ public class ChecksumStorageBucketService
         var checksumStorage = await _checksumStorageService.GetStorage(entity.ChecksumStorageId);
         if (checksumStorage == null)
             throw new InvalidOperationException();
-
+        
         var bucket = new ChecksumStorageBucket(
             limitations: entity.Limitations, 
             checksumStorage: checksumStorage);
@@ -74,6 +77,9 @@ public class ChecksumStorageBucketService
 
     public async Task UpdateFiles(string id, ChecksumStorageBucket bucket)
     {
+        if (await _configService.GetMaintenanceMode())
+            throw new ServiceMaintenanceException();
+        
         var bucketEntity = await _dbContext.Buckets
             .FirstOrDefaultAsync(entity => entity.Id == id);
         if (bucketEntity == null)
@@ -89,6 +95,9 @@ public class ChecksumStorageBucketService
 
     public async Task UpdateLimitationsAndStorageId(string id, BucketLimitations limitations, string storageId)
     {
+        if (await _configService.GetMaintenanceMode())
+            throw new ServiceMaintenanceException();
+        
         var entity = await _dbContext.Buckets
             .FirstOrDefaultAsync(entity => entity.Id == id);
         if (entity == null)

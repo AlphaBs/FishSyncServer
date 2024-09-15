@@ -1,0 +1,30 @@
+# This is a generated file. Not intended for manual editing.
+services:
+  server:
+    build:
+      context: "C:\\p\\programming\\git\\AlphabetUpdateServer"
+      dockerfile: "Dockerfile"
+      args:
+        BUILD_CONFIGURATION: "Debug"
+    entrypoint:
+    - "/opt/rider-debugger/linux-musl-x64/dotnet/dotnet"
+    - "exec"
+    - "--runtimeconfig"
+    - "/opt/rider-debugger/JetBrains.Debugger.Worker.runtimeconfig.json"
+    - "/opt/rider-debugger/JetBrains.Debugger.Worker.exe"
+    - "--mode=server"
+    - "--frontend-port=57100"
+    - "--backend-port=57300"
+    - "--timeout=60"
+    environment:
+      RIDER_DEBUGGER_LOG_DIR: "/var/opt/rider-debugger"
+      RESHARPER_LOG_CONF: "/etc/opt/rider-debugger/backend-log.xml"
+    ports:
+    - "127.0.0.1:57001:57100"
+    - "127.0.0.1:57201:57300"
+    volumes:
+    - "C:\\Users\\ksi12\\AppData\\Local\\JetBrains\\RiderRemoteDebugger\\2024.2.4\\\
+      LinuxMusl64:/opt/rider-debugger"
+    - "C:\\Users\\ksi12\\AppData\\Local\\Programs\\Rider\\bin:/etc/opt/rider-debugger/backend-log.xml"
+    - "C:\\Users\\ksi12\\AppData\\Local\\JetBrains\\Rider2024.2\\log\\DebuggerWorker\\\
+      JetBrains.Debugger.Worker.2024_9_15_22_37_47:/var/opt/rider-debugger:rw"
