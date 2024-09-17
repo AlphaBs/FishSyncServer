@@ -107,7 +107,7 @@ public class ChecksumStorageBucketService
         entity.ChecksumStorageId = storageId;
         await _dbContext.SaveChangesAsync();
     }
-
+    
     public async Task<string> GetStorageId(string id)
     {
         return await _dbContext.Buckets

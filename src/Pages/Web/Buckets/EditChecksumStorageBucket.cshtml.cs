@@ -1,13 +1,10 @@
-﻿using AlphabetUpdateServer.Areas.Identity.Data;
 using AlphabetUpdateServer.Models.Buckets;
 using AlphabetUpdateServer.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace AlphabetUpdateServer.Views.Web.Buckets;
+namespace AlphabetUpdateServer.Pages.Web.Buckets;
 
-[Authorize(Roles = UserRoleNames.BucketAdmin)]
 public class EditChecksumStorageBucketModel : PageModel
 {
     private readonly ChecksumStorageBucketService _bucketService;
@@ -17,19 +14,12 @@ public class EditChecksumStorageBucketModel : PageModel
         _bucketService = bucketService;
     }
 
-    [BindProperty]
-    public string Id { get; set; } = default!;
+    [BindProperty] public string Id { get; set; } = string.Empty;
 
-    [BindProperty]
-    public BucketLimitations Limitations { get; set; } = default!;
+    [BindProperty] public BucketLimitations Limitations { get; set; } = new();
 
-    [BindProperty]
-    public string StorageId { get; set; } = default!;
-
-    [BindProperty]
-    public IEnumerable<BucketFile> Files { get; set; } = [];
-
-
+    [BindProperty] public string StorageId { get; set; } = string.Empty;
+    
     public async Task<ActionResult> OnGetAsync(string id)
     {
         var bucket = await _bucketService.FindBucketById(id);
@@ -38,21 +28,23 @@ public class EditChecksumStorageBucketModel : PageModel
             return NotFound();
         }
 
+        var storageId = await _bucketService.GetStorageId(id);
+
         Id = id;
         Limitations = bucket.Limitations;
-        StorageId = await _bucketService.GetStorageId(id);
-        Files = await bucket.GetFiles();
+        StorageId = storageId;
+
         return Page();
     }
 
-    public async Task<ActionResult> OnPostAsync()
+    public async Task<ActionResult> OnPostAsync(string id)
     {
-        if (!ModelState.IsValid)
+        if (Id != id)
         {
-            return Page();
+            return BadRequest();
         }
 
-        await _bucketService.UpdateLimitationsAndStorageId(Id, Limitations, StorageId);
-        return RedirectToPage("./List");
+        await _bucketService.UpdateLimitationsAndStorageId(id, Limitations, StorageId);
+        return RedirectToPage();
     }
 }

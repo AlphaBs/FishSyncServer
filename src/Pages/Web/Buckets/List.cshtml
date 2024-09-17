@@ -1,5 +1,5 @@
 @page
-@model AlphabetUpdateServer.Views.Web.Buckets.ListModel
+@model AlphabetUpdateServer.Pages.Web.Buckets.ListModel
 
 @{
     ViewData["Title"] = "버킷 목록";
@@ -27,7 +27,7 @@
                     @foreach (var bucket in Model.Buckets)
                     {
                         <tr>
-                            <td><a asp-area="" asp-page="EditChecksumStorageBucket" asp-route-id="@bucket.Id">@bucket.Id</a></td>
+                            <td><a asp-area="" asp-page="ViewChecksumStorageBucket" asp-route-id="@bucket.Id">@bucket.Id</a></td>
                             <td>@string.Join(',', bucket.Owners)</td>
                         </tr>
                     }

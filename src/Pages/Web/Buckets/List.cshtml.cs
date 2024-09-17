@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace AlphabetUpdateServer.Views.Web.Buckets;
+namespace AlphabetUpdateServer.Pages.Web.Buckets;
 
 public class ListModel : PageModel
 {

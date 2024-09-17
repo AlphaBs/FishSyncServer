@@ -1,0 +1,135 @@
+@page "{id}"
+
+@using Humanizer;
+@using NeoSmart.PrettySize;
+
+@model AlphabetUpdateServer.Pages.Web.Buckets.ViewChecksumStorageBucketModel
+
+@{
+    ViewData["Title"] = Model.Id;
+
+    string readableSize(long size) => new PrettySize(size).Format(UnitBase.Base10);
+    string readableDateTime(DateTimeOffset dt) => dt.Humanize();
+}
+
+<h1>@Model.Id</h1>
+<a asp-page="EditChecksumStorageBucket" asp-route-id="@Model.Id">수정</a>
+
+<div class="card mt-4">
+    <div class="card-header">
+        ChecksumStorageBucket
+    </div>
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-sm-3 font-weight-bold">
+                @Html.DisplayNameFor(model => model.Id)
+            </div>
+            <div class="col-sm-9">
+                @Model.Id
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-sm-3 font-weight-bold">
+                @Html.DisplayNameFor(model => model.StorageId)
+            </div>
+            <div class="col-sm-9">
+                @Model.StorageId
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-header">
+        사용 한도
+    </div>
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-sm-3 font-weight-bold">
+                @Html.DisplayNameFor(model => model.Limitations.IsReadOnly)
+            </div>
+            <div class="col-sm-9">
+                @(Model.Limitations.IsReadOnly ? "YES" : "NO")
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-sm-3 font-weight-bold">
+                @Html.DisplayNameFor(model => model.Limitations.MaxBucketSize)
+            </div>
+            <div class="col-sm-9">
+                @readableSize(Model.Limitations.MaxBucketSize) (@Model.Limitations.MaxBucketSize.ToString("N0") bytes)
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-sm-3 font-weight-bold">
+                @Html.DisplayNameFor(model => model.Limitations.MaxFileSize)
+            </div>
+            <div class="col-sm-9">
+                @readableSize(Model.Limitations.MaxFileSize) (@Model.Limitations.MaxFileSize.ToString("N0") bytes)
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-sm-3 font-weight-bold">
+                @Html.DisplayNameFor(model => model.Limitations.MaxNumberOfFiles)
+            </div>
+            <div class="col-sm-9">
+                @Model.Limitations.MaxNumberOfFiles.ToString("N0")
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-sm-3 font-weight-bold">
+                @Html.DisplayNameFor(model => model.Limitations.ExpiredAt)
+            </div>
+            <div class="col-sm-9">
+                @Model.Limitations.ExpiredAt
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-header">
+        소유자
+    </div>
+    <div class="card-body">
+        <ul class="list-group">
+            @foreach (var owner in Model.Owners)
+            {
+            <li class="list-group-item">@owner</li>
+            }
+        </ul>
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-header">파일</div>
+    <div class="card-body">
+        <table class="table table-hover table-sm">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Size</th>
+                <th>Checksum</th>
+                <th>Updated</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var file in Model.Files)
+            {
+            <tr>
+                <td data-tippy-content="@file.Location">
+                    <a href="@file.Location" target="_blank">@file.Path</a>
+                </td>
+                <td class="col-file-metadata" data-tippy-content="@file.Metadata.Size.ToString("#,#' bytes'")">@readableSize(file.Metadata.Size)</td>
+                <td class="col-file-metadata" data-tippy-content="@file.Metadata.LastUpdated.ToString("o")">@readableDateTime(file.Metadata.LastUpdated)</td>
+                <td class="col-file-metadata">@file.Metadata.Checksum</td>
+            </tr>
+            }
+            </tbody>
+        </table>  
+    </div>
+</div>
