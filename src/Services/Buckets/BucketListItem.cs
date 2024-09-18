@@ -1,4 +1,4 @@
-namespace AlphabetUpdateServer.Services;
+namespace AlphabetUpdateServer.Services.Buckets;
 
 public record BucketListItem
 (

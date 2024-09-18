@@ -2,32 +2,98 @@
     
 @model AlphabetUpdateServer.Pages.Web.Buckets.EditChecksumStorageBucketModel
 
-<h1><a asp-page="ViewChecksumStorageBucket" asp-route-id="@Model.Id">@Model.Id</a></h1>
+<h1>@Model.Id</h1>
+<a asp-page="ViewChecksumStorageBucket" asp-route-id="@Model.Id">돌아가기</a>
 
-<form method="post">
-    <div class="mb-3">
-        <input asp-for="Limitations.IsReadOnly" class="form-check-input"/>
-        <label asp-for="Limitations.IsReadOnly" class="form-check-label"></label>
+<div class="card mt-4">
+    <div class="card-header">
+        ChecksumStorageBucket
     </div>
-    <div class="mb-3">
-        <label asp-for="Limitations.MaxBucketSize" class="form-label"></label>
-        <input asp-for="Limitations.MaxBucketSize" class="form-control"/>
+    <div class="card-body">
+        <form method="post" asp-page-handler="StorageId">
+            <div class="mb-3">
+                <label asp-for="StorageId" class="form-label"></label>
+                <input asp-for="StorageId" class="form-control"/>
+            </div>
+            <input type="submit" class="btn btn-primary"/>
+        </form>
     </div>
-    <div class="mb-3">
-        <label asp-for="Limitations.MaxFileSize" class="form-label"></label>
-        <input asp-for="Limitations.MaxFileSize" class="form-control"/>
+</div>
+
+<div class="card mt-4">
+    <div class="card-header">
+        사용 한도
     </div>
-    <div class="mb-3">
-        <label asp-for="Limitations.MaxNumberOfFiles" class="form-label"></label>
-        <input asp-for="Limitations.MaxNumberOfFiles" class="form-control"/>
+    <div class="card-body">
+        <form method="post" asp-page-handler="Limitations">
+            <div class="mb-3">
+                <input asp-for="Limitations.IsReadOnly" class="form-check-input"/>
+                <label asp-for="Limitations.IsReadOnly" class="form-check-label"></label>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Limitations.MaxBucketSize" class="form-label"></label>
+                <input asp-for="Limitations.MaxBucketSize" class="form-control"/>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Limitations.MaxFileSize" class="form-label"></label>
+                <input asp-for="Limitations.MaxFileSize" class="form-control"/>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Limitations.MaxNumberOfFiles" class="form-label"></label>
+                <input asp-for="Limitations.MaxNumberOfFiles" class="form-control"/>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Limitations.ExpiredAt" class="form-label"></label>
+                <input asp-for="Limitations.ExpiredAt" class="form-control"/>
+            </div>
+            <input type="submit" class="btn btn-primary"/>
+        </form>
     </div>
-    <div class="mb-3">
-        <label asp-for="Limitations.ExpiredAt" class="form-label"></label>
-        <input asp-for="Limitations.ExpiredAt" class="form-control"/>
+</div>
+
+<div class="card mt-4">
+    <div class="card-header">
+        소유자
     </div>
-    <div class="mb-3">
-        <label asp-for="StorageId" class="form-label"></label>
-        <input asp-for="StorageId" class="form-control"/>
+    <div class="card-body">
+        <ul class="list-group mb-3">
+            @if (Model.Owners.Any())
+            {
+                @foreach (var owner in Model.Owners)
+                {
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        @owner
+                        <form method="post" asp-page-handler="DeleteOwner">
+                            <input type="hidden" name="username" value="@owner"/>
+                            <input type="submit" class="btn-close" value=""/>
+                        </form>
+                    </li>
+                }
+            }
+            else
+            {
+                <p>소유자가 없습니다.</p>
+            }
+        </ul>
+        <form method="post" asp-page-handler="AddOwner">
+            <div class="row row-cols-lg-auto g-3 align-items-center">
+                <div class="col-12">
+                    <label class="form-check-label" for="username">유저네임</label>
+                </div>
+                <div class="col-12">
+                    <input class="form-control" type="text" id="username" name="username"/>
+                </div>
+                <div class="col-12">
+                    <input class="btn btn-primary" type="submit" value="추가"/>
+                </div>
+            </div>
+        </form>
     </div>
-    <input type="submit" class="btn btn-primary"/>
-</form>
+</div>
+
+<div class="card mt-4">
+    <div class="card-header">파일</div>
+    <div class="card-body">
+        FishSyncClient 으로 파일 관리를 할 수 있습니다.
+    </div>
+</div>

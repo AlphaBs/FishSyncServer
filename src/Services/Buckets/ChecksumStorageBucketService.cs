@@ -1,8 +1,10 @@
+using AlphabetUpdateServer.Areas.Identity.Data;
 using AlphabetUpdateServer.Entities;
 using AlphabetUpdateServer.Models.Buckets;
 using Microsoft.EntityFrameworkCore;
+using NuGet.Packaging;
 
-namespace AlphabetUpdateServer.Services;
+namespace AlphabetUpdateServer.Services.Buckets;
 
 public class ChecksumStorageBucketService
 {
@@ -80,12 +82,11 @@ public class ChecksumStorageBucketService
         if (await _configService.GetMaintenanceMode())
             throw new ServiceMaintenanceException();
         
-        var bucketEntity = await _dbContext.Buckets
-            .FirstOrDefaultAsync(entity => entity.Id == id);
-        if (bucketEntity == null)
-            throw new InvalidOperationException("Create bucket first");
-
         var files = await bucket.GetFiles();
+
+        var bucketEntity = new ChecksumStorageBucketEntity { Id = id };
+        _dbContext.Buckets.Attach(bucketEntity);
+        
         bucketEntity.Files.Clear();
         bucketEntity.Files.AddRange(files.Select(file => fileToEntity(id, file)));
         bucketEntity.LastUpdated = bucket.LastUpdated;
@@ -93,17 +94,24 @@ public class ChecksumStorageBucketService
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task UpdateLimitationsAndStorageId(string id, BucketLimitations limitations, string storageId)
+    public async Task UpdateLimitations(string id, BucketLimitations limitations)
     {
         if (await _configService.GetMaintenanceMode())
             throw new ServiceMaintenanceException();
-        
-        var entity = await _dbContext.Buckets
-            .FirstOrDefaultAsync(entity => entity.Id == id);
-        if (entity == null)
-            throw new InvalidOperationException("Create bucket first");
 
+        var entity = new ChecksumStorageBucketEntity { Id = id };
+        _dbContext.Buckets.Attach(entity);
         entity.Limitations = limitations;
+        await _dbContext.SaveChangesAsync();
+    }
+    
+    public async Task UpdateStorageId(string id, string storageId)
+    {
+        if (await _configService.GetMaintenanceMode())
+            throw new ServiceMaintenanceException();
+
+        var entity = new ChecksumStorageBucketEntity { Id = id };
+        _dbContext.Buckets.Attach(entity);
         entity.ChecksumStorageId = storageId;
         await _dbContext.SaveChangesAsync();
     }

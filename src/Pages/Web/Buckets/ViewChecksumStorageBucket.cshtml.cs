@@ -1,6 +1,7 @@
 ﻿using AlphabetUpdateServer.Areas.Identity.Data;
 using AlphabetUpdateServer.Models.Buckets;
 using AlphabetUpdateServer.Services;
+using AlphabetUpdateServer.Services.Buckets;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -11,17 +12,21 @@ namespace AlphabetUpdateServer.Pages.Web.Buckets;
 public class ViewChecksumStorageBucketModel : PageModel
 {
     private readonly ChecksumStorageBucketService _bucketService;
+    private readonly BucketOwnerService _bucketOwnerService;
 
-    public ViewChecksumStorageBucketModel(ChecksumStorageBucketService bucketService)
+    public ViewChecksumStorageBucketModel(
+        ChecksumStorageBucketService bucketService,
+        BucketOwnerService bucketOwnerService)
     {
         _bucketService = bucketService;
+        _bucketOwnerService = bucketOwnerService;
     }
 
     [BindProperty]
     public string Id { get; set; } = default!;
 
     [BindProperty]
-    public List<string> Owners { get; set; } = [];
+    public IEnumerable<string> Owners { get; set; } = [];
 
     [BindProperty]
     public BucketLimitations Limitations { get; set; } = default!;
@@ -45,18 +50,7 @@ public class ViewChecksumStorageBucketModel : PageModel
         Limitations = bucket.Limitations;
         StorageId = await _bucketService.GetStorageId(id);
         Files = await bucket.GetFiles();
-        Owners = ["a", "b", "c"];
+        Owners = await _bucketOwnerService.GetOwners(id);
         return Page();
-    }
-
-    public async Task<ActionResult> OnPostAsync()
-    {
-        if (!ModelState.IsValid)
-        {
-            return Page();
-        }
-
-        await _bucketService.UpdateLimitationsAndStorageId(Id, Limitations, StorageId);
-        return RedirectToPage("./List");
     }
 }

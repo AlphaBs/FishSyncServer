@@ -13,7 +13,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AlphabetUpdateServer.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240909150150_Init")]
+    [Migration("20240918144926_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -26,6 +26,21 @@ namespace AlphabetUpdateServer.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("AlphabetUpdateServer.Entities.BucketOwnerUserEntity", b =>
+                {
+                    b.Property<string>("ChecksumStorageBucketEntityId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.HasKey("ChecksumStorageBucketEntityId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("BucketOwnerUserEntity");
+                });
+
             modelBuilder.Entity("AlphabetUpdateServer.Entities.ChecksumStorageBucketEntity", b =>
                 {
                     b.Property<string>("Id")
@@ -33,7 +48,7 @@ namespace AlphabetUpdateServer.Migrations
 
                     b.Property<string>("ChecksumStorageId")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("character varying(16)");
 
                     b.Property<DateTimeOffset>("LastUpdated")
                         .HasColumnType("timestamp with time zone");
@@ -96,15 +111,16 @@ namespace AlphabetUpdateServer.Migrations
             modelBuilder.Entity("AlphabetUpdateServer.Entities.ChecksumStorageEntity", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("text");
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
 
                     b.Property<bool>("IsReadonly")
                         .HasColumnType("boolean");
 
                     b.Property<string>("Type")
                         .IsRequired()
-                        .HasMaxLength(8)
-                        .HasColumnType("character varying(8)");
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
 
                     b.HasKey("Id");
 
@@ -113,6 +129,22 @@ namespace AlphabetUpdateServer.Migrations
                     b.HasDiscriminator<string>("Type").HasValue("base");
 
                     b.UseTphMappingStrategy();
+                });
+
+            modelBuilder.Entity("AlphabetUpdateServer.Entities.ConfigEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Configs");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -330,27 +362,33 @@ namespace AlphabetUpdateServer.Migrations
 
                     b.Property<string>("AccessKey")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("BucketName")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("Prefix")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("PublicEndpoint")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("SecretKey")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("ServiceEndpoint")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.HasDiscriminator().HasValue("object");
                 });
@@ -360,11 +398,14 @@ namespace AlphabetUpdateServer.Migrations
                     b.HasBaseType("AlphabetUpdateServer.Entities.ChecksumStorageEntity");
 
                     b.Property<string>("ClientSecret")
-                        .HasColumnType("text");
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("Host")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.HasDiscriminator().HasValue("rfiles");
                 });
@@ -373,15 +414,26 @@ namespace AlphabetUpdateServer.Migrations
                 {
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
 
-                    b.Property<string>("ChecksumStorageBucketEntityId")
-                        .HasColumnType("text");
-
                     b.Property<string>("Discord")
-                        .HasColumnType("text");
-
-                    b.HasIndex("ChecksumStorageBucketEntityId");
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.HasDiscriminator().HasValue("User");
+                });
+
+            modelBuilder.Entity("AlphabetUpdateServer.Entities.BucketOwnerUserEntity", b =>
+                {
+                    b.HasOne("AlphabetUpdateServer.Entities.ChecksumStorageBucketEntity", null)
+                        .WithMany("OwnerUserEntities")
+                        .HasForeignKey("ChecksumStorageBucketEntityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AlphabetUpdateServer.Areas.Identity.Data.User", null)
+                        .WithMany("BucketOwnerUserEntities")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("AlphabetUpdateServer.Entities.ChecksumStorageBucketEntity", b =>
@@ -453,18 +505,16 @@ namespace AlphabetUpdateServer.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("AlphabetUpdateServer.Areas.Identity.Data.User", b =>
-                {
-                    b.HasOne("AlphabetUpdateServer.Entities.ChecksumStorageBucketEntity", null)
-                        .WithMany("Owners")
-                        .HasForeignKey("ChecksumStorageBucketEntityId");
-                });
-
             modelBuilder.Entity("AlphabetUpdateServer.Entities.ChecksumStorageBucketEntity", b =>
                 {
                     b.Navigation("Files");
 
-                    b.Navigation("Owners");
+                    b.Navigation("OwnerUserEntities");
+                });
+
+            modelBuilder.Entity("AlphabetUpdateServer.Areas.Identity.Data.User", b =>
+                {
+                    b.Navigation("BucketOwnerUserEntities");
                 });
 #pragma warning restore 612, 618
         }

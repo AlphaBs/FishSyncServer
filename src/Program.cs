@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 using AlphabetUpdateServer.Models.ChecksumStorages;
+using AlphabetUpdateServer.Services.Buckets;
 using AlphabetUpdateServer.Services.ChecksumStorages;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -79,6 +80,7 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddTransient<ConfigService>();
 
 builder.Services.AddTransient<ChecksumStorageBucketService>();
+builder.Services.AddTransient<BucketOwnerService>();
 
 builder.Services.AddTransient<ChecksumStorageService>();
 builder.Services.AddTransient<ChecksumStorageFileCacheFactory>();

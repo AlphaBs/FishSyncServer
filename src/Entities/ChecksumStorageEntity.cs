@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using AlphabetUpdateServer.Areas.Identity.Data;
 
 namespace AlphabetUpdateServer.Entities;
 

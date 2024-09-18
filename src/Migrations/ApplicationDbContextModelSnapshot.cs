@@ -23,6 +23,21 @@ namespace AlphabetUpdateServer.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("AlphabetUpdateServer.Entities.BucketOwnerUserEntity", b =>
+                {
+                    b.Property<string>("ChecksumStorageBucketEntityId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.HasKey("ChecksumStorageBucketEntityId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("BucketOwnerUserEntity");
+                });
+
             modelBuilder.Entity("AlphabetUpdateServer.Entities.ChecksumStorageBucketEntity", b =>
                 {
                     b.Property<string>("Id")
@@ -396,15 +411,26 @@ namespace AlphabetUpdateServer.Migrations
                 {
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
 
-                    b.Property<string>("ChecksumStorageBucketEntityId")
-                        .HasColumnType("text");
-
                     b.Property<string>("Discord")
-                        .HasColumnType("text");
-
-                    b.HasIndex("ChecksumStorageBucketEntityId");
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.HasDiscriminator().HasValue("User");
+                });
+
+            modelBuilder.Entity("AlphabetUpdateServer.Entities.BucketOwnerUserEntity", b =>
+                {
+                    b.HasOne("AlphabetUpdateServer.Entities.ChecksumStorageBucketEntity", null)
+                        .WithMany("OwnerUserEntities")
+                        .HasForeignKey("ChecksumStorageBucketEntityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AlphabetUpdateServer.Areas.Identity.Data.User", null)
+                        .WithMany("BucketOwnerUserEntities")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("AlphabetUpdateServer.Entities.ChecksumStorageBucketEntity", b =>
@@ -476,18 +502,16 @@ namespace AlphabetUpdateServer.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("AlphabetUpdateServer.Areas.Identity.Data.User", b =>
-                {
-                    b.HasOne("AlphabetUpdateServer.Entities.ChecksumStorageBucketEntity", null)
-                        .WithMany("Owners")
-                        .HasForeignKey("ChecksumStorageBucketEntityId");
-                });
-
             modelBuilder.Entity("AlphabetUpdateServer.Entities.ChecksumStorageBucketEntity", b =>
                 {
                     b.Navigation("Files");
 
-                    b.Navigation("Owners");
+                    b.Navigation("OwnerUserEntities");
+                });
+
+            modelBuilder.Entity("AlphabetUpdateServer.Areas.Identity.Data.User", b =>
+                {
+                    b.Navigation("BucketOwnerUserEntities");
                 });
 #pragma warning restore 612, 618
         }

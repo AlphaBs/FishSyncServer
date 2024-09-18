@@ -1,3 +1,4 @@
+using AlphabetUpdateServer.Areas.Identity.Data;
 using AlphabetUpdateServer.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +21,11 @@ public class ApplicationDbContext : IdentityDbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<ChecksumStorageBucketEntity>()
+            .HasMany(e => e.Owners)
+            .WithMany(e => e.Buckets)
+            .UsingEntity<BucketOwnerUserEntity>();
+        
         // 1:N relationship between ChecksumStorages(1) <-> Buckets(N)
         modelBuilder.Entity<ChecksumStorageBucketEntity>()
             .HasOne<ChecksumStorageEntity>()
