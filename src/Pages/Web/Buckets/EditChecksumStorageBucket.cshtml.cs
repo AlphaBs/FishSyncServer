@@ -1,6 +1,8 @@
+using AlphabetUpdateServer.Areas.Identity.Data;
 using AlphabetUpdateServer.Models.Buckets;
 using AlphabetUpdateServer.Services;
 using AlphabetUpdateServer.Services.Buckets;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -8,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AlphabetUpdateServer.Pages.Web.Buckets;
 
+[Authorize(Roles = UserRoleNames.BucketAdmin)]
 public class EditChecksumStorageBucketModel : PageModel
 {
     private readonly ChecksumStorageBucketService _bucketService;

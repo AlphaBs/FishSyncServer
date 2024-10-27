@@ -15,6 +15,22 @@ public class BucketOwnerService
         _dbContext = context;
         _userManager = userManager;
     }
+
+    public async Task<bool> CheckOwnershipByUserId(string bucketId, string userId)
+    {
+        return await _dbContext.Buckets
+            .Where(bucket => bucket.Id == bucketId)
+            .SelectMany(bucket => bucket.OwnerUserEntities)
+            .AnyAsync(e => e.UserId == userId);
+    }
+
+    public async Task<bool> CheckOwnershipByUserName(string bucketId, string userName)
+    {
+        var user = await _userManager.FindByNameAsync(userName);
+        if (user == null)
+            throw new KeyNotFoundException("User not found");
+        return await CheckOwnershipByUserId(bucketId, user.Id);
+    }
     
     public async Task<IEnumerable<string>> GetOwners(string bucketId)
     {
@@ -27,6 +43,14 @@ public class BucketOwnerService
         return usernames.Where(username => !string.IsNullOrEmpty(username))!;
     }
 
+    public async Task<IEnumerable<string>> GetBuckets(string username)
+    {
+        var user = await _userManager.FindByNameAsync(username);
+        if (user == null)
+            throw new KeyNotFoundException("User not found");
+        return user.Buckets.Select(bucket => bucket.Id);
+    }
+    
     public async Task AddOwner(string bucketId, string username)
     {
         var bucket = new ChecksumStorageBucketEntity { Id = bucketId };

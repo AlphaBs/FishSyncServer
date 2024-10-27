@@ -1,4 +1,6 @@
-﻿using AlphabetUpdateServer.Areas.Identity.Data;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using AlphabetUpdateServer.Areas.Identity.Data;
 using AlphabetUpdateServer.DTOs;
 using AlphabetUpdateServer.Models.Buckets;
 using AlphabetUpdateServer.Services;
@@ -6,6 +8,7 @@ using AlphabetUpdateServer.Services.Buckets;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using JsonClaimValueTypes = Microsoft.IdentityModel.JsonWebTokens.JsonClaimValueTypes;
 
 namespace AlphabetUpdateServer.Controllers.Api.Buckets;
 
@@ -18,10 +21,14 @@ namespace AlphabetUpdateServer.Controllers.Api.Buckets;
 public class BucketController : ControllerBase
 {
     private readonly ChecksumStorageBucketService _bucketService;
+    private readonly BucketOwnerService _bucketOwnerService;
 
-    public BucketController(ChecksumStorageBucketService bucketService)
+    public BucketController(
+        ChecksumStorageBucketService bucketService,
+        BucketOwnerService bucketOwnerService)
     {
         _bucketService = bucketService;
+        _bucketOwnerService = bucketOwnerService;
     }
 
     /// <summary>
@@ -133,13 +140,17 @@ public class BucketController : ControllerBase
     [Authorize(AuthenticationSchemes = JwtAuthService.SchemeName, Roles = UserRoleNames.BucketUser)]
     public async Task<ActionResult> PostSync(string id, BucketSyncRequestDTO files)
     {
-        if (files?.Files == null)
+        if (files.Files == null)
         {
             return BadRequest();
         }
 
         try
         {
+            var hasPermission = await checkSyncPermission(id);
+            if (!hasPermission)
+                return Forbid();
+            
             var bucket = await _bucketService.FindBucketById(id);
             if (bucket == null)
             {
@@ -177,5 +188,15 @@ public class BucketController : ControllerBase
                 title: "서버 점검중",
                 statusCode: 503);
         }
+    }
+
+    private async Task<bool> checkSyncPermission(string bucketId)
+    {
+        if (User.IsInRole(UserRoleNames.BucketAdmin))
+            return true;
+
+        // JWT 에서 sub 가 ClaimTypes.NameIdentifier 으로 바뀜
+        var sub = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value ?? "";
+        return await _bucketOwnerService.CheckOwnershipByUserName(bucketId, sub);
     }
 }
