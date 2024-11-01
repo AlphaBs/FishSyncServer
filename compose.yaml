@@ -12,6 +12,7 @@ services:
       - 'FISH_JWT__Issuer=fish.alphabeta.pw'
       - 'FISH_JWT__Audience=fish.alphabeta.pw'
       - 'FISH_JWT__ExpiresInSecond=3600'
+      - 'FISH_COOKIE__ExpireTimeSpan=00:30:00'
       - 'FISH_AUTHENTICATION__SCHEMES__BEARER__ValidAudiences=https://fish.alphabeta.pw'
       - 'FISH_AUTHENTICATION__SCHEMES__BEARER__ValidIssuer=dotnet-user-jwts'
   redis:

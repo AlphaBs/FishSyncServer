@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace AlphabetUpdateServer.Pages.Web.Buckets;
 
-[Authorize(Roles = UserRoleNames.BucketAdmin)]
+[Authorize(Roles = UserRoleNames.BucketUser)]
 public class ViewChecksumStorageBucketModel : PageModel
 {
     private readonly ChecksumStorageBucketService _bucketService;
