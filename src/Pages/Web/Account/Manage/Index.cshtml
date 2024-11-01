@@ -1,0 +1,37 @@
+﻿@page "/Web/Account/Manage/{username}/Index"
+@model IndexModel
+@{
+    ViewData["Title"] = "프로필";
+}
+
+<h3>@ViewData["Title"]</h3>
+<p>@Model.StatusMessage</p>
+<div class="row">
+    <div class="col-sm-8 col-md-2">
+        <partial name="_NavBarPartial"/>
+    </div>
+    <div class="col-sm-8 col-md-6">
+        <form id="profile-form" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+            <div class="mb-3">
+                <label asp-for="Username" class="form-label"></label>
+                <input asp-for="Username" class="form-control" disabled/>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label"></label>
+                <input asp-for="Email" class="form-control"/>
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Memo" class="form-label"></label>
+                <input asp-for="Memo" class="form-control"/>
+                <span asp-validation-for="Memo" class="text-danger"></span>
+            </div>
+            <button id="update-profile-button" type="submit" class="w-100 btn btn-lg btn-primary">저장</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

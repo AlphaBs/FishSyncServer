@@ -1,14 +1,11 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using AlphabetUpdateServer.Areas.Identity.Data;
+﻿using System.Security.Claims;
 using AlphabetUpdateServer.DTOs;
 using AlphabetUpdateServer.Models.Buckets;
 using AlphabetUpdateServer.Services;
 using AlphabetUpdateServer.Services.Buckets;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using AlphabetUpdateServer.Services.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using JsonClaimValueTypes = Microsoft.IdentityModel.JsonWebTokens.JsonClaimValueTypes;
 
 namespace AlphabetUpdateServer.Controllers.Api.Buckets;
 
@@ -197,6 +194,6 @@ public class BucketController : ControllerBase
 
         // JWT 에서 sub 가 ClaimTypes.NameIdentifier 으로 바뀜
         var sub = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value ?? "";
-        return await _bucketOwnerService.CheckOwnershipByUserName(bucketId, sub);
+        return await _bucketOwnerService.CheckOwnershipByUsername(bucketId, sub);
     }
 }

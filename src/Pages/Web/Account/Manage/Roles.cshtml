@@ -1,0 +1,32 @@
+@page "/Web/Account/Manage/{username}/Roles"
+@model RolesModel
+
+@{
+    ViewData["Title"] = "권한";
+}
+
+<h3>@ViewData["Title"]</h3>
+<p>@Model.StatusMessage</p>
+<div class="row">
+    <div class="col-sm-8 col-md-2">
+        <partial name="_NavBarPartial"/>
+    </div>
+    <div class="col-sm-8 col-md-6">
+        <form method="post">
+            <div class="col-sm-10">
+                @for (int i = 0; i < Model.RoleEnables.Count; i++)
+                {
+                <div class="form-check">
+                    <input asp-for="@Model.RoleEnables[i]" class="form-check-input" />
+                    <label class="form-check-label">@Model.RoleNames[i]</label>
+                </div>
+                }
+            </div>
+            <button type="submit" name="action" class="btn btn-primary mb-3">Update</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+<partial name="_ValidationScriptsPartial" />
+}

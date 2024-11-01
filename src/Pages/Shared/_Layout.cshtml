@@ -14,7 +14,7 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-page="/Web/Home/Index">FISH SERVER</a>
+                <a class="navbar-brand" asp-page="/Web/Home/Index">FISH SERVER</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -22,16 +22,16 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Web/Buckets/List">버킷</a>
+                            <a class="nav-link text-dark" asp-page="/Web/Buckets/List">버킷</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Web/ChecksumStorages/List">스토리지</a>
+                            <a class="nav-link text-dark" asp-page="/Web/ChecksumStorages/List">스토리지</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="Identity" asp-page="/Admin/Index">유저</a>
+                            <a class="nav-link text-dark" asp-page="/Web/Account/Admin/Index">유저</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Web/Config">설정</a>
+                            <a class="nav-link text-dark" asp-page="/Web/Config">설정</a>
                         </li>
                     </ul>
                     <partial name="_LoginPartial"/>
@@ -49,7 +49,7 @@
         <div class="container">
             <div class="row">
                 <div class="col">
-                    &copy; 2024 ksi123456ab FISH SERVER - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a></<br />
+                    &copy; 2024 ksi123456ab FISH SERVER - <a asp-page="/Web/Home/Privacy">Privacy</a><br/>
                 </div>
                 <div class="col">
                     @Html.Encode("ksi123456ab@gmail.com")

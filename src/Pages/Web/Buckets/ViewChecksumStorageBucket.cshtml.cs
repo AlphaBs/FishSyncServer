@@ -1,7 +1,6 @@
-﻿using AlphabetUpdateServer.Areas.Identity.Data;
-using AlphabetUpdateServer.Models.Buckets;
-using AlphabetUpdateServer.Services;
+﻿using AlphabetUpdateServer.Models.Buckets;
 using AlphabetUpdateServer.Services.Buckets;
+using AlphabetUpdateServer.Services.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;

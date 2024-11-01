@@ -1,11 +1,9 @@
-using AlphabetUpdateServer.Areas.Identity.Data;
 using AlphabetUpdateServer.Entities;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace AlphabetUpdateServer;
 
-public class ApplicationDbContext : IdentityDbContext
+public class ApplicationDbContext : DbContext
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
     {
@@ -13,6 +11,7 @@ public class ApplicationDbContext : IdentityDbContext
     }
 
     public DbSet<ConfigEntity> Configs { get; set; } = null!;
+    public DbSet<UserEntity> Users { get; set; } = null!;
     public DbSet<ChecksumStorageBucketEntity> Buckets { get; set; } = null!;
     public DbSet<ChecksumStorageBucketFileEntity> ChecksumStorageBucketFiles { get; set; } = null!;
     public DbSet<ChecksumStorageEntity> ChecksumStorages { get; set; } = null!;
@@ -21,10 +20,16 @@ public class ApplicationDbContext : IdentityDbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<UserEntity>()
+            .HasKey(e => e.Username);
+
+        modelBuilder.Entity<UserEntity>()
+            .HasMany(e => e.Buckets)
+            .WithMany(e => e.Owners);
+
         modelBuilder.Entity<ChecksumStorageBucketEntity>()
             .HasMany(e => e.Owners)
-            .WithMany(e => e.Buckets)
-            .UsingEntity<BucketOwnerUserEntity>();
+            .WithMany(e => e.Buckets);
         
         // 1:N relationship between ChecksumStorages(1) <-> Buckets(N)
         modelBuilder.Entity<ChecksumStorageBucketEntity>()
@@ -58,9 +63,6 @@ public class ApplicationDbContext : IdentityDbContext
             .HasValue<ChecksumStorageEntity>("base")
             .HasValue<RFilesChecksumStorageEntity>(RFilesChecksumStorageEntity.RFilesType)
             .HasValue<ObjectChecksumStorageEntity>(ObjectChecksumStorageEntity.ObjectType);
-
-        modelBuilder.Entity<RFilesChecksumStorageEntity>()
-            .HasBaseType<ChecksumStorageEntity>();
 
         modelBuilder.Entity<RFilesChecksumStorageEntity>()
             .HasBaseType<ChecksumStorageEntity>();

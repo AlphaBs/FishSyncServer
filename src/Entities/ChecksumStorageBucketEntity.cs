@@ -1,16 +1,23 @@
-using AlphabetUpdateServer.Areas.Identity.Data;
+using System.ComponentModel.DataAnnotations;
 using AlphabetUpdateServer.Models.Buckets;
-using Microsoft.AspNetCore.Identity;
 
 namespace AlphabetUpdateServer.Entities;
 
 public class ChecksumStorageBucketEntity
 {
-    public string Id { get; set; } = null!;
+    [Required]
+    [MaxLength(16)]
+    public required string Id { get; set; } = null!;
+    
     public BucketLimitations Limitations { get; set; } = null!;
-    public ICollection<User> Owners { get; } = [];
-    public ICollection<BucketOwnerUserEntity> OwnerUserEntities { get; set; } = [];
+    
+    public ICollection<UserEntity> Owners { get; } = [];
+    
     public ICollection<ChecksumStorageBucketFileEntity> Files { get; } = [];
+    
     public DateTimeOffset LastUpdated { get; set; }
+    
+    [Required]
+    [MaxLength(16)]
     public string ChecksumStorageId { get; set; } = null!;
 }

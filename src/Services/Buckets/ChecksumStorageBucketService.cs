@@ -1,4 +1,3 @@
-using AlphabetUpdateServer.Areas.Identity.Data;
 using AlphabetUpdateServer.Entities;
 using AlphabetUpdateServer.Models.Buckets;
 using Microsoft.EntityFrameworkCore;
@@ -27,7 +26,7 @@ public class ChecksumStorageBucketService
         return await _dbContext.Buckets
             .Select(bucket => new BucketListItem(
                 bucket.Id,
-                bucket.Owners.Select(owner => owner.Id), 
+                bucket.Owners.Select(owner => owner.Username), 
                 bucket.LastUpdated))
             .ToListAsync();
     }

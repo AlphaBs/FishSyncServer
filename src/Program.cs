@@ -1,8 +1,6 @@
 using AlphabetUpdateServer;
-using AlphabetUpdateServer.Areas.Identity.Data;
 using AlphabetUpdateServer.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -10,6 +8,9 @@ using System.Reflection;
 using AlphabetUpdateServer.Models.ChecksumStorages;
 using AlphabetUpdateServer.Services.Buckets;
 using AlphabetUpdateServer.Services.ChecksumStorages;
+using AlphabetUpdateServer.Services.Users;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using CookieOptions = AlphabetUpdateServer.Services.Users.CookieOptions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -50,9 +51,16 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         ValidIssuer = jwtOptions.Issuer,
     };
 });
-builder.Services.AddDefaultIdentity<User>()
-    .AddRoles<IdentityRole>()
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+var cookieOptions = builder.Configuration.GetRequiredSection(CookieOptions.SectionName).Get<CookieOptions>()
+    ?? throw new InvalidOperationException("Cannot find Cookie configuration.");
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
+{
+    options.LoginPath = "/Web/Account/Login";
+    options.LogoutPath = "/Web/Account/Logout";
+    options.AccessDeniedPath = "/Web/Account/AccessDenied";
+    options.ExpireTimeSpan = cookieOptions.ExpireTimeSpan;
+    options.SlidingExpiration = true;
+});
 
 // Swagger
 builder.Services.AddSwaggerGen(options =>
@@ -81,6 +89,7 @@ builder.Services.AddTransient<ConfigService>();
 
 builder.Services.AddTransient<ChecksumStorageBucketService>();
 builder.Services.AddTransient<BucketOwnerService>();
+builder.Services.AddTransient<UserService>();
 
 builder.Services.AddTransient<ChecksumStorageService>();
 builder.Services.AddTransient<ChecksumStorageFileCacheFactory>();
@@ -92,18 +101,6 @@ builder.Services.AddTransient<RFilesChecksumStorageService>();
 builder.Services.AddSingleton<JwtAuthService>();
 
 // Configurations
-builder.Services.Configure<IdentityOptions>(options =>
-{
-    options.User.RequireUniqueEmail = false;
-
-    options.SignIn.RequireConfirmedPhoneNumber = false;
-    options.SignIn.RequireConfirmedEmail = false;
-    options.SignIn.RequireConfirmedAccount = false;
-
-    options.Password.RequiredLength = 6;
-    options.Password.RequireNonAlphanumeric = false;
-    options.Password.RequireUppercase = false;
-});
 builder.Services.AddOptions<JwtOptions>()
     .Bind(builder.Configuration.GetSection(JwtOptions.SectionName))
     .ValidateDataAnnotations();

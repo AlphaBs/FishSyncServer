@@ -1,12 +1,11 @@
-﻿using AlphabetUpdateServer.Areas.Identity.Data;
-using AlphabetUpdateServer.DTOs;
+﻿using AlphabetUpdateServer.DTOs;
 using AlphabetUpdateServer.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
+using AlphabetUpdateServer.Entities;
+using AlphabetUpdateServer.Services.Users;
 
 namespace AlphabetUpdateServer.Controllers.Api;
 
@@ -15,24 +14,15 @@ namespace AlphabetUpdateServer.Controllers.Api;
 [Produces("application/json")]
 public class AuthController : ControllerBase
 {
-    private readonly UserManager<User> _userManager;
-    private readonly IUserStore<User> _userStore;
-    private readonly RoleManager<IdentityRole> _roleManager;
-    private readonly SignInManager<User> _signInManager;
     private readonly JwtAuthService _jwtService;
+    private readonly UserService _userService;
 
     public AuthController(
-        UserManager<User> userManager,
-        IUserStore<User> userStore,
-        SignInManager<User> signInManager, 
-        JwtAuthService jwtService, 
-        RoleManager<IdentityRole> roleManager)
+        JwtAuthService jwtService,
+        UserService userService)
     {
-        _userManager = userManager;
-        _userStore = userStore;
-        _signInManager = signInManager;
         _jwtService = jwtService;
-        _roleManager = roleManager;
+        _userService = userService;
     }
 
     [AllowAnonymous]
@@ -44,31 +34,21 @@ public class AuthController : ControllerBase
             return BadRequest();
         }
 
-        var user = await _signInManager.UserManager.FindByNameAsync(request.Username);
+        var user = await _userService.FindUser(request.Username);
         if (user == null)
         {
             return Unauthorized();
         }
-
-        var roles = await _signInManager.UserManager.GetRolesAsync(user);
-        var result = await _signInManager.CheckPasswordSignInAsync(user, request.Password, true);
-        if (result.Succeeded)
+        
+        if (await _userService.LoginByPassword(user, request.Password))
         {
-            var token = _jwtService.GenerateJwt(request.Username, roles);
+            var token = _jwtService.GenerateJwt(request.Username, user.Roles);
             return Ok(new LoginResponseDTO
             {
                 Username = request.Username,
-                Roles = roles,
+                Roles = user.Roles,
                 Token = token
             });
-        }
-        if (result.RequiresTwoFactor)
-        {
-            return Unauthorized("required two-factor");
-        }
-        if (result.IsLockedOut)
-        {
-            return Unauthorized("locked");
         }
 
         return Unauthorized();
@@ -81,27 +61,24 @@ public class AuthController : ControllerBase
         return Ok(JsonSerializer.Serialize(HttpContext.User.Claims.Select(claim => claim.ToString())));
     }
 
-    [HttpPost("init-role")]
-    public async Task<ActionResult> InitRole()
-    {
-        await _roleManager.CreateAsync(new IdentityRole("user-bucket"));
-        await _roleManager.CreateAsync(new IdentityRole("admin-bucket"));
-        await _roleManager.CreateAsync(new IdentityRole("admin-storage"));
-        await _roleManager.CreateAsync(new IdentityRole("admin-user"));
-        return NoContent();
-    }
-
     [HttpPost("init-user")]
     public async Task<ActionResult> InitAdmin()
     {
-        var user = new User();
-        user.Email = "admin@example.com";
-        user.Discord = "";
+        var user = new UserEntity()
+        {
+            Username = "admin",
+            Roles = 
+            [
+                UserRoleNames.UserAdmin, 
+                UserRoleNames.BucketAdmin, 
+                UserRoleNames.StorageAdmin, 
+                UserRoleNames.BucketUser
+            ],
+            Email = "admin@example.com",
+            Memo = "ADMIN"
+        };
 
-        await _userStore.SetUserNameAsync(user, "admin", CancellationToken.None);
-        var result = await _userManager.CreateAsync(user, "password13");
-        await _userManager.AddToRolesAsync(user, [UserRoleNames.UserAdmin, UserRoleNames.BucketAdmin, UserRoleNames.StorageAdmin, UserRoleNames.BucketUser]);
-
-        return Ok(result);
+        await _userService.AddUser(user, "password13");
+        return Ok(user);
     }
 }
