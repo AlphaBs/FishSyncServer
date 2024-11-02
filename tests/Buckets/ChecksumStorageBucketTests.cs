@@ -160,6 +160,35 @@ public class ChecksumStorageBucketTests
     }
 
     [Fact]
+    public async Task create_distinct_sync_action_for_nonexistent_files_with_same_checksum()
+    {
+        // Given
+        var bucket = createTestBucket(BucketLimitations.NoLimits);
+
+        // When
+        var syncResult = await bucket.Sync(
+        [
+            new BucketSyncFile
+            {
+                Path = "file1.zip",
+                Size = 1001,
+                Checksum = "file?_checksum"
+            },
+            new BucketSyncFile
+            {
+                Path = "file2.zip",
+                Size = 1001,
+                Checksum = "file?_checksum"
+            }
+        ]);
+
+        // Then
+        Assert.False(syncResult.IsSuccess);
+        Assert.Empty(await bucket.GetFiles());
+        Assert.Single(syncResult.RequiredActions);
+    }
+
+    [Fact]
     public async Task fail_sync_to_readonly_bucket()
     {
         // Given

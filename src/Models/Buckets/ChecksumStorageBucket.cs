@@ -159,10 +159,11 @@ public class ChecksumStorageBucket : IBucket
         {
             if (requestChecksumFileMap.TryGetValue(action.Checksum, out var requestFiles))
             {
-                foreach (var requestFile in requestFiles)
+                var firstFile = requestFiles.FirstOrDefault();
+                if (firstFile != null) // 중복 action 방지를 위해 첫번째 파일만 처리 
                 {
-                    actions.Add(new BucketSyncAction(requestFile.Path!, action.Action));
-                    requestChecksumFileMap.Remove(action.Checksum);
+                    actions.Add(new BucketSyncAction(firstFile.Path!, action.Action));
+                    requestChecksumFileMap.Remove(action.Checksum);   
                 }
             }
         }
