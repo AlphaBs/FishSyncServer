@@ -1,7 +1,6 @@
 using AlphabetUpdateServer.Models.ChecksumStorages;
-using AlphabetUpdateServer.Services.ChecksumStorages;
 
-namespace AlphabetUpdateServer.Services;
+namespace AlphabetUpdateServer.Services.ChecksumStorages;
 
 public class ChecksumStorageService
 {

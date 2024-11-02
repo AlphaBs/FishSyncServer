@@ -21,13 +21,9 @@ public class ChecksumStorageFileCache
     
     public async Task SetFile(ChecksumStorageFile file)
     {
-        using var ms = new MemoryStream();
-        JsonSerializer.Serialize(ms, file, SerializerOptions); // MemoryStream do not have async methods
-        ms.Position = 0;
-        
         await _cache.SetAsync(
             getCacheKey(file.Checksum), 
-            ms.ToArray(),
+            JsonSerializer.SerializeToUtf8Bytes(file, SerializerOptions),
             new DistributedCacheEntryOptions
             {
                 AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(1)

@@ -1,7 +1,7 @@
 using AlphabetUpdateServer.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace AlphabetUpdateServer.Services;
+namespace AlphabetUpdateServer.Services.ChecksumStorages;
 
 public class ObjectChecksumStorageService
 {

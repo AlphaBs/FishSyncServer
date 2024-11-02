@@ -1,5 +1,4 @@
-﻿using AlphabetUpdateServer.Models.ChecksumStorages;
-using AlphabetUpdateServer.Services;
+﻿using AlphabetUpdateServer.Services.ChecksumStorages;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 

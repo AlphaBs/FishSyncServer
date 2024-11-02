@@ -1,4 +1,4 @@
-namespace AlphabetUpdateServer.Services;
+namespace AlphabetUpdateServer.Services.ChecksumStorages;
 
 public record ChecksumStorageListItem
 (

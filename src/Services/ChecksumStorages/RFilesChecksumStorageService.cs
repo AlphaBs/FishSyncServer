@@ -1,8 +1,7 @@
 using AlphabetUpdateServer.Entities;
-using AlphabetUpdateServer.Models.ChecksumStorages;
 using Microsoft.EntityFrameworkCore;
 
-namespace AlphabetUpdateServer.Services;
+namespace AlphabetUpdateServer.Services.ChecksumStorages;
 
 public class RFilesChecksumStorageService
 {

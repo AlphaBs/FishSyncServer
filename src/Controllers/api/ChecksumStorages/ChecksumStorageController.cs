@@ -1,4 +1,4 @@
-﻿using AlphabetUpdateServer.Services;
+﻿using AlphabetUpdateServer.Services.ChecksumStorages;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AlphabetUpdateServer.Controllers.Api.ChecksumStorages;
