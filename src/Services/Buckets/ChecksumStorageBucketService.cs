@@ -82,15 +82,22 @@ public class ChecksumStorageBucketService
         if (await _configService.GetMaintenanceMode())
             throw new ServiceMaintenanceException();
         
-        var files = await bucket.GetFiles();
-
-        var bucketEntity = new ChecksumStorageBucketEntity { Id = id };
-        _dbContext.Buckets.Attach(bucketEntity);
+        var entity = await _dbContext.Buckets
+            .Include(e => e.Files)
+            .FirstOrDefaultAsync(e => e.Id == id);
         
-        bucketEntity.Files.Clear();
-        bucketEntity.Files.AddRange(files.Select(file => fileToEntity(id, file)));
-        bucketEntity.LastUpdated = bucket.LastUpdated;
+        if (entity == null)
+            throw new KeyNotFoundException(id);
+        
+        var files = await bucket.GetFiles();
+        var fileEntities = files
+            .Select(file => fileToEntity(id, file))
+            .ToList();
 
+        entity.Files.Clear();
+        entity.Files.AddRange(fileEntities);
+        entity.LastUpdated = bucket.LastUpdated;
+        
         await _dbContext.SaveChangesAsync();
     }
 
@@ -99,8 +106,12 @@ public class ChecksumStorageBucketService
         if (await _configService.GetMaintenanceMode())
             throw new ServiceMaintenanceException();
 
-        var entity = new ChecksumStorageBucketEntity { Id = id };
-        _dbContext.Buckets.Attach(entity);
+        var entity = await _dbContext.Buckets
+            .FirstOrDefaultAsync(e => e.Id == id);
+        
+        if (entity == null)
+            throw new KeyNotFoundException(id);
+
         entity.Limitations = limitations;
         await _dbContext.SaveChangesAsync();
     }
@@ -110,10 +121,13 @@ public class ChecksumStorageBucketService
         if (await _configService.GetMaintenanceMode())
             throw new ServiceMaintenanceException();
 
-        var entity = new ChecksumStorageBucketEntity { Id = id };
-        _dbContext.Buckets.Attach(entity);
-        entity.ChecksumStorageId = storageId;
-        await _dbContext.SaveChangesAsync();
+        var rows = await _dbContext.Buckets
+            .Where(e => e.Id == id)
+            .ExecuteUpdateAsync(s => s
+                .SetProperty(p => p.ChecksumStorageId, storageId));
+
+        if (rows == 0)
+            throw new KeyNotFoundException(id);
     }
     
     public async Task<string> GetStorageId(string id)
