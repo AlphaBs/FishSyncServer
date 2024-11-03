@@ -7,9 +7,11 @@ using Microsoft.OpenApi.Models;
 using System.Reflection;
 using AlphabetUpdateServer.Models.ChecksumStorages;
 using AlphabetUpdateServer.Services.Buckets;
+using AlphabetUpdateServer.Services.ChecksumStorageCaches;
 using AlphabetUpdateServer.Services.ChecksumStorages;
 using AlphabetUpdateServer.Services.Users;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using StackExchange.Redis;
 using CookieOptions = AlphabetUpdateServer.Services.Users.CookieOptions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,14 +27,11 @@ builder.Services.AddDbContext<ApplicationDbContext>(options => options
     .EnableSensitiveDataLogging(true));
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 builder.Services.AddHttpClient();
-builder.Services.AddStackExchangeRedisCache(options =>
-{
-    options.Configuration = builder.Configuration.GetConnectionString("RedisCache")
-        ?? throw new InvalidOperationException("ConnectionString RedisCache was empty");
-    options.InstanceName = "FishServer";
-});
 builder.Services.AddProblemDetails();
 builder.Services.AddHealthChecks();
+builder.Services.AddSingleton<ConnectionMultiplexer>(_ => 
+    ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("RedisCache")
+    ?? throw new InvalidOperationException("ConnectionString RedisCache was empty")));
 
 // Authentication / Authorization
 var jwtOptions = builder.Configuration.GetRequiredSection(JwtOptions.SectionName).Get<JwtOptions>() ?? 
@@ -92,11 +91,12 @@ builder.Services.AddTransient<BucketOwnerService>();
 builder.Services.AddTransient<UserService>();
 
 builder.Services.AddTransient<ChecksumStorageService>();
-builder.Services.AddTransient<ChecksumStorageFileCacheFactory>();
+builder.Services.AddTransient<CacheChecksumStorageFactory>();
 builder.Services.AddTransient<IChecksumStorageProvider, ObjectChecksumStorageProvider>();
 builder.Services.AddTransient<IChecksumStorageProvider, RFilesChecksumStorageProvider>();
 builder.Services.AddTransient<ObjectChecksumStorageService>();
 builder.Services.AddTransient<RFilesChecksumStorageService>();
+builder.Services.AddTransient<IChecksumStorageCache, RedisChecksumStorageCache>();
 
 builder.Services.AddSingleton<JwtAuthService>();
 

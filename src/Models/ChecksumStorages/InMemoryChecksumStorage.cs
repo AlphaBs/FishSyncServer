@@ -7,9 +7,9 @@ public class InMemoryChecksumStorage : IChecksumStorage
 
     public bool IsReadOnly { get; set; }
 
-    public IAsyncEnumerable<ChecksumStorageFile> GetAllFiles()
+    public Task<IEnumerable<ChecksumStorageFile>> GetAllFiles()
     {
-        return _storage.Values.ToAsyncEnumerable();
+        return Task.FromResult<IEnumerable<ChecksumStorageFile>>(_storage.Values);
     }
 
     public Task<ChecksumStorageQueryResult> Query(IEnumerable<string> checksums)

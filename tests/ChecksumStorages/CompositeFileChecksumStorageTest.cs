@@ -59,20 +59,20 @@ public class CompositeFileChecksumStorageTest
     }
 
     [Fact]
-    public void GetAllFiles_empty()
+    public async Task GetAllFiles_empty()
     {
         // Given
         var storage = new CompositeChecksumStorage();
 
         // When
-        var files = storage.GetAllFiles().ToBlockingEnumerable();
+        var files = await storage.GetAllFiles();
 
         // Then
         Assert.Empty(files);
     }
 
     [Fact]
-    public void GetAllFiles()
+    public async Task GetAllFiles()
     {
         // Given
         var testFiles = new[]
@@ -93,7 +93,7 @@ public class CompositeFileChecksumStorageTest
         storage.AddStorage(inner2);
 
         // When
-        var actualFiles = storage.GetAllFiles().ToBlockingEnumerable();
+        var actualFiles = await storage.GetAllFiles();
 
         // Then
         Assert.Equal(testFiles, actualFiles);

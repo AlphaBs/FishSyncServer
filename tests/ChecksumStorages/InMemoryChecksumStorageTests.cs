@@ -6,15 +6,15 @@ namespace AlphabetUpdateServer.Tests.ChecksumStorages;
 public class InMemoryChecksumStorageTests
 {
     [Fact]
-    public void get_all_files_returns_empty()
+    public async Task get_all_files_returns_empty()
     {
         var storage = new InMemoryChecksumStorage();
-        var files = storage.GetAllFiles().ToBlockingEnumerable();
+        var files = await storage.GetAllFiles();
         Assert.Empty(files);
     }
 
     [Fact]
-    public void get_all_files_returns_expected()
+    public async Task get_all_files_returns_expected()
     {
         var storage = new InMemoryChecksumStorage();
         var files = new []
@@ -25,7 +25,7 @@ public class InMemoryChecksumStorageTests
         };
         storage.AddRange(files);
         
-        var result = storage.GetAllFiles().ToBlockingEnumerable();
+        var result = await storage.GetAllFiles();
         Assert.Equal(files, result);
     }
     

@@ -1,28 +1,30 @@
-﻿namespace AlphabetUpdateServer.Models.ChecksumStorages;
+﻿using AlphabetUpdateServer.Services.ChecksumStorageCaches;
+
+namespace AlphabetUpdateServer.Models.ChecksumStorages;
 
 public class CacheChecksumStorage : IChecksumStorage
 {
+    private readonly string _id;
     private readonly IChecksumStorage _checksumStorage;
-    private readonly ChecksumStorageFileCache _cache;
+    private readonly IChecksumStorageCache _cache;
 
     public CacheChecksumStorage(
+        string id,
         IChecksumStorage checksumStorage, 
-        ChecksumStorageFileCache cache)
+        IChecksumStorageCache cache)
     {
+        _id = id;
         _checksumStorage = checksumStorage;
         _cache = cache;
     }
     
     public bool IsReadOnly => _checksumStorage.IsReadOnly;
     
-    public async IAsyncEnumerable<ChecksumStorageFile> GetAllFiles()
+    public async Task<IEnumerable<ChecksumStorageFile>> GetAllFiles()
     {
-        var files = _checksumStorage.GetAllFiles();
-        await foreach (var file in files)
-        {
-            await _cache.SetFile(file);
-            yield return file;
-        }
+        var files = (await _checksumStorage.GetAllFiles()).ToList();
+        await _cache.SetFiles(_id, files);
+        return files;
     }
 
     public async Task<ChecksumStorageQueryResult> Query(IEnumerable<string> checksums)
@@ -32,7 +34,7 @@ public class CacheChecksumStorage : IChecksumStorage
         
         foreach (var checksum in checksums)
         {
-            var cachedFile = await _cache.GetFile(checksum);
+            var cachedFile = await _cache.GetFile(_id, checksum);
             if (cachedFile is not null)
             {
                 foundFiles.Add(cachedFile);
@@ -46,11 +48,8 @@ public class CacheChecksumStorage : IChecksumStorage
         if (notFoundChecksums.Any())
         {
             var result = await _checksumStorage.Query(notFoundChecksums);
-            foreach (var file in result.FoundFiles)
-            {
-                foundFiles.Add(file);
-                await _cache.SetFile(file);
-            }
+            await _cache.SetFiles(_id, result.FoundFiles);
+            foundFiles.AddRange(result.FoundFiles);
             return new ChecksumStorageQueryResult(foundFiles, result.NotFoundChecksums);
         }
         else
@@ -66,7 +65,7 @@ public class CacheChecksumStorage : IChecksumStorage
         
         foreach (var checksum in checksums)
         {
-            var cachedFile = await _cache.GetFile(checksum);
+            var cachedFile = await _cache.GetFile(_id, checksum);
             if (cachedFile is not null)
             {
                 foundFiles[checksum] = cachedFile;
@@ -80,10 +79,10 @@ public class CacheChecksumStorage : IChecksumStorage
         if (notFoundChecksums.Any())
         {
             var result = await _checksumStorage.Sync(notFoundChecksums);
+            await _cache.SetFiles(_id, result.SuccessFiles);
             foreach (var file in result.SuccessFiles)
             {
                 foundFiles[file.Checksum] = file;
-                await _cache.SetFile(file);
             }
 
             return new ChecksumStorageSyncResult(

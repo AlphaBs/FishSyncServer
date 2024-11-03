@@ -1,0 +1,72 @@
+﻿using System.Text.Json;
+using AlphabetUpdateServer.Models.ChecksumStorages;
+using StackExchange.Redis;
+
+namespace AlphabetUpdateServer.Services.ChecksumStorageCaches;
+
+public class RedisChecksumStorageCache : IChecksumStorageCache
+{
+    private static readonly JsonSerializerOptions SerializerOptions = new()
+    {
+        WriteIndented = false,
+    };
+
+    private readonly ConnectionMultiplexer _redis;
+    
+    public RedisChecksumStorageCache(ConnectionMultiplexer redis)
+    {
+        _redis = redis;
+    }
+    
+    public async Task<ChecksumStorageFile?> GetFile(string id, string checksum)
+    {
+        var db = _redis.GetDatabase();
+        var v = await db.StringGetAsync(getCacheKey(id, checksum));
+        var data = (byte[]?)v;
+        if (data == null)
+            return null;
+        return JsonSerializer.Deserialize<ChecksumStorageFile>(data);
+    }
+    
+    public async Task SetFile(string id, ChecksumStorageFile file)
+    {
+        await _redis.GetDatabase().StringSetAsync(
+            getCacheKey(id, file.Checksum),
+            JsonSerializer.SerializeToUtf8Bytes(file, SerializerOptions),
+            TimeSpan.FromHours(1),
+            When.Always);
+    }
+
+    public async Task SetFiles(string id, IEnumerable<ChecksumStorageFile> files)
+    {
+        var tasks = files.Select(file => SetFile(id, file));
+        await Task.WhenAll(tasks);
+    }
+    
+    public IEnumerable<string> GetAllCacheKeys(string id)
+    {
+        var endpoints = _redis.GetEndPoints();
+        var prefix = $"{getCacheNamespace(id)}:*";
+        foreach (var endpoint in endpoints)
+        {
+            var server = _redis.GetServer(endpoint);
+            var keys = server.Keys(pattern: prefix);
+            foreach (string? key in keys)
+            {
+                if (key is not null)
+                    yield return key.Substring(prefix.Length);
+            }
+        }
+    }
+
+    public async Task DeleteFiles(string id, IEnumerable<string> checksums)
+    {
+        var keys = checksums
+            .Select(checksum => (RedisKey)getCacheKey(id, checksum))
+            .ToArray();
+        await _redis.GetDatabase().KeyDeleteAsync(keys, CommandFlags.FireAndForget);
+    }
+    
+    private string getCacheNamespace(string id) => $"FishSyncServer:ChecksumStorageCache:{id}";
+    private string getCacheKey(string id, string checksum) => $"{getCacheNamespace(id)}:{checksum}";
+}

@@ -1,19 +1,21 @@
 ﻿using AlphabetUpdateServer.Models;
 using AlphabetUpdateServer.Models.ChecksumStorages;
-using Microsoft.Extensions.Caching.Distributed;
+using AlphabetUpdateServer.Services.ChecksumStorageCaches;
+using AlphabetUpdateServer.Services.ChecksumStorages;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Options;
 
 namespace AlphabetUpdateServer.Tests.ChecksumStorages;
 
 public class ChecksumFileStorageCacheTests
 {
+    private static string TestStorageId = "test";
+    
     [Fact]
     public async Task get_files_caches_all_checksums()
     {
         var cache = createCache();
         var storage = createStorage(cache);
-        var files = storage.GetAllFiles().ToBlockingEnumerable();
+        var files = await storage.GetAllFiles();
         Assert.Equal(["existing_checksum1", "existing_checksum2", "existing_checksum3"], files.Select(file => file.Checksum));
         await AssertCacheExists(cache, "existing_checksum1");
         await AssertCacheExists(cache, "existing_checksum2");
@@ -43,12 +45,11 @@ public class ChecksumFileStorageCacheTests
     [Fact]
     public async Task query_cached_files()
     {
-        var cache = createCache();
         var inMemoryStorage = new InMemoryChecksumStorage();
         inMemoryStorage.Add(createFile("existing_checksum1", "existing_location1"));
         inMemoryStorage.Add(createFile("existing_checksum2", "existing_location2"));
         inMemoryStorage.Add(createFile("existing_checksum3", "existing_location3"));
-        var storage = new CacheChecksumStorage(inMemoryStorage, cache);
+        var storage = new CacheChecksumStorage(TestStorageId, inMemoryStorage, createCache());
         
         // cache files
         await storage.Query(["existing_checksum1", "existing_checksum2"]);
@@ -84,7 +85,7 @@ public class ChecksumFileStorageCacheTests
         inMemoryStorage.Add(createFile("existing_checksum1", "existing_location1"));
         inMemoryStorage.Add(createFile("existing_checksum2", "existing_location2"));
         inMemoryStorage.Add(createFile("existing_checksum3", "existing_location3"));
-        var storage = new CacheChecksumStorage(inMemoryStorage, cache);
+        var storage = new CacheChecksumStorage(TestStorageId, inMemoryStorage, cache);
         
         // cache files
         await storage.Sync(["existing_checksum1", "existing_checksum2"]);
@@ -98,33 +99,28 @@ public class ChecksumFileStorageCacheTests
         Assert.Equal(["not_existing_checksum"], result.RequiredActions.Select(action => action.Checksum));
     }
     
-    private static CacheChecksumStorage createStorage(ChecksumStorageFileCache cache)
+    private static InMemoryChecksumStorageCache createCache()
+    {
+        return new InMemoryChecksumStorageCache(new MemoryCache(new MemoryCacheOptions()));
+    }
+    
+    private static CacheChecksumStorage createStorage(IChecksumStorageCache cache)
     {
         var inMemoryStorage = new InMemoryChecksumStorage();
         inMemoryStorage.Add(createFile("existing_checksum1", "existing_location1"));
         inMemoryStorage.Add(createFile("existing_checksum2", "existing_location2"));
         inMemoryStorage.Add(createFile("existing_checksum3", "existing_location3"));
-        return new CacheChecksumStorage(inMemoryStorage, cache);
+        return new CacheChecksumStorage(TestStorageId, inMemoryStorage, cache);
     }
     
-    private static ChecksumStorageFileCache createCache()
-    {
-        return new ChecksumStorageFileCache(
-            new MemoryDistributedCache(Options.Create(new MemoryDistributedCacheOptions
-            {
-                
-            })),
-            "test");
-    }
-
     private static ChecksumStorageFile createFile(string checksum, string location)
     {
         return new ChecksumStorageFile(checksum, location, new FileMetadata(1, DateTimeOffset.MinValue, checksum));
     }
-
-    private static async Task AssertCacheExists(ChecksumStorageFileCache cache, string checksum)
+    
+    private static async Task AssertCacheExists(IChecksumStorageCache cache, string checksum)
     {
-        var cachedFile = await cache.GetFile(checksum);
+        var cachedFile = await cache.GetFile(TestStorageId, checksum);
         Assert.NotNull(cachedFile);
         Assert.Equal(checksum, cachedFile?.Checksum);
     }

@@ -32,7 +32,7 @@ public class ObjectChecksumStorage : IChecksumStorage, IDisposable
 
     public bool IsReadOnly => false;
 
-    public async IAsyncEnumerable<ChecksumStorageFile> GetAllFiles()
+    public async Task<IEnumerable<ChecksumStorageFile>> GetAllFiles()
     {
         var pages = _client.Paginators.ListObjectsV2(new ListObjectsV2Request
         {
@@ -40,6 +40,7 @@ public class ObjectChecksumStorage : IChecksumStorage, IDisposable
             Prefix = _storage.Prefix
         });
 
+        var files = new List<ChecksumStorageFile>();
         await foreach (var response in pages.Responses)
         {
             foreach (var entry in response.S3Objects)
@@ -55,9 +56,11 @@ public class ObjectChecksumStorage : IChecksumStorage, IDisposable
                         getChecksumFromKey(entry.Key)
                     )
                 );
-                yield return file;
+                files.Add(file);
             }
         }
+
+        return files;
     }
 
     public async Task<ChecksumStorageQueryResult> Query(IEnumerable<string> checksums)

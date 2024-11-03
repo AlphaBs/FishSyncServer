@@ -14,15 +14,16 @@ public class CompositeChecksumStorage : IChecksumStorage
         _storages.Add(storage);
     }
 
-    public async IAsyncEnumerable<ChecksumStorageFile> GetAllFiles()
+    public async Task<IEnumerable<ChecksumStorageFile>> GetAllFiles()
     {
+        var result = Enumerable.Empty<ChecksumStorageFile>();
         foreach (var storage in Storages)
         {
-            await foreach (var file in storage.GetAllFiles())
-            {
-                yield return file;
-            }
+            var files = await storage.GetAllFiles();
+            result = result.Concat(files);
         }
+
+        return result;
     }
 
     public async Task<ChecksumStorageQueryResult> Query(IEnumerable<string> checksums)

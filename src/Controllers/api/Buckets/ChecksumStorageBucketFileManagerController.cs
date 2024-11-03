@@ -19,7 +19,7 @@ public class ChecksumStorageBucketFileManagerController : ControllerBase
         _storageService = storageService;
     }
 
-    [HttpGet("{StorageId}")]
+    [HttpGet("{storageId}")]
     public async Task<ActionResult> OnGetAsync(string storageId)
     {
         var storage = await _storageService.GetStorage(storageId);
@@ -29,8 +29,8 @@ public class ChecksumStorageBucketFileManagerController : ControllerBase
         }
 
         var orphanChecksumSet = new List<string>();
-        var files = storage.GetAllFiles();
-        await foreach (var file in files)
+        var files = await storage.GetAllFiles();
+        foreach (var file in files)
         {
             orphanChecksumSet.Add(file.Metadata.Checksum);
         }

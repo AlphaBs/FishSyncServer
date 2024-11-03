@@ -22,14 +22,10 @@ public class RFilesChecksumStorage : IChecksumStorage
 
     public bool IsReadOnly { get; }
 
-    public async IAsyncEnumerable<ChecksumStorageFile> GetAllFiles()
+    public async Task<IEnumerable<ChecksumStorageFile>> GetAllFiles()
     {
         var objects = await _rClient.GetAllObjects();
-        var locations = objects.Select(toChecksumStorageFile);
-        foreach (var location in locations)
-        {
-            yield return location;
-        }
+        return objects.Select(toChecksumStorageFile);
     }
 
     public async Task<ChecksumStorageQueryResult> Query(IEnumerable<string> checksums)
