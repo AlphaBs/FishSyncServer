@@ -10,7 +10,8 @@ public class BucketLimitations
         MaxFileSize = long.MaxValue,
         MaxNumberOfFiles = long.MaxValue,
         MaxBucketSize = long.MaxValue,
-        ExpiredAt = DateTimeOffset.MaxValue
+        ExpiredAt = DateTimeOffset.MaxValue,
+        MonthlyMaxSyncCount = int.MaxValue
     };
 
     [DisplayName("읽기 전용")]
@@ -27,4 +28,7 @@ public class BucketLimitations
     
     [DisplayName("사용 만료일")]
     public DateTimeOffset ExpiredAt { get; set; }
+    
+    [DisplayName("월별 최대 동기화 횟수")]
+    public int MonthlyMaxSyncCount { get; set; }
 }

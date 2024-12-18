@@ -172,6 +172,7 @@ public class BucketController : ControllerBase
                 BucketLimitationException.ExpiredBucket => "사용 기간이 만료되었습니다.",
                 BucketLimitationException.ExceedMaxBucketSize => "버킷 용량을 초과하였습니다.",
                 BucketLimitationException.ExceedMaxNumberOfFiles => "업로드 가능한 최대 파일 수를 초과하였습니다.",
+                BucketLimitationException.ExceedMonthlySyncCount => "이번 달에 가능한 동기화 횟수를 모두 소진하였습니다.",
                 _ => "사용 불가능한 버킷입니다."
             };
 

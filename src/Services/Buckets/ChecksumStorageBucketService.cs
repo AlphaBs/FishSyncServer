@@ -94,11 +94,15 @@ public class ChecksumStorageBucketService
     {
         if (await _configService.GetMaintenanceMode())
             throw new ServiceMaintenanceException();
-
+        
         var entity = await FindEntityById(bucketId);
         if (entity == null)
             throw new KeyNotFoundException(bucketId);
 
+        var syncCount = await GetMonthlySuccessfulSyncCount(bucketId);
+        if (syncCount >= entity.Limitations.MonthlyMaxSyncCount)
+            throw new BucketLimitationException(BucketLimitationException.ExceedMonthlySyncCount);
+        
         var bucket = await CreateBucketFromEntity(entity);
         var result = await bucket.Sync(syncFiles);
         if (result.IsSuccess)
@@ -166,6 +170,17 @@ public class ChecksumStorageBucketService
             .Where(e => e.BucketId == bucketId)
             .OrderByDescending(e => e.Timestamp)
             .ToListAsync();
+    }
+
+    public async Task<int> GetMonthlySuccessfulSyncCount(string bucketId)
+    {
+        var now = DateTimeOffset.UtcNow;
+        var startTimestamp = new DateTimeOffset(now.Year, now.Month, 1, 0, 0, 0, now.Offset);
+        return await _dbContext.BucketSyncEvents
+            .Where(e => e.BucketId == bucketId)
+            .Where(e => e.EventType == BucketSyncEventType.Success)
+            .Where(e => e.Timestamp >= startTimestamp)
+            .CountAsync();
     }
     
     private void addSuccessEvent(string bucketId, string userId)
