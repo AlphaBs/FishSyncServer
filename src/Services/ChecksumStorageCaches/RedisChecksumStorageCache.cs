@@ -28,13 +28,15 @@ public class RedisChecksumStorageCache : IChecksumStorageCache
         return JsonSerializer.Deserialize<ChecksumStorageFile>(data);
     }
     
-    public async Task SetFile(string id, ChecksumStorageFile file)
+    public Task SetFile(string id, ChecksumStorageFile file)
     {
-        await _redis.GetDatabase().StringSetAsync(
+        _redis.GetDatabase().StringSet(
             getCacheKey(id, file.Checksum),
             JsonSerializer.SerializeToUtf8Bytes(file, SerializerOptions),
             TimeSpan.FromHours(1),
-            When.Always);
+            When.Always,
+            CommandFlags.FireAndForget);
+        return Task.CompletedTask;
     }
 
     public async Task SetFiles(string id, IEnumerable<ChecksumStorageFile> files)
