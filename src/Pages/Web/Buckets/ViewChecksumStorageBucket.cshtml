@@ -56,6 +56,15 @@
 
         <div class="row mb-3">
             <div class="col-sm-3 font-weight-bold">
+                @Html.DisplayNameFor(model => model.CurrentBucketSize)
+            </div>
+            <div class="col-sm-9">
+                @readableSize(Model.CurrentBucketSize) (@Model.CurrentBucketSize.ToString("N0") bytes)
+            </div>
+        </div>
+        
+        <div class="row mb-3">
+            <div class="col-sm-3 font-weight-bold">
                 @Html.DisplayNameFor(model => model.Limitations.MaxBucketSize)
             </div>
             <div class="col-sm-9">
@@ -63,6 +72,15 @@
             </div>
         </div>
 
+        <div class="row mb-3">
+            <div class="col-sm-3 font-weight-bold">
+                @Html.DisplayNameFor(model => model.CurrentMaxFileSize)
+            </div>
+            <div class="col-sm-9">
+                @readableSize(Model.CurrentMaxFileSize) (@Model.CurrentMaxFileSize.ToString("N0") bytes)
+            </div>
+        </div>
+        
         <div class="row mb-3">
             <div class="col-sm-3 font-weight-bold">
                 @Html.DisplayNameFor(model => model.Limitations.MaxFileSize)
@@ -74,6 +92,15 @@
 
         <div class="row mb-3">
             <div class="col-sm-3 font-weight-bold">
+                @Html.DisplayNameFor(model => model.CurrentFileCount)
+            </div>
+            <div class="col-sm-9">
+                @Model.CurrentFileCount.ToString("N0")
+            </div>
+        </div>
+        
+        <div class="row mb-3">
+            <div class="col-sm-3 font-weight-bold">
                 @Html.DisplayNameFor(model => model.Limitations.MaxNumberOfFiles)
             </div>
             <div class="col-sm-9">
@@ -83,10 +110,19 @@
 
         <div class="row mb-3">
             <div class="col-sm-3 font-weight-bold">
+                @Html.DisplayNameFor(model => model.CurrentMonthlySyncCount)
+            </div>
+            <div class="col-sm-9">
+                @(Model.CurrentMonthlySyncCount)회
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-sm-3 font-weight-bold">
                 @Html.DisplayNameFor(model => model.Limitations.MonthlyMaxSyncCount)
             </div>
             <div class="col-sm-9">
-                @Model.Limitations.MonthlyMaxSyncCount
+                @(Model.Limitations.MonthlyMaxSyncCount)회
             </div>
         </div>
 
@@ -95,7 +131,7 @@
                 @Html.DisplayNameFor(model => model.Limitations.ExpiredAt)
             </div>
             <div class="col-sm-9">
-                @Model.Limitations.ExpiredAt
+                @readableDateTime(Model.Limitations.ExpiredAt) (@Model.Limitations.ExpiredAt)
             </div>
         </div>
     </div>
@@ -123,8 +159,8 @@
             <tr>
                 <th>Name</th>
                 <th>Size</th>
-                <th>Checksum</th>
                 <th>Updated</th>
+                <th>Checksum</th>
             </tr>
             </thead>
             <tbody>
