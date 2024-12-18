@@ -1,0 +1,40 @@
+@page "{id}/events"
+
+@using Humanizer;
+@using NeoSmart.PrettySize;
+
+@model AlphabetUpdateServer.Pages.Web.Buckets.ViewBucketSyncEventsModel
+
+@{
+    ViewData["Title"] = Model.Id;
+}
+
+<h1>@Model.Id</h1>
+<a asp-page="ViewChecksumStorageBucket" asp-route-id="@Model.Id">돌아가기</a>
+
+<div class="card mt-4">
+    <div class="card-header">동기화 기록</div>
+    <div class="card-body">
+        <table class="table table-hover table-sm">
+            <thead>
+            <tr>
+                <th>시간</th>
+                <th>결과</th>
+                <th>버킷</th>
+                <th>유저</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var entity in Model.Events)
+            {
+            <tr>
+                <td class="col-file-metadata">@entity.Timestamp</td>
+                <td class="col-file-metadata">@entity.EventType</td>
+                <td class="col-file-metadata">@entity.BucketId</td>
+                <td class="col-file-metadata">@entity.UserId</td>
+            </tr>
+            }
+            </tbody>
+        </table>  
+    </div>
+</div>

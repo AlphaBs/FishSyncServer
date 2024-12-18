@@ -17,13 +17,16 @@ namespace AlphabetUpdateServer.Controllers.Api.Buckets;
 [Produces("application/json")]
 public class BucketController : ControllerBase
 {
+    private readonly ILogger<BucketController> _logger;
     private readonly ChecksumStorageBucketService _bucketService;
     private readonly BucketOwnerService _bucketOwnerService;
 
     public BucketController(
+        ILogger<BucketController> logger,
         ChecksumStorageBucketService bucketService,
         BucketOwnerService bucketOwnerService)
     {
+        _logger = logger;
         _bucketService = bucketService;
         _bucketOwnerService = bucketOwnerService;
     }
@@ -141,29 +144,28 @@ public class BucketController : ControllerBase
         {
             return BadRequest();
         }
+        
+        var userId = getUserId();
 
         try
         {
-            var hasPermission = await checkSyncPermission(id);
+            var hasPermission = await checkSyncPermission(id, userId);
             if (!hasPermission)
+            {
+                _logger.LogWarning("Unauthorized user {UserId} tried to sync a bucket {BucketId}", userId, id);
                 return Forbid();
-            
-            var bucket = await _bucketService.FindBucketById(id);
-            if (bucket == null)
-            {
-                return NotFound();
             }
 
-            var result = await bucket.Sync(files.Files);
-            if (result.IsSuccess)
-            {
-                await _bucketService.UpdateFiles(id, bucket);
-            }
-
+            var result = await _bucketService.Sync(id, userId, files.Files);
+            _logger.LogInformation("User {UserId} requested a bucket sync for {BucketId}, Result: {Result}", userId, id,
+                result.IsSuccess);
             return Ok(result);
         }
         catch (BucketLimitationException ex)
         {
+            _logger.LogError(
+                "User {UserId}'s sync request for bucket {BucketId} was rejected due to a BucketLimitationException. Reason: {Reason}",
+                userId, id, ex.Reason);
             var detail = ex.Reason switch
             {
                 BucketLimitationException.ReadonlyBucket => "읽기 전용 버킷입니다.",
@@ -181,19 +183,34 @@ public class BucketController : ControllerBase
         }
         catch (ServiceMaintenanceException)
         {
+            _logger.LogError(
+                "User {UserId}'s sync request for bucket {BucketId} was rejected. the server is currently in maintenance mode",
+                userId, id);
             return Problem(
                 title: "서버 점검중",
                 statusCode: 503);
         }
+        catch (Exception ex)
+        {
+            _logger.LogError("An error occurred during the sync request for bucket {BucketId} by user {UserId}. {Ex}", id, userId, ex);
+            return Problem(
+                title: "오류",
+                detail: ex.Message,
+                statusCode: 500);
+        }
     }
 
-    private async Task<bool> checkSyncPermission(string bucketId)
+    private async Task<bool> checkSyncPermission(string bucketId, string userId)
     {
         if (User.IsInRole(UserRoleNames.BucketAdmin))
             return true;
 
         // JWT 에서 sub 가 ClaimTypes.NameIdentifier 으로 바뀜
-        var sub = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value ?? "";
-        return await _bucketOwnerService.CheckOwnershipByUsername(bucketId, sub);
+        return await _bucketOwnerService.CheckOwnershipByUsername(bucketId, userId);
+    }
+
+    private string getUserId()
+    {
+        return User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value ?? "";        
     }
 }

@@ -12,21 +12,23 @@ public class ApplicationDbContext : DbContext
 
     public DbSet<ConfigEntity> Configs { get; set; } = null!;
     public DbSet<UserEntity> Users { get; set; } = null!;
+    
     public DbSet<ChecksumStorageBucketEntity> Buckets { get; set; } = null!;
     public DbSet<ChecksumStorageBucketFileEntity> ChecksumStorageBucketFiles { get; set; } = null!;
+    public DbSet<BucketSyncEventEntity> BucketSyncEvents { get; set; } = null!;
+    
     public DbSet<ChecksumStorageEntity> ChecksumStorages { get; set; } = null!;
     public DbSet<RFilesChecksumStorageEntity> RFilesChecksumStorages { get; set; } = null!;
     public DbSet<ObjectChecksumStorageEntity> ObjectChecksumStorages { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<UserEntity>()
-            .HasKey(e => e.Username);
-
+        // N:M relationship between Users <-> ChecksumStorageBucket
         modelBuilder.Entity<UserEntity>()
             .HasMany(e => e.Buckets)
             .WithMany(e => e.Owners);
 
+        // N:M relationship between Users <-> ChecksumStorageBucket
         modelBuilder.Entity<ChecksumStorageBucketEntity>()
             .HasMany(e => e.Owners)
             .WithMany(e => e.Buckets);
@@ -67,6 +69,16 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<RFilesChecksumStorageEntity>()
             .HasBaseType<ChecksumStorageEntity>();
 
+        modelBuilder.Entity<BucketSyncEventEntity>()
+            .HasOne<ChecksumStorageBucketEntity>()
+            .WithMany()
+            .HasForeignKey(e => e.BucketId);
+
+        modelBuilder.Entity<BucketSyncEventEntity>()
+            .HasOne<UserEntity>()
+            .WithMany()
+            .HasForeignKey(e => e.UserId);
+        
         base.OnModelCreating(modelBuilder);
     }
 }

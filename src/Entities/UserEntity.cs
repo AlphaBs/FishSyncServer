@@ -4,6 +4,7 @@ namespace AlphabetUpdateServer.Entities;
 
 public class UserEntity
 {
+    [Key]
     [Required] 
     [MaxLength(16)] 
     public required string Username { get; set; } = null!;
