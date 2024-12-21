@@ -11,15 +11,11 @@ namespace AlphabetUpdateServer.Pages.Web.Buckets;
 [Authorize(Roles = UserRoleNames.BucketUser)]
 public class ViewBucketSyncEventsModel : PageModel
 {
-    private readonly ChecksumStorageBucketService _bucketService;
-    private readonly BucketOwnerService _bucketOwnerService;
+    private readonly BucketService _bucketService;
 
-    public ViewBucketSyncEventsModel(
-        ChecksumStorageBucketService bucketService,
-        BucketOwnerService bucketOwnerService)
+    public ViewBucketSyncEventsModel(BucketService bucketService)
     {
         _bucketService = bucketService;
-        _bucketOwnerService = bucketOwnerService;
     }
 
     [BindProperty] public string Id { get; set; } = default!;
@@ -27,7 +23,7 @@ public class ViewBucketSyncEventsModel : PageModel
     
     public async Task<ActionResult> OnGetAsync(string id)
     {
-        var bucket = await _bucketService.FindBucketById(id);
+        var bucket = await _bucketService.Find(id);
         if (bucket == null)
         {
             return NotFound();

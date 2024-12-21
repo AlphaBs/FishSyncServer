@@ -18,12 +18,12 @@ namespace AlphabetUpdateServer.Controllers.Api.Buckets;
 public class BucketController : ControllerBase
 {
     private readonly ILogger<BucketController> _logger;
-    private readonly ChecksumStorageBucketService _bucketService;
+    private readonly BucketService _bucketService;
     private readonly BucketOwnerService _bucketOwnerService;
 
     public BucketController(
         ILogger<BucketController> logger,
-        ChecksumStorageBucketService bucketService,
+        BucketService bucketService,
         BucketOwnerService bucketOwnerService)
     {
         _logger = logger;
@@ -56,14 +56,14 @@ public class BucketController : ControllerBase
     [ProducesResponseType<BucketDTO>(StatusCodes.Status200OK)]
     public async Task<ActionResult> GetBucket(string id)
     {
-        var bucket = await _bucketService.FindBucketById(id);
+        var bucket = await _bucketService.Find(id);
         if (bucket == null)
         {
             return NotFound();
         }
 
         var files = await bucket.GetFiles();
-        return Ok(new BucketDTO()
+        return Ok(new BucketDTO
         {
             Id = id,
             Limitations = bucket.Limitations,
@@ -84,7 +84,7 @@ public class BucketController : ControllerBase
     [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
     public async Task<ActionResult> GetFiles(string id)
     {
-        var bucket = await _bucketService.FindBucketById(id);
+        var bucket = await _bucketService.Find(id);
         if (bucket == null)
         {
             return NotFound();
@@ -111,7 +111,7 @@ public class BucketController : ControllerBase
     [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
     public async Task<ActionResult> GetLimitations(string id)
     {
-        var bucket = await _bucketService.FindBucketById(id);
+        var bucket = await _bucketService.Find(id);
         if (bucket == null)
         {
             return NotFound();
@@ -156,7 +156,7 @@ public class BucketController : ControllerBase
                 return Forbid();
             }
 
-            var result = await _bucketService.Sync(id, userId, files.Files);
+            var result = await _bucketService.SyncAndLog(id, userId, files.Files);
             _logger.LogInformation("User {UserId} requested a bucket sync for {BucketId}, Result: {Result}", userId, id,
                 result.IsSuccess);
             return Ok(result);

@@ -15,7 +15,7 @@ public class UserEntity
     
     public IList<string> Roles { get; set; } = [];
     
-    public ICollection<ChecksumStorageBucketEntity> Buckets { get; set; } = [];
+    public ICollection<BucketEntity> Buckets { get; set; } = [];
     
     [EmailAddress]
     [MaxLength(128)]

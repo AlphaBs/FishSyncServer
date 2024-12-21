@@ -13,7 +13,8 @@ public class ApplicationDbContext : DbContext
     public DbSet<ConfigEntity> Configs { get; set; } = null!;
     public DbSet<UserEntity> Users { get; set; } = null!;
     
-    public DbSet<ChecksumStorageBucketEntity> Buckets { get; set; } = null!;
+    public DbSet<BucketEntity> Buckets { get; set; } = null!;
+    public DbSet<ChecksumStorageBucketEntity> ChecksumStorageBuckets { get; set; } = null!;
     public DbSet<ChecksumStorageBucketFileEntity> ChecksumStorageBucketFiles { get; set; } = null!;
     public DbSet<BucketSyncEventEntity> BucketSyncEvents { get; set; } = null!;
     
@@ -23,13 +24,21 @@ public class ApplicationDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // N:M relationship between Users <-> ChecksumStorageBucket
+        modelBuilder.Entity<BucketEntity>()
+            .ComplexProperty(e => e.Limitations);
+
+        modelBuilder.Entity<BucketEntity>()
+            .HasDiscriminator(e => e.Type)
+            .HasValue<BucketEntity>("base")
+            .HasValue<ChecksumStorageBucketEntity>(ChecksumStorageBucketEntity.ChecksumStorageType);
+        
+        // N:M relationship between Users <-> Buckets
         modelBuilder.Entity<UserEntity>()
             .HasMany(e => e.Buckets)
             .WithMany(e => e.Owners);
 
-        // N:M relationship between Users <-> ChecksumStorageBucket
-        modelBuilder.Entity<ChecksumStorageBucketEntity>()
+        // N:M relationship between Users <-> Buckets
+        modelBuilder.Entity<BucketEntity>()
             .HasMany(e => e.Owners)
             .WithMany(e => e.Buckets);
         
@@ -47,9 +56,6 @@ public class ApplicationDbContext : DbContext
             .WithOne()
             .HasForeignKey(e => e.BucketId)
             .OnDelete(DeleteBehavior.Cascade);
-
-        modelBuilder.Entity<ChecksumStorageBucketEntity>()
-            .ComplexProperty(e => e.Limitations);
 
         modelBuilder.Entity<ChecksumStorageBucketFileEntity>()
             .HasKey(
@@ -70,14 +76,16 @@ public class ApplicationDbContext : DbContext
             .HasBaseType<ChecksumStorageEntity>();
 
         modelBuilder.Entity<BucketSyncEventEntity>()
-            .HasOne<ChecksumStorageBucketEntity>()
+            .HasOne<BucketEntity>()
             .WithMany()
-            .HasForeignKey(e => e.BucketId);
+            .HasForeignKey(e => e.BucketId)
+            .OnDelete(DeleteBehavior.NoAction);
 
         modelBuilder.Entity<BucketSyncEventEntity>()
             .HasOne<UserEntity>()
             .WithMany()
-            .HasForeignKey(e => e.UserId);
+            .HasForeignKey(e => e.UserId)
+            .OnDelete(DeleteBehavior.NoAction);
         
         base.OnModelCreating(modelBuilder);
     }

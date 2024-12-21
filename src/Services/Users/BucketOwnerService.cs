@@ -44,7 +44,7 @@ public class BucketOwnerService
     
     public async Task AddOwner(string bucketId, string username)
     {
-        var bucket = new ChecksumStorageBucketEntity { Id = bucketId };
+        var bucket = new BucketEntity { Id = bucketId };
         _context.Buckets.Attach(bucket);
         
         var user = new UserEntity { Username = username };

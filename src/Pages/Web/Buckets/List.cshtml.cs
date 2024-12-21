@@ -7,9 +7,9 @@ namespace AlphabetUpdateServer.Pages.Web.Buckets;
 
 public class ListModel : PageModel
 {
-    private readonly ChecksumStorageBucketService _bucketService;
+    private readonly BucketService _bucketService;
 
-    public ListModel(ChecksumStorageBucketService bucketService)
+    public ListModel(BucketService bucketService)
     {
         _bucketService = bucketService;
     }

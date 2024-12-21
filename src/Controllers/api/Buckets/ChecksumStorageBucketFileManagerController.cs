@@ -35,7 +35,7 @@ public class ChecksumStorageBucketFileManagerController : ControllerBase
             orphanChecksumSet.Add(file.Metadata.Checksum);
         }
 
-        var checksums = await _context.Buckets
+        var checksums = await _context.ChecksumStorageBuckets
             .Include(bucket => bucket.Files)
             .Where(bucket => bucket.ChecksumStorageId == storageId)
             .SelectMany(bucket => bucket.Files)

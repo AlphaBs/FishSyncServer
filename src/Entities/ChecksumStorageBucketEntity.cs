@@ -3,19 +3,16 @@ using AlphabetUpdateServer.Models.Buckets;
 
 namespace AlphabetUpdateServer.Entities;
 
-public class ChecksumStorageBucketEntity
+public class ChecksumStorageBucketEntity : BucketEntity
 {
-    [Required]
-    [MaxLength(16)]
-    public required string Id { get; set; } = null!;
+    public const string ChecksumStorageType = "checksum-storage";
     
-    public BucketLimitations Limitations { get; set; } = null!;
-    
-    public ICollection<UserEntity> Owners { get; } = [];
+    public ChecksumStorageBucketEntity()
+    {
+        Type = ChecksumStorageType;
+    }
     
     public ICollection<ChecksumStorageBucketFileEntity> Files { get; } = [];
-    
-    public DateTimeOffset LastUpdated { get; set; }
     
     [Required]
     [MaxLength(16)]

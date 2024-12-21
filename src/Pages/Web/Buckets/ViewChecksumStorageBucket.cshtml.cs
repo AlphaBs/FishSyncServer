@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel;
+using AlphabetUpdateServer.Entities;
 using AlphabetUpdateServer.Models.Buckets;
+using AlphabetUpdateServer.Pages.Shared;
 using AlphabetUpdateServer.Services.Buckets;
 using AlphabetUpdateServer.Services.Users;
 using Microsoft.AspNetCore.Authorization;
@@ -11,52 +13,52 @@ namespace AlphabetUpdateServer.Pages.Web.Buckets;
 [Authorize(Roles = UserRoleNames.BucketUser)]
 public class ViewChecksumStorageBucketModel : PageModel
 {
-    private readonly ChecksumStorageBucketService _bucketService;
+    private readonly BucketService _bucketService;
+    private readonly BucketServiceFactory _bucketServiceFactory;
     private readonly BucketOwnerService _bucketOwnerService;
 
     public ViewChecksumStorageBucketModel(
-        ChecksumStorageBucketService bucketService,
-        BucketOwnerService bucketOwnerService)
+        BucketService bucketService,
+        BucketOwnerService bucketOwnerService, 
+        BucketServiceFactory bucketServiceFactory)
     {
         _bucketService = bucketService;
         _bucketOwnerService = bucketOwnerService;
+        _bucketServiceFactory = bucketServiceFactory;
     }
 
     [BindProperty]
     public string Id { get; set; } = default!;
+    public BucketUsageModel Usage { get; set; } = new();
     public IEnumerable<string> Owners { get; set; } = [];
-    public BucketLimitations Limitations { get; set; } = default!;
-    [DisplayName("사용중인 버킷 용량")]
-    public long CurrentBucketSize { get; set; }
-    [DisplayName("가장 큰 파일의 용량")]
-    public long CurrentMaxFileSize { get; set; }
-    [DisplayName("저장된 파일 수")]
-    public int CurrentFileCount { get; set; }
-    [DisplayName("이번달 동기화 횟수")]
-    public int CurrentMonthlySyncCount { get; set; }
     public string StorageId { get; set; } = default!;
     public IEnumerable<BucketFile> Files { get; set; } = [];
+
+    private ChecksumStorageBucketService getService()
+    {
+        return (ChecksumStorageBucketService)_bucketServiceFactory.GetRequiredService(ChecksumStorageBucketService.ChecksumStorageType);
+    }
     
     public async Task<ActionResult> OnGetAsync(string id)
     {
-        var bucket = await _bucketService.FindBucketById(id);
+        var bucket = await _bucketService.Find(id);
         if (bucket == null)
         {
             return NotFound();
         }
 
         Id = id;
-        Limitations = bucket.Limitations;
         Files = await bucket.GetFiles();
-        CurrentMonthlySyncCount = await _bucketService.GetMonthlySuccessfulSyncCount(id);
-        StorageId = await _bucketService.GetStorageId(id);
+        Usage.Limitations = bucket.Limitations;
+        Usage.CurrentMonthlySyncCount = await _bucketService.GetMonthlySuccessfulSyncCount(id);
+        StorageId = await getService().GetStorageId(id);
         Owners = await _bucketOwnerService.GetOwners(id);
 
         foreach (var file in Files)
         {
-            CurrentBucketSize += file.Metadata.Size;
-            CurrentMaxFileSize = Math.Max(CurrentMaxFileSize, file.Metadata.Size);
-            CurrentFileCount++;
+            Usage.CurrentBucketSize += file.Metadata.Size;
+            Usage.CurrentMaxFileSize = Math.Max(Usage.CurrentMaxFileSize, file.Metadata.Size);
+            Usage.CurrentFileCount++;
         }
         return Page();
     }

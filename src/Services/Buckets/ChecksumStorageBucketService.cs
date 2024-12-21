@@ -6,39 +6,32 @@ using NuGet.Packaging;
 
 namespace AlphabetUpdateServer.Services.Buckets;
 
-public class ChecksumStorageBucketService
+public class ChecksumStorageBucketService : IBucketService
 {
-    private readonly ChecksumStorageService _checksumStorageService;
     private readonly ConfigService _configService;
+    private readonly ChecksumStorageService _checksumStorageService;
     private readonly ApplicationDbContext _dbContext;
 
     public ChecksumStorageBucketService(
-        ChecksumStorageService checksumStorageService,
         ConfigService configService,
+        ChecksumStorageService checksumStorageService,
         ApplicationDbContext dbContext)
     {
-        _checksumStorageService = checksumStorageService;
         _configService = configService;
+        _checksumStorageService = checksumStorageService;
         _dbContext = dbContext;
     }
 
-    public async Task<IEnumerable<BucketListItem>> GetAllBuckets()
-    {
-        return await _dbContext.Buckets
-            .Select(bucket => new BucketListItem(
-                bucket.Id,
-                bucket.Owners.Select(owner => owner.Username), 
-                bucket.LastUpdated))
-            .ToListAsync();
-    }
-
-    public async Task<ChecksumStorageBucketEntity?> FindEntityById(string id) =>
-        await _dbContext.Buckets
+    public const string ChecksumStorageType = ChecksumStorageBucketEntity.ChecksumStorageType;
+    public string Type => ChecksumStorageType;
+    
+    private async Task<ChecksumStorageBucketEntity?> findEntityById(string id) =>
+        await _dbContext.ChecksumStorageBuckets
             .Where(bucket => bucket.Id == id)
             .Include(bucket => bucket.Files)
             .FirstOrDefaultAsync();
 
-    public async Task<ChecksumStorageBucket> CreateBucketFromEntity(ChecksumStorageBucketEntity entity)
+    private async Task<ChecksumStorageBucket> createBucketFromEntity(ChecksumStorageBucketEntity entity)
     {
         var checksumStorage = await _checksumStorageService.GetStorage(entity.ChecksumStorageId);
         if (checksumStorage == null)
@@ -54,12 +47,12 @@ public class ChecksumStorageBucketService
         return bucket;
     }
     
-    public async Task<ChecksumStorageBucket?> FindBucketById(string id)
+    public async Task<IBucket?> Find(string id)
     {
-        var entity = await FindEntityById(id);
+        var entity = await findEntityById(id);
         if (entity == null)
             return null;
-        return await CreateBucketFromEntity(entity);
+        return await createBucketFromEntity(entity);
     }
 
     public Task CreateBucket(string id, BucketLimitations limitations, string storageId) =>
@@ -82,28 +75,14 @@ public class ChecksumStorageBucketService
         _dbContext.Buckets.Add(bucket);
         await _dbContext.SaveChangesAsync();
     }
-
-    public Task<int> GetBucketFileCount(string id) =>
-        _dbContext.Buckets
-            .Where(e => e.Id == id)
-            .Include(e => e.Files)
-            .SelectMany(e => e.Files)
-            .CountAsync();
     
-    public async Task<BucketSyncResult> Sync(string bucketId, string userId, IEnumerable<BucketSyncFile> syncFiles)
+    public async Task<BucketSyncResult> Sync(string bucketId, IEnumerable<BucketSyncFile> syncFiles)
     {
-        if (await _configService.GetMaintenanceMode())
-            throw new ServiceMaintenanceException();
-        
-        var entity = await FindEntityById(bucketId);
+        var entity = await findEntityById(bucketId);
         if (entity == null)
             throw new KeyNotFoundException(bucketId);
-
-        var syncCount = await GetMonthlySuccessfulSyncCount(bucketId);
-        if (syncCount >= entity.Limitations.MonthlyMaxSyncCount)
-            throw new BucketLimitationException(BucketLimitationException.ExceedMonthlySyncCount);
         
-        var bucket = await CreateBucketFromEntity(entity);
+        var bucket = await createBucketFromEntity(entity);
         var result = await bucket.Sync(syncFiles);
         if (result.IsSuccess)
         {
@@ -115,31 +94,9 @@ public class ChecksumStorageBucketService
             entity.Files.Clear();
             entity.Files.AddRange(bucketFileEntities);
             entity.LastUpdated = bucket.LastUpdated;
+        }
 
-            addSuccessEvent(bucketId, userId);
-        }
-        else
-        {
-            addActionRequiredEvent(bucketId, userId);
-        }
-        
-        await _dbContext.SaveChangesAsync();
         return result;
-    }
-
-    public async Task UpdateLimitations(string id, BucketLimitations limitations)
-    {
-        if (await _configService.GetMaintenanceMode())
-            throw new ServiceMaintenanceException();
-
-        var entity = await _dbContext.Buckets
-            .FirstOrDefaultAsync(e => e.Id == id);
-        
-        if (entity == null)
-            throw new KeyNotFoundException(id);
-
-        entity.Limitations = limitations;
-        await _dbContext.SaveChangesAsync();
     }
     
     public async Task UpdateStorageId(string id, string storageId)
@@ -147,64 +104,23 @@ public class ChecksumStorageBucketService
         if (await _configService.GetMaintenanceMode())
             throw new ServiceMaintenanceException();
 
-        var rows = await _dbContext.Buckets
+        var rows = await _dbContext.ChecksumStorageBuckets
             .Where(e => e.Id == id)
             .ExecuteUpdateAsync(s => s
                 .SetProperty(p => p.ChecksumStorageId, storageId));
 
         if (rows == 0)
             throw new KeyNotFoundException(id);
+
+        await _dbContext.SaveChangesAsync();
     }
     
     public async Task<string> GetStorageId(string id)
     {
-        return await _dbContext.Buckets
+        return await _dbContext.ChecksumStorageBuckets
             .Where(entity => entity.Id == id)
             .Select(entity => entity.ChecksumStorageId)
             .FirstAsync();
-    }
-
-    public async Task<IReadOnlyCollection<BucketSyncEventEntity>> GetSyncEvents(string bucketId)
-    {
-        return await _dbContext.BucketSyncEvents
-            .Where(e => e.BucketId == bucketId)
-            .OrderByDescending(e => e.Timestamp)
-            .ToListAsync();
-    }
-
-    public async Task<int> GetMonthlySuccessfulSyncCount(string bucketId)
-    {
-        var now = DateTimeOffset.UtcNow;
-        var startTimestamp = new DateTimeOffset(now.Year, now.Month, 1, 0, 0, 0, now.Offset);
-        return await _dbContext.BucketSyncEvents
-            .Where(e => e.BucketId == bucketId)
-            .Where(e => e.EventType == BucketSyncEventType.Success)
-            .Where(e => e.Timestamp >= startTimestamp)
-            .CountAsync();
-    }
-    
-    private void addSuccessEvent(string bucketId, string userId)
-    {
-        var entity = new BucketSyncEventEntity
-        {
-            BucketId = bucketId,
-            UserId = userId,
-            Timestamp = DateTimeOffset.Now,
-            EventType = BucketSyncEventType.Success
-        };
-        _dbContext.BucketSyncEvents.Add(entity);
-    }
-
-    private void addActionRequiredEvent(string bucketId, string userId)
-    {
-        var entity = new BucketSyncEventEntity()
-        {
-            BucketId = bucketId,
-            UserId = userId,
-            Timestamp = DateTimeOffset.Now,
-            EventType = BucketSyncEventType.ActionRequired
-        };
-        _dbContext.BucketSyncEvents.Add(entity);
     }
 
     private ChecksumStorageBucketFile entityToFile(ChecksumStorageBucketFileEntity entity)
