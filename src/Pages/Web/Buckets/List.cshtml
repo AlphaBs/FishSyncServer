@@ -11,7 +11,10 @@
             <h3 class="mb-3">버킷 목록</h3>
         </div>
         <div class="col-auto">
-            <a asp-area="" asp-page="AddChecksumStorageBucket" class="btn btn-primary">추가</a>
+            <a asp-area="" asp-page="AddChecksumStorageBucket" class="btn btn-primary">ChecksumStorageBucket 추가</a>
+        </div>
+        <div class="col-auto">
+            <a asp-area="" asp-page="AddAlphabetMirrorBucket" class="btn btn-primary">AlphabetMirrorBucket 추가</a>
         </div>
     </div>
     <div class="row">
@@ -20,6 +23,7 @@
                 <thead>
                     <tr>
                         <th>Id</th>
+                        <th>Type</th>
                         <th>Owners</th>
                     </tr>
                 </thead>
@@ -27,7 +31,15 @@
                     @foreach (var bucket in Model.Buckets)
                     {
                         <tr>
-                            <td><a asp-area="" asp-page="ViewChecksumStorageBucket" asp-route-id="@bucket.Id">@bucket.Id</a></td>
+                            <td>
+                                <a asp-page="List"
+                                   asp-page-handler="RedirectToView"
+                                   asp-route-id="@bucket.Id"
+                                   asp-route-type="@bucket.Type">
+                                    @bucket.Id
+                                </a>
+                            </td>
+                            <td>@bucket.Type</td>
                             <td>@string.Join(',', bucket.Owners)</td>
                         </tr>
                     }

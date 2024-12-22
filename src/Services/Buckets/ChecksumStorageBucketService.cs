@@ -55,10 +55,10 @@ public class ChecksumStorageBucketService : IBucketService
         return await createBucketFromEntity(entity);
     }
 
-    public Task CreateBucket(string id, BucketLimitations limitations, string storageId) =>
-        CreateBucket(id, DateTimeOffset.UtcNow, limitations, storageId);
+    public Task Create(string id, BucketLimitations limitations, string storageId) =>
+        Create(id, DateTimeOffset.UtcNow, limitations, storageId);
 
-    public async Task CreateBucket(
+    public async Task Create(
         string id, 
         DateTimeOffset lastUpdated, 
         BucketLimitations limitations, 

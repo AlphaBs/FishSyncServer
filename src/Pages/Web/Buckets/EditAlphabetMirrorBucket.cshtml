@@ -1,0 +1,28 @@
+@page "{id}"
+    
+@model AlphabetUpdateServer.Pages.Web.Buckets.EditAlphabetMirrorBucketModel
+
+<h1>@Model.Id</h1>
+<a asp-page="ViewAlphabetMirrorBucket" asp-route-id="@Model.Id">돌아가기</a>
+
+<div class="card mt-4">
+    <div class="card-header">
+        AlphabetMirrorBucket
+    </div>
+    <div class="card-body">
+        <form method="post" asp-page-handler="OriginUrl">
+            <div class="mb-3">
+                <label asp-for="OriginUrl" class="form-label"></label>
+                <input asp-for="OriginUrl" class="form-control"/>
+            </div>
+            <input type="submit" class="btn btn-primary"/>
+        </form>
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-header">파일</div>
+    <div class="card-body">
+        AlphabetUpdateServer 를 업데이트 해주세요.
+    </div>
+</div>

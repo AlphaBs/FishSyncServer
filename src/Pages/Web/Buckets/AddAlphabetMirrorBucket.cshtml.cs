@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using AlphabetUpdateServer.Models.Buckets;
 using AlphabetUpdateServer.Services.Buckets;
 using AlphabetUpdateServer.Services.Users;
@@ -8,11 +9,11 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 namespace AlphabetUpdateServer.Pages.Web.Buckets;
 
 [Authorize(Roles = UserRoleNames.BucketAdmin)]
-public class AddChecksumStorageBucketModel : PageModel
+public class AddAlphabetMirrorBucketModel : PageModel
 {
     private readonly BucketServiceFactory _bucketServiceFactory;
-
-    public AddChecksumStorageBucketModel(BucketServiceFactory bucketServiceFactory)
+    
+    public AddAlphabetMirrorBucketModel(BucketServiceFactory bucketServiceFactory)
     {
         _bucketServiceFactory = bucketServiceFactory;
     }
@@ -21,10 +22,9 @@ public class AddChecksumStorageBucketModel : PageModel
     public string Id { get; set; } = default!;
 
     [BindProperty]
-    public BucketLimitations Limitations { get; set; } = default!;
+    [Required]
+    public string OriginUrl { get; set; } = default!;
 
-    [BindProperty]
-    public string StorageId { get; set; } = default!;
 
     public ActionResult OnGetAsync()
     {
@@ -38,10 +38,8 @@ public class AddChecksumStorageBucketModel : PageModel
             return Page();
         }
 
-        var service =
-            (ChecksumStorageBucketService)_bucketServiceFactory.GetRequiredService(ChecksumStorageBucketService
-                .ChecksumStorageType);
-        await service.Create(Id, Limitations, StorageId);
+        var service = (AlphabetMirrorBucketService)_bucketServiceFactory.GetRequiredService(AlphabetMirrorBucketService.AlphabetMirrorType);
+        await service.Create(Id, OriginUrl);
         return RedirectToPage("./List");
     }
 }

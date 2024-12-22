@@ -22,4 +22,17 @@ public class ListModel : PageModel
         Buckets = await _bucketService.GetAllBuckets();
         return Page();
     }
+
+    public ActionResult OnGetRedirectToView(string id, string type)
+    {
+        switch (type)
+        {
+            case AlphabetMirrorBucketService.AlphabetMirrorType:
+                return RedirectToPage("./ViewAlphabetMirrorBucket", new { id });
+            case ChecksumStorageBucketService.ChecksumStorageType:
+                return RedirectToPage("./ViewChecksumStorageBucket", new { id });
+            default:
+                return NotFound();
+        }
+    }
 }

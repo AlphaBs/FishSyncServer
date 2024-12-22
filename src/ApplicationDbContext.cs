@@ -1,4 +1,5 @@
 using AlphabetUpdateServer.Entities;
+using Castle.Components.DictionaryAdapter.Xml;
 using Microsoft.EntityFrameworkCore;
 
 namespace AlphabetUpdateServer;
@@ -14,6 +15,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<UserEntity> Users { get; set; } = null!;
     
     public DbSet<BucketEntity> Buckets { get; set; } = null!;
+    public DbSet<AlphabetMirrorBucketEntity> AlphabetMirrorBuckets { get; set; } = null!;
     public DbSet<ChecksumStorageBucketEntity> ChecksumStorageBuckets { get; set; } = null!;
     public DbSet<ChecksumStorageBucketFileEntity> ChecksumStorageBucketFiles { get; set; } = null!;
     public DbSet<BucketSyncEventEntity> BucketSyncEvents { get; set; } = null!;
@@ -25,12 +27,10 @@ public class ApplicationDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<BucketEntity>()
-            .ComplexProperty(e => e.Limitations);
-
+            .UseTptMappingStrategy();
+        
         modelBuilder.Entity<BucketEntity>()
-            .HasDiscriminator(e => e.Type)
-            .HasValue<BucketEntity>("base")
-            .HasValue<ChecksumStorageBucketEntity>(ChecksumStorageBucketEntity.ChecksumStorageType);
+            .ComplexProperty(e => e.Limitations);
         
         // N:M relationship between Users <-> Buckets
         modelBuilder.Entity<UserEntity>()
@@ -47,8 +47,7 @@ public class ApplicationDbContext : DbContext
             .HasOne<ChecksumStorageEntity>()
             .WithMany()
             .HasForeignKey(e => e.ChecksumStorageId)
-            .OnDelete(DeleteBehavior.Restrict)
-            .IsRequired();
+            .OnDelete(DeleteBehavior.Restrict);
 
         // 1:N relationship between Buckets(1) <-> BucketFiles(N)
         modelBuilder.Entity<ChecksumStorageBucketEntity>()

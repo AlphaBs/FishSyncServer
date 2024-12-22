@@ -6,7 +6,7 @@
 }
 
 <h5 class="mb-3">←<a asp-page="List">버킷 목록</a></h5>
-<h3 class="mb-3">버킷 추가</h3>
+<h3 class="mb-3">ChecksumStorageBucket 추가</h3>
 <form method="post">
     <div class="row mb-3">
         <label for="inputId" class="col-sm-2 col-form-label">Id</label>
@@ -51,9 +51,9 @@
         </div>
     </div>
     <div class="row mb-3">
-        <label for="inputStorageId" class="col-sm-2 col-form-label">StorageId</label>
+        <label asp-for="StorageId" class="col-sm-2 col-form-label"></label>
         <div class="col-sm-10">
-            <input asp-for="StorageId" class="form-control" id="inputStorage">
+            <input asp-for="StorageId" class="form-control">
         </div>
     </div>
     <button type="submit" name="action" class="btn btn-primary mb-3">생성</button>

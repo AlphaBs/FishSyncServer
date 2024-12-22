@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using AlphabetUpdateServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AlphabetUpdateServer.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241222130849_AddAlphabetMirrorBucketEntity")]
+    partial class AddAlphabetMirrorBucketEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -64,7 +67,9 @@ namespace AlphabetUpdateServer.Migrations
 
                     b.ToTable("Buckets");
 
-                    b.UseTptMappingStrategy();
+                    b.HasDiscriminator<string>("Type").HasValue("base");
+
+                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("AlphabetUpdateServer.Entities.BucketSyncEventEntity", b =>
@@ -226,7 +231,7 @@ namespace AlphabetUpdateServer.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
 
-                    b.ToTable("AlphabetMirrorBuckets");
+                    b.HasDiscriminator().HasValue("alphabet-mirror");
                 });
 
             modelBuilder.Entity("AlphabetUpdateServer.Entities.ChecksumStorageBucketEntity", b =>
@@ -240,7 +245,7 @@ namespace AlphabetUpdateServer.Migrations
 
                     b.HasIndex("ChecksumStorageId");
 
-                    b.ToTable("ChecksumStorageBuckets");
+                    b.HasDiscriminator().HasValue("checksum-storage");
                 });
 
             modelBuilder.Entity("AlphabetUpdateServer.Entities.ObjectChecksumStorageEntity", b =>
@@ -336,27 +341,12 @@ namespace AlphabetUpdateServer.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("AlphabetUpdateServer.Entities.AlphabetMirrorBucketEntity", b =>
-                {
-                    b.HasOne("AlphabetUpdateServer.Entities.BucketEntity", null)
-                        .WithOne()
-                        .HasForeignKey("AlphabetUpdateServer.Entities.AlphabetMirrorBucketEntity", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("AlphabetUpdateServer.Entities.ChecksumStorageBucketEntity", b =>
                 {
                     b.HasOne("AlphabetUpdateServer.Entities.ChecksumStorageEntity", null)
                         .WithMany()
                         .HasForeignKey("ChecksumStorageId")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("AlphabetUpdateServer.Entities.BucketEntity", null)
-                        .WithOne()
-                        .HasForeignKey("AlphabetUpdateServer.Entities.ChecksumStorageBucketEntity", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 

@@ -37,6 +37,7 @@ public class BucketOwnerService
             .SelectMany(user => user.Buckets)
             .Select(bucket => new BucketListItem(
                 bucket.Id, 
+                bucket.Type,
                 bucket.Owners.Select(owner => owner.Username), 
                 bucket.LastUpdated))
             .ToListAsync();
