@@ -28,6 +28,17 @@ public class BucketService
             .ToListAsync();
     }
 
+    public async Task<BucketListItem?> FindBucketItem(string id)
+    {
+        return await _dbContext.Buckets
+            .Select(bucket => new BucketListItem(
+                bucket.Id,
+                bucket.Type,
+                bucket.Owners.Select(owner => owner.Username),
+                bucket.LastUpdated))
+            .FirstOrDefaultAsync();
+    }
+
     private async Task<BucketEntity?> findEntityById(string id) =>
         await _dbContext.Buckets
             .Where(bucket => bucket.Id == id)

@@ -2,43 +2,43 @@
 @model BucketsModel
 
 @{
+    Layout = "./_Layout.cshtml";
     ViewData["Title"] = "버킷";
 }
 
-<h3>@ViewData["Title"]</h3>
-<p>@Model.StatusMessage</p>
-<div class="row">
-    <div class="col-sm-8 col-md-2">
-        <partial name="_NavBarPartial"/>
-    </div>
-    <div class="col-sm-8 col-md-6">
-        <table class="table table-hover">
-            <thead>
-            <tr>
-                <th>Id</th>
-                <th>Owners</th>
-                <th>LastUpdated</th>
-                <th>Actions</th>
+<div class="overflow-x-auto">
+    <table class="w-full text-left border-collapse border border-gray-300">
+        <thead>
+            <tr class="bg-gray-100">
+                <th class="px-4 py-2 border border-gray-300">Id</th>
+                <th class="px-4 py-2 border border-gray-300">Owners</th>
+                <th class="px-4 py-2 border border-gray-300">LastUpdated</th>
+                <th class="px-4 py-2 border border-gray-300">Actions</th>
             </tr>
-            </thead>
-            <tbody>
+        </thead>
+        <tbody>
             @foreach (var bucket in Model.Buckets)
             {
-            <tr>
-                <td><a asp-page="ViewChecksumStorageBucket" asp-route-id="@bucket.Id">@bucket.Id</a></td>
-                <td>@string.Join(',', bucket.Owners)</td>
-                <td>@bucket.LastUpdated</td>
-                <td>
-                    <form>
-                        <input type="hidden" name="bucketId" value="@bucket.Id"/>
-                        <input class="btn btn-primary" type="submit" name="Delete" value="권한 회수"/>
-                    </form>
-                </td>
-            </tr>
+                <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-2 border border-gray-300">
+                        <a asp-page="/Web/Buckets/List" asp-page-handler="RedirectToView" asp-route-id="@bucket.Id"
+                            asp-route-type="@bucket.Type" class="text-blue-600 hover:underline">
+                            @bucket.Id
+                        </a>
+                    </td>
+                    <td class="px-4 py-2 border border-gray-300">@string.Join(',', bucket.Owners)</td>
+                    <td class="px-4 py-2 border border-gray-300">@bucket.LastUpdated</td>
+                    <td class="px-4 py-2 border border-gray-300">
+                        <form>
+                            <input type="hidden" name="bucketId" value="@bucket.Id" />
+                            <input class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 cursor-pointer"
+                                type="submit" name="Delete" value="권한 회수" />
+                        </form>
+                    </td>
+                </tr>
             }
-            </tbody>
-        </table>
-    </div>
+        </tbody>
+    </table>
 </div>
 
 @section Scripts {

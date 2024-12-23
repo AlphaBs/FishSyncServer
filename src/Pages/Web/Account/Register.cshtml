@@ -4,49 +4,47 @@
     ViewData["Title"] = "회원가입";
 }
 
-<h1>@ViewData["Title"]</h1>
+<div class="bg-white p-6 shadow-md rounded-lg mx-auto w-full max-w-md">
+    <h1 class="text-2xl font-bold mb-4">회원가입</h1>
+    <hr class="my-4 border-gray-300" />
+    <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="flex flex-col gap-2">
+        <div asp-validation-summary="ModelOnly" class="text-red-500" role="alert"></div>
+        <div>
+            <label asp-for="Input.Username" class="block mb-2 text-sm font-medium text-gray-900">아이디</label>
+            <input asp-for="Input.Username" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" autocomplete="username" aria-required="true" placeholder="아이디" />
+            <span asp-validation-for="Input.Username" class="text-red-500"></span>
+        </div>
 
-<div class="row">
-    <div class="col-md-4">
-        <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
-            <h2>새로운 계정 만들기</h2>
-            <hr />
-            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Username" class="form-control" autocomplete="username" aria-required="true" placeholder="username" />
-                <label asp-for="Input.Username"></label>
-                <span asp-validation-for="Input.Username" class="text-danger"></span>
-            </div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
-                <label asp-for="Input.Password"></label>
-                <span asp-validation-for="Input.Password" class="text-danger"></span>
-            </div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
-                <label asp-for="Input.ConfirmPassword"></label>
-                <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
-            </div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Email" class="form-control" autocomplete="email" aria-required="false" placeholder="email" />
-                <label asp-for="Input.Email"></label>
-                <span asp-validation-for="Input.Email" class="text-danger"></span>
-            </div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Memo" class="form-control" autocomplete="discord" aria-required="false" placeholder="discord" />
-                <label asp-for="Input.Memo"></label>
-                <span asp-validation-for="Input.Memo" class="text-danger"></span>
-            </div>
-            <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">회원가입</button>
-        </form>
-    </div>
-    <div class="col-md-6 col-md-offset-2">
-        <section>
-            <h3>계정 인증 절차 후 서비스 사용이 가능합니다.</h3>
-            <hr />
-            <p>회원가입 후 만든 아이디를 알려주시면 인증 절차 후 서비스 사용 가능하도록 계정 권한 조정 해드리겠습니다.</p>
-        </section>
-    </div>
+        <div>
+            <label asp-for="Input.Password" class="block mb-2 text-sm font-medium text-gray-900">비밀번호</label>
+            <input asp-for="Input.Password" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" autocomplete="new-password" aria-required="true" placeholder="비밀번호" />
+            <span asp-validation-for="Input.Password" class="text-red-500"></span>
+        </div>
+
+        <div>
+            <label asp-for="Input.ConfirmPassword" class="block mb-2 text-sm font-medium text-gray-900">비밀번호 확인</label>
+            <input asp-for="Input.ConfirmPassword" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" autocomplete="new-password" aria-required="true" placeholder="비밀번호 확인" />
+            <span asp-validation-for="Input.ConfirmPassword" class="text-red-500"></span>
+        </div>
+
+        <div>
+            <label asp-for="Input.Email" class="block mb-2 text-sm font-medium text-gray-900">이메일</label>
+            <input asp-for="Input.Email" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" autocomplete="email" aria-required="false" placeholder="이메일" />
+            <span asp-validation-for="Input.Email" class="text-red-500"></span>
+        </div>
+
+        <div>
+            <label asp-for="Input.Memo" class="block mb-2 text-sm font-medium text-gray-900">메모</label>
+            <input asp-for="Input.Memo" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" autocomplete="discord" aria-required="false" placeholder="메모" />
+            <span asp-validation-for="Input.Memo" class="text-red-500"></span>
+        </div>
+
+        <div>
+            <button id="registerSubmit" type="submit" class="bg-blue-600 w-full text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                회원가입
+            </button>
+        </div>
+    </form>
 </div>
 
 @section Scripts {

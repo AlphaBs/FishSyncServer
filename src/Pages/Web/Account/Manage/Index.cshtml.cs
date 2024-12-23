@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using AlphabetUpdateServer.Entities;
 using AlphabetUpdateServer.Services.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

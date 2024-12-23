@@ -29,6 +29,7 @@ public class ViewChecksumStorageBucketModel : PageModel
 
     [BindProperty]
     public string Id { get; set; } = default!;
+    public string BucketType { get; set; } = ChecksumStorageBucketService.ChecksumStorageType;
     public BucketUsageModel Usage { get; set; } = new();
     public IEnumerable<string> Owners { get; set; } = [];
     public string StorageId { get; set; } = default!;

@@ -1,36 +1,31 @@
 ﻿@page "/Web/Account/Manage/{username}/Index"
 @model IndexModel
 @{
+    Layout = "./_Layout.cshtml";
     ViewData["Title"] = "프로필";
 }
 
-<h3>@ViewData["Title"]</h3>
-<p>@Model.StatusMessage</p>
-<div class="row">
-    <div class="col-sm-8 col-md-2">
-        <partial name="_NavBarPartial"/>
+<form id="profile-form" method="post" class="space-y-4">
+    <div asp-validation-summary="ModelOnly" class="text-red-500" role="alert"></div>
+    <div class="mb-3">
+        <label asp-for="Username" class="block font-medium text-gray-700"></label>
+        <input asp-for="Username" class="block w-full rounded-md border-gray-300 shadow-sm" disabled />
     </div>
-    <div class="col-sm-8 col-md-6">
-        <form id="profile-form" method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-            <div class="mb-3">
-                <label asp-for="Username" class="form-label"></label>
-                <input asp-for="Username" class="form-control" disabled/>
-            </div>
-            <div class="mb-3">
-                <label asp-for="Email" class="form-label"></label>
-                <input asp-for="Email" class="form-control"/>
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
-            <div class="mb-3">
-                <label asp-for="Memo" class="form-label"></label>
-                <input asp-for="Memo" class="form-control"/>
-                <span asp-validation-for="Memo" class="text-danger"></span>
-            </div>
-            <button id="update-profile-button" type="submit" class="w-100 btn btn-lg btn-primary">저장</button>
-        </form>
+    <div class="mb-3">
+        <label asp-for="Email" class="block font-medium text-gray-700"></label>
+        <input asp-for="Email" class="block w-full rounded-md border-gray-300 shadow-sm" />
+        <span asp-validation-for="Email" class="text-red-500"></span>
     </div>
-</div>
+    <div class="mb-3">
+        <label asp-for="Memo" class="block font-medium text-gray-700"></label>
+        <input asp-for="Memo" class="block w-full rounded-md border-gray-300 shadow-sm" />
+        <span asp-validation-for="Memo" class="text-red-500"></span>
+    </div>
+    <button id="update-profile-button" type="submit"
+        class="w-24 bg-blue-600 text-white text-lg py-2 rounded-md hover:bg-blue-700">
+        저장
+    </button>
+</form>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />

@@ -23,7 +23,7 @@ public class ListModel : PageModel
         return Page();
     }
 
-    public ActionResult OnGetRedirectToView(string id, string type)
+    public ActionResult OnGetRedirectToBucketWithType(string id, string type)
     {
         switch (type)
         {
@@ -34,5 +34,13 @@ public class ListModel : PageModel
             default:
                 return NotFound();
         }
+    }
+
+    public async Task<ActionResult> OnGetRedirectToBucket(string id)
+    {
+        var item = await _bucketService.FindBucketItem(id);
+        if (item == null)
+            return NotFound();
+        return OnGetRedirectToBucketWithType(item.Id, item.Type);
     }
 }

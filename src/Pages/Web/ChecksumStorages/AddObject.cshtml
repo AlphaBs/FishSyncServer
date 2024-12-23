@@ -1,64 +1,97 @@
 ﻿@page
-@model AlphabetUpdateServer.Pages.Web.ChecksumStorages.AddObjectModel;
-@{
-}
+@model AlphabetUpdateServer.Pages.Web.ChecksumStorages.AddObjectModel
 
-<h1>Add Object</h1>
+<div class="bg-white p-6 shadow-md rounded-lg mx-auto w-full">
+    <nav class="flex mb-4" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
+            <li class="inline-flex items-center">
+                <a asp-page="/Web/Home/Index"
+                    class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 dark:text-gray-400 dark:hover:text-white">
+                    <svg class="w-3 h-3 me-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                        fill="currentColor" viewBox="0 0 20 20">
+                        <path
+                            d="m19.707 9.293-2-2-7-7a1 1 0 0 0-1.414 0l-7 7-2 2a1 1 0 0 0 1.414 1.414L2 10.414V18a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h3a2 2 0 0 0 2-2v-7.586l.293.293a1 1 0 0 0 1.414-1.414Z" />
+                    </svg>
+                    Home
+                </a>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <svg class="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1" aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="m1 9 4-4-4-4" />
+                    </svg>
+                    <a asp-page="/Web/ChecksumStorages/List"
+                        class="ms-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ms-2 dark:text-gray-400 dark:hover:text-white">
+                        ChecksumStorages
+                    </a>
+                </div>
+            </li>
+            <li aria-current="page">
+                <div class="flex items-center">
+                    <svg class="rtl:rotate-180 w-3 h-3 text-gray-400 mx-1" aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="m1 9 4-4-4-4" />
+                    </svg>
+                    <span class="ms-1 text-sm font-medium text-gray-500 md:ms-2 dark:text-gray-400">
+                        ObjectStorage 생성
+                    </span>
+                </div>
+            </li>
+        </ol>
+    </nav>
 
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Entity.Id" class="control-label"></label>
-                <input asp-for="Entity.Id" class="form-control" />
-                <span asp-validation-for="Entity.Id" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Entity.IsReadonly" class="form-check-label"></label>
-                <input asp-for="Entity.IsReadonly" class="form-check-input" />
-                <span asp-validation-for="Entity.IsReadonly" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Entity.AccessKey" class="control-label"></label>
-                <input asp-for="Entity.AccessKey" class="form-control" />
-                <span asp-validation-for="Entity.AccessKey" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Entity.SecretKey" class="control-label"></label>
-                <input asp-for="Entity.SecretKey" class="form-control"/>
-                <span asp-validation-for="Entity.SecretKey" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Entity.BucketName" class="control-label"></label>
-                <input asp-for="Entity.BucketName" class="form-control" />
-                <span asp-validation-for="Entity.BucketName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Entity.Prefix" class="control-label"></label>
-                <input asp-for="Entity.Prefix" class="form-control" />
-                <span asp-validation-for="Entity.Prefix" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Entity.ServiceEndpoint" class="control-label"></label>
-                <input asp-for="Entity.ServiceEndpoint" class="form-control" />
-                <span asp-validation-for="Entity.ServiceEndpoint" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Entity.PublicEndpoint" class="control-label"></label>
-                <input asp-for="Entity.PublicEndpoint" class="form-control" />
-                <span asp-validation-for="Entity.PublicEndpoint" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
-</div>
-
-<div>
-    <a asp-page="List">Back to List</a>
+    <h1 class="text-3xl font-extrabold leading-none tracking-tight text-gray-900 md:text-4xl dark:text-white mb-4">
+        ObjectStorage 생성
+    </h1>
+    <form method="post" class="space-y-6">
+        <div asp-validation-summary="ModelOnly" class="text-red-500" role="alert"></div>
+        <div>
+            <label asp-for="Entity.Id" class="block font-medium text-gray-700"></label>
+            <input asp-for="Entity.Id" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+            <span asp-validation-for="Entity.Id" class="text-red-500"></span>
+        </div>
+        <div>
+            <input asp-for="Entity.IsReadonly" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
+            <label asp-for="Entity.IsReadonly" class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"></label>
+            <span asp-validation-for="Entity.IsReadonly" class="text-red-500"></span>
+        </div>
+        <div>
+            <label asp-for="Entity.AccessKey" class="block font-medium text-gray-700"></label>
+            <input asp-for="Entity.AccessKey" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+            <span asp-validation-for="Entity.AccessKey" class="text-red-500"></span>
+        </div>
+        <div>
+            <label asp-for="Entity.SecretKey" class="block font-medium text-gray-700"></label>
+            <input asp-for="Entity.SecretKey" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+            <span asp-validation-for="Entity.SecretKey" class="text-red-500"></span>
+        </div>
+        <div>
+            <label asp-for="Entity.BucketName" class="block font-medium text-gray-700"></label>
+            <input asp-for="Entity.BucketName" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+            <span asp-validation-for="Entity.BucketName" class="text-red-500"></span>
+        </div>
+        <div>
+            <label asp-for="Entity.Prefix" class="block font-medium text-gray-700"></label>
+            <input asp-for="Entity.Prefix" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+            <span asp-validation-for="Entity.Prefix" class="text-red-500"></span>
+        </div>
+        <div>
+            <label asp-for="Entity.ServiceEndpoint" class="block font-medium text-gray-700"></label>
+            <input asp-for="Entity.ServiceEndpoint" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+            <span asp-validation-for="Entity.ServiceEndpoint" class="text-red-500"></span>
+        </div>
+        <div>
+            <label asp-for="Entity.PublicEndpoint" class="block font-medium text-gray-700"></label>
+            <input asp-for="Entity.PublicEndpoint" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+            <span asp-validation-for="Entity.PublicEndpoint" class="text-red-500"></span>
+        </div>
+        <div>
+            <input type="submit" value="Create" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 cursor-pointer" />
+        </div>
+    </form>
 </div>
 
 @section Scripts {

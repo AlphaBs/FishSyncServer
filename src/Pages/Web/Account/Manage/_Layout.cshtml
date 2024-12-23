@@ -1,0 +1,21 @@
+@{
+    Layout = "/Pages/Shared/_Layout.cshtml";
+}
+
+<div class="bg-white p-6 shadow-md rounded-lg mx-auto w-full">
+    <h1 class="text-2xl font-bold mb-4">@ViewData["Title"]</h1>
+    <p>@Model.StatusMessage</p>
+    <hr class="my-4 border-gray-300" />
+    <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+        <!-- Navigation -->
+        <div class="w-full md:w-1/6">
+            <partial name="_NavBarPartial" />
+        </div>
+        <!-- Content -->
+        <div class="w-full md:w-1/2">
+            @RenderBody()
+        </div>
+    </div>
+</div>
+
+@await RenderSectionAsync("Scripts", required: false)

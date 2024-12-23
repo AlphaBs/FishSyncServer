@@ -18,8 +18,8 @@ public class ViewBucketSyncEventsModel : PageModel
         _bucketService = bucketService;
     }
 
-    [BindProperty] public string Id { get; set; } = default!;
-    [BindProperty] public IReadOnlyCollection<BucketSyncEventEntity> Events { get; set; } = [];
+    public string Id { get; set; } = default!;    
+    public IReadOnlyCollection<BucketSyncEventEntity> Events { get; set; } = [];
     
     public async Task<ActionResult> OnGetAsync(string id)
     {
@@ -31,7 +31,6 @@ public class ViewBucketSyncEventsModel : PageModel
 
         Id = id;
         Events = await _bucketService.GetSyncEvents(id);
-        
         return Page();
     }
 }
