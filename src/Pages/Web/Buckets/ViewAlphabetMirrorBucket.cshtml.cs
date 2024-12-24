@@ -1,4 +1,5 @@
-﻿using AlphabetUpdateServer.Models.Buckets;
+﻿using System.ComponentModel;
+using AlphabetUpdateServer.Models.Buckets;
 using AlphabetUpdateServer.Pages.Shared;
 using AlphabetUpdateServer.Services.Buckets;
 using AlphabetUpdateServer.Services.Users;
@@ -13,21 +14,23 @@ public class ViewAlphabetMirrorBucketModel : PageModel
 {
     private readonly BucketService _bucketService;
     private readonly BucketServiceFactory _bucketServiceFactory;
-    private readonly BucketOwnerService _bucketOwnerService;
 
     public ViewAlphabetMirrorBucketModel(
         BucketService bucketService,
-        BucketOwnerService bucketOwnerService, 
         BucketServiceFactory bucketServiceFactory)
     {
         _bucketService = bucketService;
-        _bucketOwnerService = bucketOwnerService;
         _bucketServiceFactory = bucketServiceFactory;
     }
 
     [BindProperty]
     public string Id { get; set; } = default!;
-    public BucketUsageModel Usage { get; set; } = new();
+    [DisplayName("전체 용량")]
+    public long CurrentBucketSize { get; set; }
+    [DisplayName("최대 파일 크기")]
+    public long CurrentMaxFileSize { get; set; }
+    [DisplayName("파일 갯수")]
+    public long CurrentFileCount { get; set; }
     public IEnumerable<string> Owners { get; set; } = [];
     public string OriginUrl { get; set; } = default!;
     public IEnumerable<BucketFile> Files { get; set; } = [];
@@ -47,16 +50,13 @@ public class ViewAlphabetMirrorBucketModel : PageModel
 
         Id = id;
         Files = await bucket.GetFiles();
-        Usage.Limitations = bucket.Limitations;
-        Usage.CurrentMonthlySyncCount = await _bucketService.GetMonthlySuccessfulSyncCount(id);
         OriginUrl = await getService().GetOriginUrl(id);
-        Owners = await _bucketOwnerService.GetOwners(id);
 
         foreach (var file in Files)
         {
-            Usage.CurrentBucketSize += file.Metadata.Size;
-            Usage.CurrentMaxFileSize = Math.Max(Usage.CurrentMaxFileSize, file.Metadata.Size);
-            Usage.CurrentFileCount++;
+            CurrentBucketSize += file.Metadata.Size;
+            CurrentMaxFileSize = Math.Max(CurrentMaxFileSize, file.Metadata.Size);
+            CurrentFileCount++;
         }
         return Page();
     }

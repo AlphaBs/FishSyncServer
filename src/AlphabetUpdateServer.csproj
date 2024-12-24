@@ -38,38 +38,7 @@
     <PackageReference Include="RFiles.NET" Version="0.0.4" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
   </ItemGroup>
-
-  <ItemGroup>
-    <_ContentIncludedByDefault Remove="Pages\Account\Login.cshtml" />
-    <_ContentIncludedByDefault Remove="Pages\Account\Logout.cshtml" />
-    <_ContentIncludedByDefault Remove="Pages\Account\Manage\Email.cshtml" />
-    <_ContentIncludedByDefault Remove="Pages\Account\Manage\Index.cshtml" />
-    <_ContentIncludedByDefault Remove="Pages\Account\Manage\_ManageNav.cshtml" />
-    <_ContentIncludedByDefault Remove="Pages\Account\Manage\_ViewImports.cshtml" />
-    <_ContentIncludedByDefault Remove="Pages\Account\Register.cshtml" />
-    <_ContentIncludedByDefault Remove="Pages\Account\_ViewImports.cshtml" />
-    <_ContentIncludedByDefault Remove="Pages\Admin\Account.cshtml" />
-    <_ContentIncludedByDefault Remove="Pages\Admin\Index.cshtml" />
-    <_ContentIncludedByDefault Remove="Pages\Admin\_ViewImports.cshtml" />
-    <_ContentIncludedByDefault Remove="Areas\Identity\Pages\Account\Login.cshtml" />
-    <_ContentIncludedByDefault Remove="Areas\Identity\Pages\Account\Logout.cshtml" />
-    <_ContentIncludedByDefault Remove="Areas\Identity\Pages\Account\Manage\Email.cshtml" />
-    <_ContentIncludedByDefault Remove="Areas\Identity\Pages\Account\Manage\Index.cshtml" />
-    <_ContentIncludedByDefault Remove="Areas\Identity\Pages\Account\Manage\_ManageNav.cshtml" />
-    <_ContentIncludedByDefault Remove="Areas\Identity\Pages\Account\Manage\_ViewImports.cshtml" />
-    <_ContentIncludedByDefault Remove="Areas\Identity\Pages\Account\Register.cshtml" />
-    <_ContentIncludedByDefault Remove="Areas\Identity\Pages\Account\_ViewImports.cshtml" />
-    <_ContentIncludedByDefault Remove="Areas\Identity\Pages\Admin\Account.cshtml" />
-    <_ContentIncludedByDefault Remove="Areas\Identity\Pages\Admin\Index.cshtml" />
-    <_ContentIncludedByDefault Remove="Areas\Identity\Pages\Admin\_ViewImports.cshtml" />
-    <_ContentIncludedByDefault Remove="Areas\Identity\Pages\_ValidationScriptsPartial.cshtml" />
-    <_ContentIncludedByDefault Remove="Areas\Identity\Pages\_ViewImports.cshtml" />
-    <_ContentIncludedByDefault Remove="Areas\Identity\Pages\_ViewStart.cshtml" />
-    <_ContentIncludedByDefault Remove="Pages\Web\Admin\Account.cshtml" />
-    <_ContentIncludedByDefault Remove="Pages\Web\Admin\Index.cshtml" />
-    <_ContentIncludedByDefault Remove="Pages\Web\Admin\_ViewImports.cshtml" />
-  </ItemGroup>
-
+  
   <ItemGroup>
     <Folder Include="Migrations\" />
   </ItemGroup>
