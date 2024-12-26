@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace AlphabetUpdateServer.Pages.Web.Account.Manage;
 
-[Authorize(Roles = UserRoleNames.BucketUser)]
 public class ChangePasswordModel : PageModel
 {
     private readonly UserService _userService;

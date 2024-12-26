@@ -10,8 +10,7 @@
     {
         new() { Name = "Buckets", Url = Url.Page("/Web/Buckets/List") },
         new() { Name = $"{Model.Id} (AlphabetMirrorBucket)", Url = Url.Page(
-            pageName: "List",
-            pageHandler: "RedirectToBucketWithType",
+            pageName: "View",
             values: new { id = Model.Id, type = AlphabetMirrorBucketService.AlphabetMirrorType }) },
         new() { Name = "수정" }
     })

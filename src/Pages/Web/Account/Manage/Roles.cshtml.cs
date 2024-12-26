@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace AlphabetUpdateServer.Pages.Web.Account.Manage;
 
-[Authorize(Roles = UserRoleNames.BucketUser)]
+[Authorize(Roles = UserRoleNames.UserAdmin)]
 public class RolesModel : PageModel
 {
     private readonly UserService _userService;
@@ -31,9 +31,6 @@ public class RolesModel : PageModel
     
     public async Task<IActionResult> OnGet([FromRoute] string username)
     {
-        if (!checkPermission(username))
-            return Forbid();
-        
         var user = await _userService.FindUser(username);
         if (user == null)
             return NotFound();
@@ -49,10 +46,7 @@ public class RolesModel : PageModel
     }
 
     public async Task<IActionResult> OnPostAsync([FromRoute] string username)
-    {
-        if (!checkPermission(username))
-            return Forbid();
-        
+    {   
         var user = await _userService.FindUser(username);
         if (user == null)
             return NotFound();
@@ -66,10 +60,5 @@ public class RolesModel : PageModel
 
         await _userService.UpdateRoles(user, roles);
         return RedirectToPage();
-    }
-    
-    private bool checkPermission(string username)
-    {
-        return User.IsInRole(UserRoleNames.UserAdmin);
     }
 }

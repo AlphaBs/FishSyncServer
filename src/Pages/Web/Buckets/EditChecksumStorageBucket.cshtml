@@ -12,8 +12,7 @@
         new()
         {
             Name = $"{Model.Id} (ChecksumStorageBucket)", Url = Url.Page(
-                pageName: "List",
-                pageHandler: "RedirectToBucketWithType",
+                pageName: "View",
                 values: new { id = Model.Id, type = ChecksumStorageBucketService.ChecksumStorageType })
         },
         new() { Name = "수정" }

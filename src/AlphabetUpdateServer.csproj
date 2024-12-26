@@ -44,9 +44,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="Pages\Web\Account\Admin\Account.cshtml" />
     <AdditionalFiles Include="Pages\Web\Account\Admin\Index.cshtml" />
-    <AdditionalFiles Include="Pages\Web\Account\Admin\_ViewImports.cshtml" />
   </ItemGroup>
 
 </Project>

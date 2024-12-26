@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace AlphabetUpdateServer.Pages.Web.Account.Manage;
 
-[Authorize(Roles = UserRoleNames.BucketUser)]
+[Authorize(Roles = UserRoleNames.BucketAdmin)]
 public class BucketsModel : PageModel
 {
     private readonly BucketOwnerService _bucketOwnerService;
@@ -21,9 +21,6 @@ public class BucketsModel : PageModel
     
     public async Task<IActionResult> OnGet([FromRoute] string username)
     {
-        if (!checkPermission(username))
-            return Forbid();
-        
         Buckets = await _bucketOwnerService.GetBuckets(username);
         return Page();
     }
@@ -32,15 +29,7 @@ public class BucketsModel : PageModel
         [FromRoute] string username, 
         [FromBody] string bucketId)
     {
-        if (!checkPermission(username))
-            return Forbid();
-        
         await _bucketOwnerService.RemoveOwner(bucketId, username);
         return RedirectToPage();
-    }
-
-    private bool checkPermission(string username)
-    {
-        return User.IsInRole(UserRoleNames.BucketAdmin);
     }
 }

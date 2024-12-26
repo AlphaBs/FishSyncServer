@@ -1,4 +1,6 @@
 ﻿using AlphabetUpdateServer.Services.ChecksumStorages;
+using AlphabetUpdateServer.Services.Users;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -6,6 +8,7 @@ namespace AlphabetUpdateServer.Controllers.Api.Buckets;
 
 [ApiController]
 [Route("api/buckets/checksum-storage-bucket/file-manager")]
+[Authorize(AuthenticationSchemes = JwtAuthService.SchemeName, Roles = UserRoleNames.BucketAdmin)]
 public class ChecksumStorageBucketFileManagerController : ControllerBase
 {
     private readonly ApplicationDbContext _context;

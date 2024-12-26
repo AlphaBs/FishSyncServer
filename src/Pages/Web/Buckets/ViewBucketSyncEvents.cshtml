@@ -14,8 +14,7 @@
     {
         new() { Name = "Buckets", Url = Url.Page("/Web/Buckets/List") },
         new() { Name = Model.Id, Url = Url.Page(
-            pageName: "List", 
-            pageHandler: "RedirectToBucket",
+            pageName: "View", 
             values: new { id = Model.Id }) },
         new() { Name = "동기화 기록" }
     })
