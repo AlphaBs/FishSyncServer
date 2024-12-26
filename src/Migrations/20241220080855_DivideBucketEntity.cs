@@ -68,7 +68,7 @@ namespace AlphabetUpdateServer.Migrations
             migrationBuilder.Sql(@"
                 INSERT INTO ""BucketEntityUserEntity"" (""BucketsId"", ""OwnersUsername"")
                 SELECT ""BucketsId"", ""OwnersUsername"" 
-                FROM ""ChecksumStorageBucketEntityUserEntity""
+                FROM ""ChecksumStorageBucketEntityUserEntity"";
             ");
             
             migrationBuilder.DropTable(
@@ -148,7 +148,7 @@ namespace AlphabetUpdateServer.Migrations
             migrationBuilder.Sql(@"
                 INSERT INTO ""ChecksumStorageBucketEntityUserEntity"" (""BucketsId"", ""OwnersUsername"")
                 SELECT ""BucketsId"", ""OwnersUsername"" 
-                FROM ""BucketEntityUserEntity""
+                FROM ""BucketEntityUserEntity"";
             ");
             
             migrationBuilder.DropTable(
