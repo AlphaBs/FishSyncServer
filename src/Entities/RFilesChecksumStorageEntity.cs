@@ -4,7 +4,7 @@ namespace AlphabetUpdateServer.Entities;
 
 public class RFilesChecksumStorageEntity : ChecksumStorageEntity
 {
-    public static readonly string RFilesType = "rfiles";
+    public const string RFilesType = "rfiles";
 
     public RFilesChecksumStorageEntity()
     {

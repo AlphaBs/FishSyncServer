@@ -4,7 +4,7 @@ namespace AlphabetUpdateServer.Entities;
 
 public class ObjectChecksumStorageEntity : ChecksumStorageEntity
 {
-    public static readonly string ObjectType = "object";
+    public const string ObjectType = "object";
 
     public ObjectChecksumStorageEntity()
     {
