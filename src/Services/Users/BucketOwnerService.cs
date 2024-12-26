@@ -32,15 +32,22 @@ public class BucketOwnerService
 
     public async Task<IEnumerable<BucketListItem>> GetBuckets(string username)
     {
-        return await _context.Users
+        var entity = await _context.Users
+            .IgnoreAutoIncludes()
+            .Include(e => e.Buckets)
             .Where(user => user.Username == username)
-            .SelectMany(user => user.Buckets)
-            .Select(bucket => new BucketListItem(
-                bucket.Id, 
-                bucket.Type,
-                bucket.Owners.Select(owner => owner.Username), 
-                bucket.LastUpdated))
-            .ToListAsync();
+            .Select(user => user.Buckets
+                .Select(bucket => new BucketListItem(
+                    bucket.Id, 
+                    bucket.Type,
+                    bucket.Owners.Select(owner => owner.Username), 
+                    bucket.LastUpdated)))
+            .FirstOrDefaultAsync();
+
+        if (entity == null)
+            throw new KeyNotFoundException(username);
+
+        return entity.ToList();
     }
     
     public async Task AddOwner(string bucketId, string username)

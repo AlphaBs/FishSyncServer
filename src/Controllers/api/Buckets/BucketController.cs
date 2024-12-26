@@ -63,12 +63,15 @@ public class BucketController : ControllerBase
         }
 
         var files = await bucket.GetFiles();
+        var dependencies = await _bucketService.GetDependencies(id);
+        
         return Ok(new BucketDTO
         {
             Id = id,
             Limitations = bucket.Limitations,
             LastUpdated = bucket.LastUpdated,
-            Files = files.ToArray()
+            Files = files.ToList(),
+            Dependencies = dependencies
         });
     }
 
@@ -91,11 +94,14 @@ public class BucketController : ControllerBase
         }
 
         var files = await bucket.GetFiles();
+        var dependencies = await _bucketService.GetDependencies(id);
+
         return Ok(new BucketFilesDTO
         {
             Id = id,
             LastUpdated = bucket.LastUpdated,
-            Files = files.ToArray()
+            Files = files.ToArray(),
+            Dependencies = dependencies
         });
     }
 

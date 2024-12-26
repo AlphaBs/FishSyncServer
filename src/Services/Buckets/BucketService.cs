@@ -139,4 +139,41 @@ public class BucketService
         entity.Limitations = limitations;
         await _dbContext.SaveChangesAsync();
     }
+
+    public async Task<IReadOnlyCollection<string>> GetDependencies(string id)
+    {
+        var entity = await _dbContext.Buckets
+            .IgnoreAutoIncludes()
+            .Include(e => e.Dependencies)
+            .Where(e => e.Id == id)
+            .Select(e => e.Dependencies
+                .Select(b => b.Id))
+            .FirstOrDefaultAsync();
+
+        if (entity == null)
+            throw new KeyNotFoundException(id);
+
+        return entity.ToList();
+    }
+
+    public async Task AddDependency(string id, string dependencyId)
+    {
+        var bucket = new BucketEntity { Id = id };
+        _dbContext.Buckets.Attach(bucket);
+
+        var dep = new BucketEntity { Id = dependencyId };
+        _dbContext.Buckets.Attach(dep);
+        
+        bucket.Dependencies.Add(dep);
+        await _dbContext.SaveChangesAsync();
+    }
+    
+    public async Task RemoveOwner(string id, string dependencyId)
+    {
+        await _dbContext.Buckets
+            .Where(e => e.Id == id)
+            .SelectMany(e => e.Dependencies)
+            .Where(e => e.Id == dependencyId)
+            .ExecuteDeleteAsync();
+    }
 }

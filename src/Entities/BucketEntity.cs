@@ -17,4 +17,5 @@ public class BucketEntity
     public ICollection<UserEntity> Owners { get; } = [];
     public DateTimeOffset LastUpdated { get; set; }
 
+    public ICollection<BucketEntity> Dependencies { get; set; } = [];
 }

@@ -41,6 +41,10 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<BucketEntity>()
             .HasMany(e => e.Owners)
             .WithMany(e => e.Buckets);
+
+        modelBuilder.Entity<BucketEntity>()
+            .HasMany(e => e.Dependencies)
+            .WithMany();
         
         // 1:N relationship between ChecksumStorages(1) <-> Buckets(N)
         modelBuilder.Entity<ChecksumStorageBucketEntity>()
