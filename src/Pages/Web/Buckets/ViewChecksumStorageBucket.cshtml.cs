@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel;
 using AlphabetUpdateServer.Entities;
 using AlphabetUpdateServer.Models.Buckets;
-using AlphabetUpdateServer.Pages.Shared;
 using AlphabetUpdateServer.Services.Buckets;
 using AlphabetUpdateServer.Services.Users;
 using Microsoft.AspNetCore.Authorization;
@@ -29,10 +28,10 @@ public class ViewChecksumStorageBucketModel : PageModel
 
     [BindProperty]
     public string Id { get; set; } = default!;
-    public string BucketType { get; set; } = ChecksumStorageBucketService.ChecksumStorageType;
     public BucketUsageModel Usage { get; set; } = new();
     public IEnumerable<string> Owners { get; set; } = [];
     public string StorageId { get; set; } = default!;
+    public IEnumerable<string> Dependencies { get; set; } = [];
     public IEnumerable<BucketFile> Files { get; set; } = [];
 
     private ChecksumStorageBucketService getService()
@@ -54,6 +53,7 @@ public class ViewChecksumStorageBucketModel : PageModel
         Usage.CurrentMonthlySyncCount = await _bucketService.GetMonthlySuccessfulSyncCount(id);
         StorageId = await getService().GetStorageId(id);
         Owners = await _bucketOwnerService.GetOwners(id);
+        Dependencies = await _bucketService.GetDependencies(id);
 
         foreach (var file in Files)
         {

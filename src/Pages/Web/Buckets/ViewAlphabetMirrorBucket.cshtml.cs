@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
 using AlphabetUpdateServer.Models.Buckets;
-using AlphabetUpdateServer.Pages.Shared;
 using AlphabetUpdateServer.Services.Buckets;
 using AlphabetUpdateServer.Services.Users;
 using Microsoft.AspNetCore.Authorization;
@@ -25,13 +24,9 @@ public class ViewAlphabetMirrorBucketModel : PageModel
 
     [BindProperty]
     public string Id { get; set; } = default!;
-    [DisplayName("전체 용량")]
-    public long CurrentBucketSize { get; set; }
-    [DisplayName("최대 파일 크기")]
-    public long CurrentMaxFileSize { get; set; }
-    [DisplayName("파일 갯수")]
-    public long CurrentFileCount { get; set; }
-    public IEnumerable<string> Owners { get; set; } = [];
+
+    public BucketUsageModel Usage { get; set; } = new();
+    public IEnumerable<string> Dependencies { get; set; } = [];
     public string OriginUrl { get; set; } = default!;
     public IEnumerable<BucketFile> Files { get; set; } = [];
 
@@ -50,14 +45,17 @@ public class ViewAlphabetMirrorBucketModel : PageModel
 
         Id = id;
         Files = await bucket.GetFiles();
+        Dependencies = await _bucketService.GetDependencies(id);
         OriginUrl = await getService().GetOriginUrl(id);
 
         foreach (var file in Files)
         {
-            CurrentBucketSize += file.Metadata.Size;
-            CurrentMaxFileSize = Math.Max(CurrentMaxFileSize, file.Metadata.Size);
-            CurrentFileCount++;
+            Usage.CurrentBucketSize += file.Metadata.Size;
+            Usage.CurrentMaxFileSize = Math.Max(Usage.CurrentMaxFileSize, file.Metadata.Size);
+            Usage.CurrentFileCount++;
         }
+
+        Usage.ShowLimitations = false;
         return Page();
     }
 }

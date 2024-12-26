@@ -2,10 +2,11 @@
 using AlphabetUpdateServer.Models.Buckets;
 using Microsoft.AspNetCore.Mvc;
 
-namespace AlphabetUpdateServer.Pages.Shared;
+namespace AlphabetUpdateServer.Pages.Web.Buckets;
 
-public class BucketUsageModel : ViewComponent
+public class BucketUsageModel
 {
+    public bool ShowLimitations { get; set; } = true;
     public BucketLimitations Limitations { get; set; }
     
     [DisplayName("사용중인 버킷 용량")]

@@ -1,0 +1,43 @@
+﻿@model IEnumerable<AlphabetUpdateServer.Models.Buckets.BucketFile>
+
+@{
+    string readableSize(long size) => new PrettySize(size).Format(UnitBase.Base10);
+    string readableDateTime(DateTimeOffset dt) => dt.Humanize();
+}
+
+<div class="bg-white p-6 shadow-md rounded-lg mx-auto w-full">
+    <h4 class="text-2xl font-bold dark:text-white mb-4">파일 목록</h4>
+    @if (Model.Any())
+    {
+        <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+            <tr>
+                <th scope="col" class="px-6 py-3">Name</th>
+                <th scope="col" class="px-6 py-3">Size</th>
+                <th scope="col" class="px-6 py-3">Updated</th>
+                <th scope="col" class="px-6 py-3">Checksum</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var file in Model)
+            {
+                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                    <td scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                        data-tippy-content="@file.Location">
+                        <a href="@file.Location" target="_blank">@file.Path</a>
+                    </td>
+                    <td class="px-6 py-4" data-tippy-content="@file.Metadata.Size.ToString("#,#' bytes'")">
+                        @readableSize(file.Metadata.Size)</td>
+                    <td class="px-6 py-4" data-tippy-content="@file.Metadata.LastUpdated.ToString("o")">
+                        @readableDateTime(file.Metadata.LastUpdated)</td>
+                    <td class="px-6 py-4">@file.Metadata.Checksum</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>파일이 없습니다.</p>
+    }
+</div>

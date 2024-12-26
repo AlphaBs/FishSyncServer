@@ -26,12 +26,10 @@ public class EditChecksumStorageBucketModel : PageModel
     }
 
     [BindProperty] public string Id { get; set; } = string.Empty;
-
     [BindProperty] public BucketLimitations Limitations { get; set; } = new();
-
     [BindProperty] public string StorageId { get; set; } = string.Empty;
-
     [BindProperty] public IEnumerable<string> Owners { get; set; } = [];
+    public IEnumerable<string> Dependencies { get; set; } = [];
 
     private ChecksumStorageBucketService getService()
     {
@@ -49,6 +47,7 @@ public class EditChecksumStorageBucketModel : PageModel
         Limitations = bucket.Limitations;
         StorageId = await service.GetStorageId(id);
         Owners = await _bucketOwnerService.GetOwners(id);
+        Dependencies = await _bucketService.GetDependencies(id);
         
         return Page();
     }
@@ -93,6 +92,28 @@ public class EditChecksumStorageBucketModel : PageModel
             return Page();
         
         await _bucketOwnerService.RemoveOwner(id, username);
+        return RedirectToPage();
+    }
+    
+    public async Task<ActionResult> OnPostAddDependencyAsync(string id, string dep)
+    {
+        if (Id != id)
+            return NotFound();
+        if (string.IsNullOrEmpty(dep))
+            return Page();
+        
+        await _bucketService.AddDependency(id, dep);
+        return RedirectToPage();
+    }
+
+    public async Task<ActionResult> OnPostDeleteDependencyAsync(string id, string dep)
+    {
+        if (Id != id)
+            return NotFound();
+        if (string.IsNullOrEmpty(dep))
+            return Page();
+        
+        await _bucketService.RemoveOwner(id, dep);
         return RedirectToPage();
     }
 }
