@@ -23,13 +23,14 @@
             <span asp-validation-for="Input.Password" class="text-red-500"></span>
         </div>
         <div class="flex items-center">
-            <input asp-for="Input.RememberMe" type="checkbox" class="form-checkbox h-5 w-5 text-blue-600" />
-            <label asp-for="Input.RememberMe" class="ml-2 text-gray-700">@Html.DisplayNameFor(m =>
-                m.Input.RememberMe)</label>
+            <input asp-for="Input.RememberMe" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
+            <label asp-for="Input.RememberMe" class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+                @Html.DisplayNameFor(m => m.Input.RememberMe)
+            </label>
         </div>
         <div>
             <button id="login-submit" type="submit"
-                class="bg-blue-600 w-full text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
                 로그인
             </button>
         </div>

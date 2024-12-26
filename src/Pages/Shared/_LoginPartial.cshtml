@@ -1,28 +1,27 @@
 ﻿@using AlphabetUpdateServer.Services.Users
-<ul class="flex space-x-4">
 @if (User.Identity is { IsAuthenticated: true })
 {
     <li>
-        <a id="manage"
-           asp-page="/Web/Account/Manage/Index"
-           asp-route-username="@CookieAuthService.GetUsername(User.Claims)"
-           title="Manage">
+        <a class="block py-2 px-3 text-white rounded hover:bg-blue-500 md:hover:bg-transparent md:border-0 md:hover:text-blue-300 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
+            asp-page="/Web/Account/Manage/Index"
+            asp-route-username="@CookieAuthService.GetUsername(User.Claims)"
+            title="Manage">
             @CookieAuthService.GetUsername(User.Claims)
         </a>
     </li>
     <li>
-        <form id="logoutForm" asp-page="/Web/Account/Logout" asp-route-returnUrl="@Url.Page("/Web/Home")">
-            <button id="logout" type="submit">로그아웃</button>
-        </form>
+        <a asp-page="/Web/Account/Logout" asp-route-returnUrl="@Url.Page("/Web/Home")"
+            class="block py-2 px-3 text-white rounded hover:bg-blue-500 md:hover:bg-transparent md:border-0 md:hover:text-blue-300 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">
+            로그아웃
+        </a>
     </li>
 }
 else
 {
     <li>
-        <a id="register" asp-page="/Web/Account/Register">회원가입</a>
+        <a class="block py-2 px-3 text-white rounded hover:bg-blue-500 md:hover:bg-transparent md:border-0 md:hover:text-blue-300 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent" asp-page="/Web/Account/Register">회원가입</a>
     </li>
     <li>
-        <a id="login" asp-page="/Web/Account/Login">로그인</a>
+        <a class="block py-2 px-3 text-white rounded hover:bg-blue-500 md:hover:bg-transparent md:border-0 md:hover:text-blue-300 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent" asp-page="/Web/Account/Login">로그인</a>
     </li>
 }
-</ul>
