@@ -1,4 +1,5 @@
 ﻿@page
+@using AlphabetUpdateServer.Pages.Web
 @model AlphabetUpdateServer.Pages.Web.Home.IndexModel
 
 @{
@@ -6,9 +7,13 @@
 }
 
 <div class="bg-white p-6 shadow-md rounded-lg mx-auto w-full">
-    <h1 class="text-3xl font-extrabold leading-none tracking-tight text-gray-900 md:text-4xl dark:text-white mb-4">
-        HELLO
-    </h1>
+    @await Html.PartialAsync("Web/_BreadcrumbPartial", new BreadcrumbModel[]
+    {
+        
+    })
+
+    <h1 class="text-2xl font-bold mb-4">FISH SERVER</h1>
+    <hr class="my-4" />
     <p>FISH SERVER 는 파일 동기화를 위한 서비스를 제공합니다.</p>
     <br/>
     <ul class="list-disc list-inside space-y-2 text-gray-700 dark:text-gray-300">

@@ -1,4 +1,5 @@
 ﻿@page
+@using AlphabetUpdateServer.Pages.Web
 @model AlphabetUpdateServer.Pages.Web.Home.PrivacyModel
 
 @{
@@ -6,9 +7,12 @@
 }
 
 <div class="bg-white p-6 shadow-md rounded-lg mx-auto w-full">
-    <h1 class="text-3xl font-extrabold leading-none tracking-tight text-gray-900 md:text-4xl dark:text-white mb-4">
-        @ViewData["Title"]
-    </h1>
+    @await Html.PartialAsync("Web/_BreadcrumbPartial", new BreadcrumbModel[]
+    {
+        new() { Name = "Privacy" }
+    })
+
+    <h1 class="text-2xl font-bold mb-4">Privacy</h1>
     <hr class="my-4" />
     <p>회원의 이메일 주소, 접속 IP, 쿠키 정보는 서버에 저장될 수 있습니다.</p>
     <p>회원 정보는 탈퇴 즉시 영구 파기됩니다.</p>
