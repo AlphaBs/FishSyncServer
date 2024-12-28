@@ -6,7 +6,7 @@ namespace AlphabetUpdateServer.Entities;
 public class ChecksumStorageBucketFileEntity
 {
     [Required]
-    [MaxLength(16)]
+    [MaxLength(64)]
     public string BucketId { get; set; } = default!;
     
     [Required]

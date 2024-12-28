@@ -6,7 +6,7 @@ namespace AlphabetUpdateServer.Entities;
 public class BucketEntity
 {
     [Required]
-    [MaxLength(16)]
+    [MaxLength(64)]
     public required string Id { get; set; } = null!;
 
     [Required]
