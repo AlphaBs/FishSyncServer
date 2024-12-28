@@ -98,7 +98,7 @@ public class EditAlphabetMirrorBucketModel : PageModel
         if (string.IsNullOrEmpty(dep))
             return Page();
         
-        await _bucketService.RemoveOwner(id, dep);
+        await _bucketService.RemoveDependency(id, dep);
         return RedirectToPage();
     }
 }
