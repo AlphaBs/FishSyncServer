@@ -1,47 +1,52 @@
-@page "{id}/events"
-
+@page
 @using AlphabetUpdateServer.Pages.Web
 @using Microsoft.AspNetCore.Mvc.TagHelpers
 
 @model AlphabetUpdateServer.Pages.Web.Buckets.ViewBucketSyncEventsModel
 
 @{
-    ViewData["Title"] = Model.Id;
+    ViewData["Title"] = "동기화 기록";
 }
 
 <div class="bg-white p-6 shadow-md rounded-lg mx-auto w-full mb-6">
     @await Html.PartialAsync("Web/_BreadcrumbPartial", new BreadcrumbModel[]
-    {
-        new() { Name = "Buckets", Url = Url.Page("/Web/Buckets/List") },
-        new() { Name = Model.Id, Url = Url.Page(
-            pageName: "View", 
-            values: new { id = Model.Id }) },
-        new() { Name = "동기화 기록" }
-    })
+            {
+    new() { Name = "Buckets", Url = Url.Page("/Web/Buckets/List") },
+    new() { Name = "동기화 기록" }
+            })
 
-    <h1 class="text-3xl font-extrabold leading-none tracking-tight text-gray-900 md:text-4xl dark:text-white mb-6">
-        @Model.Id
+    <h1 class="text-2xl font-bold mb-4">
+        동기화 기록
+        @if (!string.IsNullOrEmpty(Model.Id))
+        {
+            <span>(@Model.Id)</span>
+        }
     </h1>
-
+    <hr class="my-4" />
     <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
         <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-        <tr>
-            <th scope="col" class="px-6 py-3">시간</th>
-            <th scope="col" class="px-6 py-3">결과</th>
-            <th scope="col" class="px-6 py-3">버킷</th>
-            <th scope="col" class="px-6 py-3">유저</th>
-        </tr>
+            <tr>
+                <th scope="col" class="px-6 py-3">버킷</th>
+                <th scope="col" class="px-6 py-3">시간</th>
+                <th scope="col" class="px-6 py-3">유저</th>
+                <th scope="col" class="px-6 py-3">결과</th>
+            </tr>
         </thead>
         <tbody>
-        @foreach (var entity in Model.Events)
-        {
-            <tr>
-                <td class="px-6 py-4">@entity.Timestamp</td>
-                <td class="px-6 py-4">@entity.EventType</td>
-                <td class="px-6 py-4">@entity.BucketId</td>
-                <td class="px-6 py-4">@entity.UserId</td>
-            </tr>
-        }
+            @foreach (var entity in Model.Events)
+            {
+                <tr>
+                    <td class="px-6 py-4">
+                        <a asp-page="View" asp-route-id="@entity.BucketId"
+                            class="font-medium text-blue-600 dark:text-blue-500 hover:underline">
+                            @entity.BucketId
+                        </a>
+                    </td>
+                    <td class="px-6 py-4">@entity.Timestamp</td>
+                    <td class="px-6 py-4">@entity.UserId</td>
+                    <td class="px-6 py-4">@entity.EventType</td>
+                </tr>
+            }
         </tbody>
     </table>
 </div>

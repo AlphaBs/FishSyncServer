@@ -1,5 +1,4 @@
 ﻿using AlphabetUpdateServer.Entities;
-using AlphabetUpdateServer.Models.Buckets;
 using AlphabetUpdateServer.Services.Buckets;
 using AlphabetUpdateServer.Services.Users;
 using Microsoft.AspNetCore.Authorization;
@@ -18,19 +17,21 @@ public class ViewBucketSyncEventsModel : PageModel
         _bucketService = bucketService;
     }
 
-    public string Id { get; set; } = default!;    
+    public string? Id { get; set; } 
     public IReadOnlyCollection<BucketSyncEventEntity> Events { get; set; } = [];
     
-    public async Task<ActionResult> OnGetAsync(string id)
+    public async Task<ActionResult> OnGetAsync(string? id)
     {
-        var bucket = await _bucketService.Find(id);
-        if (bucket == null)
-        {
-            return NotFound();
-        }
+        if (string.IsNullOrEmpty(id))
+        {        
+            Events = await _bucketService.GetAllSyncEvents();
 
-        Id = id;
-        Events = await _bucketService.GetSyncEvents(id);
+        }
+        else
+        {
+            Id = id;
+            Events = await _bucketService.GetSyncEvents(id);
+        }
         return Page();
     }
 }

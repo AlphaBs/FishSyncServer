@@ -117,6 +117,13 @@ public class BucketService
         _dbContext.BucketSyncEvents.Add(entity);
     }
     
+    public async Task<IReadOnlyCollection<BucketSyncEventEntity>> GetAllSyncEvents()
+    {
+        return await _dbContext.BucketSyncEvents
+            .OrderByDescending(e => e.Timestamp)
+            .ToListAsync();        
+    }
+
     public async Task<IReadOnlyCollection<BucketSyncEventEntity>> GetSyncEvents(string bucketId)
     {
         return await _dbContext.BucketSyncEvents
@@ -168,12 +175,18 @@ public class BucketService
         await _dbContext.SaveChangesAsync();
     }
     
-    public async Task RemoveOwner(string id, string dependencyId)
+    public async Task RemoveDependency(string id, string dependencyId)
     {
-        await _dbContext.Buckets
+        var entity = await _dbContext.Buckets
+            .IgnoreAutoIncludes()
+            .Include(e => e.Dependencies)
             .Where(e => e.Id == id)
-            .SelectMany(e => e.Dependencies)
-            .Where(e => e.Id == dependencyId)
-            .ExecuteDeleteAsync();
+            .FirstOrDefaultAsync();
+
+        if (entity == null)
+            throw new KeyNotFoundException(id);
+        
+        entity.Dependencies.Remove(entity.Dependencies.First(e => e.Id == dependencyId));
+        await _dbContext.SaveChangesAsync();
     }
 }
