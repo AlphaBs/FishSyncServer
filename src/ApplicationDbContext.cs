@@ -19,6 +19,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<ChecksumStorageBucketEntity> ChecksumStorageBuckets { get; set; } = null!;
     public DbSet<ChecksumStorageBucketFileEntity> ChecksumStorageBucketFiles { get; set; } = null!;
     public DbSet<BucketSyncEventEntity> BucketSyncEvents { get; set; } = null!;
+    public DbSet<BucketIndexEntity> BucketIndexes { get; set; } = null!;
     
     public DbSet<ChecksumStorageEntity> ChecksumStorages { get; set; } = null!;
     public DbSet<RFilesChecksumStorageEntity> RFilesChecksumStorages { get; set; } = null!;
@@ -89,6 +90,10 @@ public class ApplicationDbContext : DbContext
             .WithMany()
             .HasForeignKey(e => e.UserId)
             .OnDelete(DeleteBehavior.NoAction);
+
+        modelBuilder.Entity<BucketIndexEntity>()
+            .HasMany(e => e.Buckets)
+            .WithMany();
         
         base.OnModelCreating(modelBuilder);
     }

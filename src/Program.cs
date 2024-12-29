@@ -90,6 +90,8 @@ builder.Services.AddTransient<BucketService>();
 builder.Services.AddTransient<BucketServiceFactory>();
 builder.Services.AddTransient<IBucketService, ChecksumStorageBucketService>();
 builder.Services.AddTransient<IBucketService, AlphabetMirrorBucketService>();
+builder.Services.AddTransient<BucketIndexService>();
+
 builder.Services.AddTransient<BucketOwnerService>();
 builder.Services.AddTransient<UserService>();
 
