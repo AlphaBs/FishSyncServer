@@ -1,3 +1,4 @@
+using AlphabetUpdateServer.Models;
 using AlphabetUpdateServer.Models.Buckets;
 using AlphabetUpdateServer.Models.ChecksumStorages;
 
@@ -27,11 +28,33 @@ public class ChecksumStorageBucketTests
             (
                 Checksum: "file2_checksum",
                 Location: "file2_location",
-                Metadata: new Models.FileMetadata
+                Metadata: new FileMetadata
                 (
                     Size: 1002,
                     LastUpdated: DateTimeOffset.MinValue,
                     Checksum: "file2_checksum"
+                )
+            ),
+            new ChecksumStorageFile
+            (
+                Checksum: "old_file2_checksum",
+                Location: "file2_location",
+                Metadata: new FileMetadata
+                (
+                    Size: 1002,
+                    LastUpdated: DateTimeOffset.MinValue,
+                    Checksum: "old_file2_checksum"
+                )
+            ),
+            new ChecksumStorageFile
+            (
+                Checksum: "file3_checksum",
+                Location: "file3_location",
+                Metadata: new FileMetadata
+                (
+                    Size: 1003,
+                    LastUpdated: DateTimeOffset.MinValue,
+                    Checksum: "file3_checksum"
                 )
             )
         ]);
@@ -188,6 +211,66 @@ public class ChecksumStorageBucketTests
         Assert.Single(syncResult.RequiredActions);
     }
 
+    [Fact]
+    public async Task keep_last_updated_time_when_the_same_file_sync()
+    {
+        // Given
+        var bucket = createTestBucket(BucketLimitations.NoLimits);
+
+        // When
+        bucket.UpdateFiles(
+        [
+            new ChecksumStorageBucketFile(
+                "file1.zip", 
+                new FileMetadata(
+                    1001, 
+                    DateTimeOffset.MinValue, 
+                    "old_file1_checksum")),
+            new ChecksumStorageBucketFile(
+                "file2.zip", 
+                new FileMetadata(
+                    1002, 
+                    DateTimeOffset.MinValue, 
+                    "old_file2_checksum"))
+        ], DateTimeOffset.MinValue);
+        var syncResult = await bucket.Sync(
+        [
+            new BucketSyncFile // modified
+            {
+                Path = "file1.zip",
+                Checksum = "file1_checksum",
+                Size = 1001
+            },
+            new BucketSyncFile // same file
+            {
+                Path = "file2.zip",
+                Checksum = "old_file2_checksum",
+                Size = 1002,
+            },
+            new BucketSyncFile // new
+            {
+                Path = "file3.zip",
+                Checksum = "file3_checksum",
+                Size = 1003
+            }
+        ]);
+
+        // Then
+        Assert.True(syncResult.IsSuccess);
+        Assert.Empty(syncResult.RequiredActions);
+
+        var actual = (await bucket.GetFiles()).ToList();
+        Assert.Equal(["file1.zip", "file2.zip", "file3.zip"], actual.Select(f => f.Path));
+
+        DateTimeOffset[] expected =
+        [
+            bucket.LastUpdated, // modified
+            DateTimeOffset.MinValue, // same file
+            bucket.LastUpdated // new
+        ];
+        Assert.Equal(expected, actual.Select(f => f.Metadata.LastUpdated));
+    }
+    
     [Fact]
     public async Task fail_sync_to_readonly_bucket()
     {
