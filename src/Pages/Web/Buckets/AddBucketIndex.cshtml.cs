@@ -1,10 +1,13 @@
 ﻿using AlphabetUpdateServer.Models.Buckets;
 using AlphabetUpdateServer.Services.Buckets;
+using AlphabetUpdateServer.Services.Users;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace AlphabetUpdateServer.Pages.Web.Buckets;
 
+[Authorize(Roles = UserRoleNames.BucketAdmin)]
 public class AddBucketIndex : PageModel
 {
     private readonly BucketIndexService _bucketIndexService;

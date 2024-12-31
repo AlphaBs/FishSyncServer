@@ -1,5 +1,6 @@
 ﻿using AlphabetUpdateServer.Models.Buckets;
 using AlphabetUpdateServer.Services.Buckets;
+using AlphabetUpdateServer.Services.Users;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -18,7 +19,11 @@ public class ListBucketIndex : PageModel
     
     public async Task<ActionResult> OnGetAsync()
     {
-        BucketIndexes = (await _bucketIndexService.GetAllIndexes()).ToList();
+        var indexes = await _bucketIndexService.GetAllIndexes();
+        BucketIndexes = indexes
+            .Where(index => index.Searchable || User.IsInRole(UserRoleNames.BucketAdmin))
+            .ToList();
+            
         return Page();
     }
 }
