@@ -5,7 +5,7 @@
     ViewData["Title"] = "프로필";
 }
 
-<form id="profile-form" method="post" class="space-y-4">
+<form method="post" class="space-y-4 mb-2">
     <div asp-validation-summary="ModelOnly" class="text-red-500" role="alert"></div>
     <div class="mb-3">
         <label asp-for="Username" class="block font-medium text-gray-700"></label>
@@ -21,9 +21,16 @@
         <input asp-for="Memo" class="block w-full rounded-md border-gray-300 shadow-sm" />
         <span asp-validation-for="Memo" class="text-red-500"></span>
     </div>
-    <button id="update-profile-button" type="submit"
+    <button type="submit"
         class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
         저장
+    </button>
+</form>
+
+<form method="post" asp-page-handler="Delete">
+    <button type="submit"
+        class="focus:outline-none text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-900">
+        탈퇴
     </button>
 </form>
 

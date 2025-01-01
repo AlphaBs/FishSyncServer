@@ -70,6 +70,12 @@ public class IndexModel : PageModel
         return RedirectToPage();
     }
     
+    public async Task<ActionResult> OnPostDeleteAsync(string username)
+    {
+        await _userService.DeleteUser(username);
+        return RedirectToPage("/Web/Home/Index");
+    }
+
     private bool checkPermission(string username)
     {
         if (User.IsInRole(UserRoleNames.UserAdmin))
