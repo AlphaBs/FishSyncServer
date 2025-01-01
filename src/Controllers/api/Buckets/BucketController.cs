@@ -36,6 +36,7 @@ public class BucketController : ControllerBase
     /// </summary>
     [HttpGet]
     [ProducesResponseType<BucketListDTO>(StatusCodes.Status200OK)]
+    [Authorize(AuthenticationSchemes = JwtAuthService.SchemeName, Roles = UserRoleNames.BucketAdmin)]
     public async Task<ActionResult> Index()
     {
         var buckets = await _bucketService.GetAllBuckets();

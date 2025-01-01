@@ -7,14 +7,17 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace AlphabetUpdateServer.Pages.Web.Buckets;
 
-[Authorize(Roles = UserRoleNames.BucketUser)]
 public class ViewBucketSyncEventsModel : PageModel
 {
     private readonly BucketService _bucketService;
+    private readonly BucketOwnerService _bucketOwnerService;
 
-    public ViewBucketSyncEventsModel(BucketService bucketService)
+    public ViewBucketSyncEventsModel(
+        BucketService bucketService,
+        BucketOwnerService bucketOwnerService)
     {
         _bucketService = bucketService;
+        _bucketOwnerService = bucketOwnerService;
     }
 
     public string? Id { get; set; } 
@@ -23,15 +26,41 @@ public class ViewBucketSyncEventsModel : PageModel
     public async Task<ActionResult> OnGetAsync(string? id)
     {
         if (string.IsNullOrEmpty(id))
-        {        
-            Events = await _bucketService.GetAllSyncEvents();
-
+        {
+            if (User.IsInRole(UserRoleNames.BucketAdmin))
+            {
+                Events = await _bucketService.GetAllSyncEvents();
+            }
+            else
+            {
+                return Forbid();
+            }
         }
         else
         {
-            Id = id;
-            Events = await _bucketService.GetSyncEvents(id);
+            if (await checkPermission(id))
+            {
+                Id = id;
+                Events = await _bucketService.GetSyncEvents(id);
+            }
+            else
+            {
+                return Forbid();
+            }
         }
         return Page();
+    }
+
+    private async Task<bool> checkPermission(string bucketId)
+    {
+        if (User.IsInRole(UserRoleNames.BucketAdmin))
+            return true;
+
+        var username = CookieAuthService.GetUsername(User.Claims);
+        if (string.IsNullOrEmpty(username))
+            return false;
+
+        var ownership = await _bucketOwnerService.CheckOwnershipByUsername(bucketId, username);
+        return ownership;
     }
 }
