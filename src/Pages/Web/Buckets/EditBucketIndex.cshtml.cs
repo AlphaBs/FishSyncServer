@@ -63,4 +63,10 @@ public class EditBucketIndex : PageModel
         await _bucketIndexService.RemoveBucketFromIndex(Id, bucket);
         return RedirectToPage();
     }
+
+    public async Task<ActionResult> OnPostDeleteAsync()
+    {
+        await _bucketIndexService.RemoveIndex(Id);
+        return RedirectToPage("ListBucketIndex");
+    }
 }

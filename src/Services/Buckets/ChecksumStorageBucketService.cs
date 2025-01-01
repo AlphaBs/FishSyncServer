@@ -75,7 +75,15 @@ public class ChecksumStorageBucketService : IBucketService
         _dbContext.Buckets.Add(bucket);
         await _dbContext.SaveChangesAsync();
     }
-    
+
+    public async Task Delete(string id)
+    {
+        var bucket = new ChecksumStorageBucketEntity { Id = id };
+        _dbContext.ChecksumStorageBuckets.Attach(bucket);
+        _dbContext.ChecksumStorageBuckets.Remove(bucket);
+        await _dbContext.SaveChangesAsync();
+    }
+
     public async Task<BucketSyncResult> Sync(string bucketId, IEnumerable<BucketSyncFile> syncFiles)
     {
         var entity = await findEntityById(bucketId);

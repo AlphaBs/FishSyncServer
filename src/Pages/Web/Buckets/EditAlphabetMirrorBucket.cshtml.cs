@@ -101,4 +101,11 @@ public class EditAlphabetMirrorBucketModel : PageModel
         await _bucketService.RemoveDependency(id, dep);
         return RedirectToPage();
     }
+
+    public async Task<ActionResult> OnPostDeleteAsync(string id)
+    {
+        var service = getService();
+        await service.Delete(id);
+        return RedirectToPage("/Web/Buckets/List");
+    }
 }

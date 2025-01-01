@@ -41,6 +41,14 @@ public class AlphabetMirrorBucketService : IBucketService
         await _context.SaveChangesAsync();
     }
 
+    public async Task Delete(string id)
+    {
+        var bucket = new AlphabetMirrorBucketEntity { Id = id };
+        _context.AlphabetMirrorBuckets.Attach(bucket);
+        _context.AlphabetMirrorBuckets.Remove(bucket);
+        await _context.SaveChangesAsync();
+    }
+
     public Task<BucketSyncResult> Sync(string id, IEnumerable<BucketSyncFile> syncFiles)
     {
         throw new BucketLimitationException(BucketLimitationException.ReadonlyBucket);
