@@ -18,11 +18,11 @@ public class ListModel : PageModel
     }
 
     [BindProperty]
-    public IEnumerable<BucketListItem> Buckets { get; set; } = [];
+    public IAsyncEnumerable<BucketListItem> Buckets { get; set; } = AsyncEnumerable.Empty<BucketListItem>();
 
-    public async Task<ActionResult> OnGetAsync()
+    public ActionResult OnGet()
     {
-        Buckets = await _bucketService.GetAllBuckets();
+        Buckets = _bucketService.GetAllBuckets();
         return Page();
     }
 }

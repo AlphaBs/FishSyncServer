@@ -16,11 +16,11 @@ public class ListModel : PageModel
         _storageService = storageService;
     }
 
-    [BindProperty]
-    public IEnumerable<ChecksumStorageListItem> Items { get; set; } = [];
+    public IAsyncEnumerable<ChecksumStorageListItem> Items { get; set; } =
+        AsyncEnumerable.Empty<ChecksumStorageListItem>();
 
-    public async Task OnGet()
+    public void OnGet()
     {
-        Items = await _storageService.GetAllStorages();
+        Items = _storageService.GetAllStorages();
     }
 }

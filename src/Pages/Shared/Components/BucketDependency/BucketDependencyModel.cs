@@ -2,6 +2,6 @@
 
 public class BucketDependencyModel
 {
-    public IEnumerable<string> Dependencies { get; set; } = [];
+    public IAsyncEnumerable<string> Dependencies { get; set; } = AsyncEnumerable.Empty<string>();
     public bool ShowEdit { get; set; } = false;
 }

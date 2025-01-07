@@ -15,15 +15,16 @@ public class ChecksumStorageService
         _cacheFactory = cacheFactory;
     }
 
-    public async Task<IEnumerable<ChecksumStorageListItem>> GetAllStorages()
+    public async IAsyncEnumerable<ChecksumStorageListItem> GetAllStorages()
     {
-        var items = Enumerable.Empty<ChecksumStorageListItem>();
         foreach (var provider in _providers)
         {
-            var result = await provider.GetStorages();
-            items = items.Concat(result);
+            var items = provider.GetStorages();
+            await foreach (var item in items)
+            {
+                yield return item;
+            }
         }
-        return items;
     }
 
     public async Task<IChecksumStorage?> GetStorage(string id)

@@ -2,6 +2,6 @@
 
 public class BucketOwnerModel
 {
-    public IEnumerable<string> Owners { get; set; } = [];
+    public IAsyncEnumerable<string> Owners { get; set; } = AsyncEnumerable.Empty<string>();
     public bool ShowEdit { get; set; } = false;
 }

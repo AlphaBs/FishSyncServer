@@ -12,14 +12,18 @@ public class UserService
         _context = context;
     }
 
-    public async Task<List<UserEntity>> GetAllUsers()
+    public IAsyncEnumerable<UserEntity> GetAllUsers()
     {
-        return await _context.Users.ToListAsync();
+        return _context.Users
+            .AsNoTracking()
+            .AsAsyncEnumerable();
     }
     
     public async Task<UserEntity?> FindUser(string username)
     {
-        return await _context.Users.FirstOrDefaultAsync(user => user.Username == username);
+        return await _context.Users
+            .Where(user => user.Username == username)
+            .FirstOrDefaultAsync();
     }
 
     public bool VerifyPassword(UserEntity user, string plainPassword)
@@ -60,7 +64,6 @@ public class UserService
 
     public async Task UpdateRoles(UserEntity user, IList<string> roles)
     {
-        _context.Users.Attach(user);
         updateConcurrencyStamp(user);
         user.Roles = roles;
         await _context.SaveChangesAsync();

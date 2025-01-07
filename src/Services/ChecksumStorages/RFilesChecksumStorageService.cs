@@ -13,16 +13,17 @@ public class RFilesChecksumStorageService
         _dbContext = dbContext;
     }
 
-    public async Task<IEnumerable<ChecksumStorageListItem>> GetAllItems()
+    public IAsyncEnumerable<ChecksumStorageListItem> GetAllItems()
     {
-        return await _dbContext.RFilesChecksumStorages
+        return _dbContext.RFilesChecksumStorages
+            .AsNoTracking()
             .Select(entity => new ChecksumStorageListItem
             (
                 entity.Id, 
                 entity.Type, 
                 entity.IsReadonly
             ))
-            .ToListAsync();
+            .AsAsyncEnumerable();
     }
 
     public async Task<RFilesChecksumStorageEntity?> FindEntityById(string storageId)

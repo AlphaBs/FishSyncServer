@@ -17,37 +17,25 @@ public class BucketOwnerService
     {
         return await _context.Buckets
             .Where(bucket => bucket.Id == bucketId)
-            .SelectMany(bucket => bucket.Owners)
-            .AnyAsync(e => e.Username == username);
+            .SelectMany(bucket => bucket.Owners.Select(user => user.Username))
+            .AnyAsync(e => e == username);
     }
     
-    public async Task<IEnumerable<string>> GetOwners(string bucketId)
+    public IAsyncEnumerable<string> GetOwners(string bucketId)
     {
-        return await _context.Buckets
+        return _context.Buckets
             .Where(bucket => bucket.Id == bucketId)
             .SelectMany(bucket => bucket.Owners)
             .Select(user => user.Username)
-            .ToListAsync();
+            .AsAsyncEnumerable();
     }
 
-    public async Task<IEnumerable<BucketListItem>> GetBuckets(string username)
+    public IAsyncEnumerable<string> GetBuckets(string username)
     {
-        var entity = await _context.Users
-            .IgnoreAutoIncludes()
-            .Include(e => e.Buckets)
+        return _context.Users
             .Where(user => user.Username == username)
-            .Select(user => user.Buckets
-                .Select(bucket => new BucketListItem(
-                    bucket.Id, 
-                    bucket.Type,
-                    bucket.Owners.Select(owner => owner.Username), 
-                    bucket.LastUpdated)))
-            .FirstOrDefaultAsync();
-
-        if (entity == null)
-            throw new KeyNotFoundException(username);
-
-        return entity.ToList();
+            .SelectMany(user => user.Buckets.Select(bucket => bucket.Id))
+            .AsAsyncEnumerable();
     }
     
     public async Task AddOwner(string bucketId, string username)
@@ -74,7 +62,7 @@ public class BucketOwnerService
         var user = bucket.Owners.FirstOrDefault(user => user.Username == username);
         if (user == null)
             throw new KeyNotFoundException("User not found");
-        
+
         bucket.Owners.Remove(user);
         await _context.SaveChangesAsync();
     }

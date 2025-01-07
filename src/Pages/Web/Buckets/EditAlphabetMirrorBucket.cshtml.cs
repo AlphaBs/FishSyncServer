@@ -25,7 +25,7 @@ public class EditAlphabetMirrorBucketModel : PageModel
 
     [BindProperty] public string Id { get; set; } = string.Empty;
     [BindProperty] public string OriginUrl { get; set; } = string.Empty;
-    public IEnumerable<string> Dependencies { get; set; } = [];
+    public IAsyncEnumerable<string> Dependencies { get; set; } = AsyncEnumerable.Empty<string>();
     
     private AlphabetMirrorBucketService getService()
     {
@@ -41,7 +41,7 @@ public class EditAlphabetMirrorBucketModel : PageModel
         if (bucket == null)
             return NotFound();
         OriginUrl = await service.GetOriginUrl(id);
-        Dependencies = await _bucketService.GetDependencies(id);
+        Dependencies = _bucketService.GetDependencies(id);
         
         return Page();
     }

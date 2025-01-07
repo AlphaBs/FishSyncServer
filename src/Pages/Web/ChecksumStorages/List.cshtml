@@ -1,5 +1,7 @@
 ﻿@page
 @using AlphabetUpdateServer.Pages.Web
+@using AlphabetUpdateServer.Services.ChecksumStorages
+@using Microsoft.AspNetCore.Mvc.TagHelpers
 @model AlphabetUpdateServer.Pages.Web.ChecksumStorages.ListModel
 
 <div class="bg-white p-6 shadow-md rounded-lg mx-auto w-full">
@@ -22,25 +24,25 @@
         <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
             <tr>
                 <th scope="col" class="px-6 py-3">
-                    @Html.DisplayNameFor(Model => Model.Items.First().Id)
+                    @Html.DisplayNameFor(_ => Model.Items.ToBlockingEnumerable(default).First().Id)
                 </th>
                 <th scope="col" class="px-6 py-3">
-                    @Html.DisplayNameFor(Model => Model.Items.First().Type)
+                    @Html.DisplayNameFor(_ => Model.Items.ToBlockingEnumerable(default).First().Type)
                 </th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var item in Model.Items)
+            @await foreach (var item in Model.Items)
             {
                 <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                     <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
                         <a asp-page="Edit" asp-route-id="@item.Id" asp-route-type="@item.Type"
                             class="font-medium text-blue-600 dark:text-blue-500 hover:underline">
-                            @Html.DisplayFor(Model => item.Id)
+                            @Html.DisplayFor(_ => item.Id)
                         </a>
                     </td>
                     <td class="px-6 py-4">
-                        @Html.DisplayFor(Model => item.Type)
+                        @Html.DisplayFor(_ => item.Type)
                     </td>
                 </tr>
             }

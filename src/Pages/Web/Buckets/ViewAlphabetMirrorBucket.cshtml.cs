@@ -26,7 +26,7 @@ public class ViewAlphabetMirrorBucketModel : PageModel
     public string Id { get; set; } = default!;
 
     public BucketUsageModel Usage { get; set; } = new();
-    public IEnumerable<string> Dependencies { get; set; } = [];
+    public IAsyncEnumerable<string> Dependencies { get; set; } = AsyncEnumerable.Empty<string>();
     public string OriginUrl { get; set; } = default!;
     public IEnumerable<BucketFile> Files { get; set; } = [];
 
@@ -45,7 +45,7 @@ public class ViewAlphabetMirrorBucketModel : PageModel
 
         Id = id;
         Files = await bucket.GetFiles();
-        Dependencies = await _bucketService.GetDependencies(id);
+        Dependencies = _bucketService.GetDependencies(id);
         OriginUrl = await getService().GetOriginUrl(id);
 
         foreach (var file in Files)

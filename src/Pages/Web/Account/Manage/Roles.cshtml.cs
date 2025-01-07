@@ -46,11 +46,11 @@ public class RolesModel : PageModel
     }
 
     public async Task<IActionResult> OnPostAsync([FromRoute] string username)
-    {   
+    {  
         var user = await _userService.FindUser(username);
         if (user == null)
             return NotFound();
-
+        
         var roles = new List<string>();
         for (int i = 0; i < RoleEnables.Count; i++)
         {

@@ -28,8 +28,8 @@ public class EditChecksumStorageBucketModel : PageModel
     [BindProperty] public string Id { get; set; } = string.Empty;
     [BindProperty] public BucketLimitations Limitations { get; set; } = new();
     [BindProperty] public string StorageId { get; set; } = string.Empty;
-    [BindProperty] public IEnumerable<string> Owners { get; set; } = [];
-    public IEnumerable<string> Dependencies { get; set; } = [];
+    public IAsyncEnumerable<string> Owners { get; set; } = AsyncEnumerable.Empty<string>();
+    public IAsyncEnumerable<string> Dependencies { get; set; } = AsyncEnumerable.Empty<string>();
 
     private ChecksumStorageBucketService getService()
     {
@@ -46,8 +46,8 @@ public class EditChecksumStorageBucketModel : PageModel
             return NotFound();
         Limitations = bucket.Limitations;
         StorageId = await service.GetStorageId(id);
-        Owners = await _bucketOwnerService.GetOwners(id);
-        Dependencies = await _bucketService.GetDependencies(id);
+        Owners = _bucketOwnerService.GetOwners(id);
+        Dependencies = _bucketService.GetDependencies(id);
         
         return Page();
     }

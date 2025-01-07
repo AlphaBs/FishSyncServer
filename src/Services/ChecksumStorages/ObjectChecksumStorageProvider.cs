@@ -11,7 +11,7 @@ public class ObjectChecksumStorageProvider : IChecksumStorageProvider
         _storageService = storageService;
     }
 
-    public Task<IEnumerable<ChecksumStorageListItem>> GetStorages()
+    public IAsyncEnumerable<ChecksumStorageListItem> GetStorages()
     {
         return _storageService.GetAllItems();
     }

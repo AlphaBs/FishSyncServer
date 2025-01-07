@@ -37,12 +37,12 @@ public class BucketController : ControllerBase
     [HttpGet]
     [ProducesResponseType<BucketListDTO>(StatusCodes.Status200OK)]
     [Authorize(AuthenticationSchemes = JwtAuthService.SchemeName, Roles = UserRoleNames.BucketAdmin)]
-    public async Task<ActionResult> Index()
+    public ActionResult Index()
     {
-        var buckets = await _bucketService.GetAllBuckets();
+        var buckets = _bucketService.GetAllBuckets();
         return Ok(new BucketListDTO
         {
-            Buckets = buckets.Select(bucket => bucket.Id).ToList()
+            Buckets = buckets.Select(bucket => bucket.Id)
         });
     }
 
@@ -64,7 +64,7 @@ public class BucketController : ControllerBase
         }
 
         var files = await bucket.GetFiles();
-        var dependencies = await _bucketService.GetDependencies(id);
+        var dependencies = _bucketService.GetDependencies(id);
         
         return Ok(new BucketDTO
         {
@@ -95,7 +95,7 @@ public class BucketController : ControllerBase
         }
 
         var files = await bucket.GetFiles();
-        var dependencies = await _bucketService.GetDependencies(id);
+        var dependencies = _bucketService.GetDependencies(id);
 
         return Ok(new BucketFilesDTO
         {

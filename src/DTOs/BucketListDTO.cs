@@ -4,5 +4,5 @@ namespace AlphabetUpdateServer.DTOs;
 
 public class BucketListDTO
 {
-    public IReadOnlyCollection<string>? Buckets { get; set; }
+    public IAsyncEnumerable<string>? Buckets { get; set; }
 }

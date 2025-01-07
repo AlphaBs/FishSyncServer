@@ -18,9 +18,9 @@ public class ChecksumStorageController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult> Index()
+    public ActionResult Index()
     {
-        var storages = await _storageService.GetAllStorages();
+        var storages = _storageService.GetAllStorages();
         return Ok(new
         {
             Storages = storages

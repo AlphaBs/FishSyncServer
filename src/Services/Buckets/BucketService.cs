@@ -17,20 +17,22 @@ public class BucketService
         _bucketServiceFactory = bucketServiceFactory;
     }
 
-    public async Task<IEnumerable<BucketListItem>> GetAllBuckets()
+    public IAsyncEnumerable<BucketListItem> GetAllBuckets()
     {
-        return await _dbContext.Buckets
+        return _dbContext.Buckets
+            .AsNoTracking()
             .Select(bucket => new BucketListItem(
                 bucket.Id,
                 bucket.Type,
                 bucket.Owners.Select(owner => owner.Username), 
                 bucket.LastUpdated))
-            .ToListAsync();
+            .AsAsyncEnumerable();
     }
 
     public async Task<BucketListItem?> FindBucketItem(string id)
     {
         return await _dbContext.Buckets
+            .AsNoTracking()
             .Where(bucket => bucket.Id == id)
             .Select(bucket => new BucketListItem(
                 bucket.Id,
@@ -118,19 +120,21 @@ public class BucketService
         _dbContext.BucketSyncEvents.Add(entity);
     }
     
-    public async Task<IReadOnlyCollection<BucketSyncEventEntity>> GetAllSyncEvents()
+    public IAsyncEnumerable<BucketSyncEventEntity> GetAllSyncEvents()
     {
-        return await _dbContext.BucketSyncEvents
+        return _dbContext.BucketSyncEvents
+            .AsNoTracking()
             .OrderByDescending(e => e.Timestamp)
-            .ToListAsync();        
+            .AsAsyncEnumerable();        
     }
 
-    public async Task<IReadOnlyCollection<BucketSyncEventEntity>> GetSyncEvents(string bucketId)
+    public IAsyncEnumerable<BucketSyncEventEntity> GetSyncEvents(string bucketId)
     {
-        return await _dbContext.BucketSyncEvents
+        return _dbContext.BucketSyncEvents
+            .AsNoTracking()
             .Where(e => e.BucketId == bucketId)
             .OrderByDescending(e => e.Timestamp)
-            .ToListAsync();
+            .AsAsyncEnumerable();
     }
     
     public async Task UpdateLimitations(string id, BucketLimitations limitations)
@@ -148,20 +152,12 @@ public class BucketService
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<IReadOnlyCollection<string>> GetDependencies(string id)
+    public IAsyncEnumerable<string> GetDependencies(string id)
     {
-        var entity = await _dbContext.Buckets
-            .IgnoreAutoIncludes()
-            .Include(e => e.Dependencies)
+        return _dbContext.Buckets
             .Where(e => e.Id == id)
-            .Select(e => e.Dependencies
-                .Select(b => b.Id))
-            .FirstOrDefaultAsync();
-
-        if (entity == null)
-            throw new KeyNotFoundException(id);
-
-        return entity.ToList();
+            .SelectMany(e => e.Dependencies.Select(b => b.Id))
+            .AsAsyncEnumerable();
     }
 
     public async Task AddDependency(string id, string dependencyId)

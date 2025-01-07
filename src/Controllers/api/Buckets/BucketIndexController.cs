@@ -36,11 +36,11 @@ public class BucketIndexController : ControllerBase
     [HttpGet("{id}/buckets")]
     [ProducesResponseType<IEnumerable<string>>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult> GetBuckets(string id)
+    public ActionResult GetBuckets(string id)
     {
         try
         {
-            var buckets = await _bucketIndexService.GetBucketsFromIndex(id);
+            var buckets = _bucketIndexService.GetBucketsFromIndex(id);
             return Ok(buckets);
         }
         catch (InvalidOperationException)

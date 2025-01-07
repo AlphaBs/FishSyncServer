@@ -21,7 +21,7 @@ public class ViewBucketSyncEventsModel : PageModel
     }
 
     public string? Id { get; set; } 
-    public IReadOnlyCollection<BucketSyncEventEntity> Events { get; set; } = [];
+    public IAsyncEnumerable<BucketSyncEventEntity> Events { get; set; } = AsyncEnumerable.Empty<BucketSyncEventEntity>();
     
     public async Task<ActionResult> OnGetAsync(string? id)
     {
@@ -29,7 +29,7 @@ public class ViewBucketSyncEventsModel : PageModel
         {
             if (User.IsInRole(UserRoleNames.BucketAdmin))
             {
-                Events = await _bucketService.GetAllSyncEvents();
+                Events = _bucketService.GetAllSyncEvents();
             }
             else
             {
@@ -41,7 +41,7 @@ public class ViewBucketSyncEventsModel : PageModel
             if (await checkPermission(id))
             {
                 Id = id;
-                Events = await _bucketService.GetSyncEvents(id);
+                Events = _bucketService.GetSyncEvents(id);
             }
             else
             {

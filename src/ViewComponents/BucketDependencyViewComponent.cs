@@ -13,9 +13,9 @@ public class BucketDependencyViewComponent : ViewComponent
         _bucketService = bucketService;
     }
 
-    public async Task<IViewComponentResult> InvokeAsync(string id, bool showEdit)
+    public IViewComponentResult Invoke(string id, bool showEdit)
     {
-        var dependencies = await _bucketService.GetDependencies(id);
+        var dependencies = _bucketService.GetDependencies(id);
         return View(new BucketDependencyModel
         {
             Dependencies = dependencies,

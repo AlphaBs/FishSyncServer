@@ -12,16 +12,17 @@ public class ObjectChecksumStorageService
         _context = context;
     }
 
-    public async Task<IEnumerable<ChecksumStorageListItem>> GetAllItems()
+    public IAsyncEnumerable<ChecksumStorageListItem> GetAllItems()
     {
-        return await _context.ObjectChecksumStorages
+        return _context.ObjectChecksumStorages
+            .AsNoTracking()
             .Select(entity => new ChecksumStorageListItem
             (
                 entity.Id,
                 entity.Type,
                 entity.IsReadonly
             ))
-            .ToListAsync();
+            .AsAsyncEnumerable();
     }
 
     public async Task<ObjectChecksumStorageEntity?> FindEntityById(string id)

@@ -13,9 +13,9 @@ public class BucketOwnerViewComponent : ViewComponent
         _ownerService = ownerService;
     }
 
-    public async Task<IViewComponentResult> InvokeAsync(string id, bool showEdit)
+    public IViewComponentResult Invoke(string id, bool showEdit)
     {
-        var owners = await _ownerService.GetOwners(id);
+        var owners = _ownerService.GetOwners(id);
         return View(new BucketOwnerModel
         {
             Owners = owners,

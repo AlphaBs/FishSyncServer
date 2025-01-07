@@ -17,19 +17,19 @@ public class BucketsModel : PageModel
     }
 
     public string? StatusMessage { get; set; }
-    public IEnumerable<BucketListItem> Buckets { get; set; } = [];
+    public IAsyncEnumerable<string> Buckets { get; set; } = AsyncEnumerable.Empty<string>();
     
-    public async Task<IActionResult> OnGet([FromRoute] string username)
+    public IActionResult OnGet([FromRoute] string username)
     {
-        Buckets = await _bucketOwnerService.GetBuckets(username);
+        Buckets = _bucketOwnerService.GetBuckets(username);
         return Page();
     }
 
     public async Task<IActionResult> OnPostAsync(
         [FromRoute] string username, 
-        [FromBody] string bucketId)
+        [FromForm] string bucket)
     {
-        await _bucketOwnerService.RemoveOwner(bucketId, username);
+        await _bucketOwnerService.RemoveOwner(bucket, username);
         return RedirectToPage();
     }
 }

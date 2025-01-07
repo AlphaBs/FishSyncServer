@@ -2,34 +2,33 @@
 
 <div class="bg-white p-6 shadow-md rounded-lg mx-auto w-full mb-6">
     <h4 class="text-2xl font-bold dark:text-white mb-4">의존성</h4>
-    @if (Model.Dependencies.Any())
-    {
-        <ul
-            class="w-full text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-            @foreach (var dep in Model.Dependencies)
-            {
-                <li
-                    class="w-full px-4 py-2 border-b border-gray-200 dark:border-gray-600 flex flex-row justify-between items-center">
-                    <a target="_blank" asp-page="View" asp-route-id="@dep"
-                       class="font-medium text-blue-600 dark:text-blue-500 hover:underline">
-                        @dep
-                    </a>
-                    @if (Model.ShowEdit)
-                    {
-                        <form method="post" asp-page-handler="DeleteDependency" class="flex">
-                            <input type="hidden" name="dep" value="@dep"/>
-                            <button type="submit" class="place-self-center">
-                                <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m15 9-6 6m0-6 6 6m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
-                                </svg>
-                            </button>
-                        </form>
-                    }
-                </li>
-            }
-        </ul>
-    }
-    else
+    @{ var any = false; }
+    <ul
+        class="w-full text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+        @await foreach (var dep in Model.Dependencies)
+        {
+            any = true;
+            <li
+                class="w-full px-4 py-2 border-b border-gray-200 dark:border-gray-600 flex flex-row justify-between items-center">
+                <a target="_blank" asp-page="View" asp-route-id="@dep"
+                   class="font-medium text-blue-600 dark:text-blue-500 hover:underline">
+                    @dep
+                </a>
+                @if (Model.ShowEdit)
+                {
+                    <form method="post" asp-page-handler="DeleteDependency" class="flex">
+                        <input type="hidden" name="dep" value="@dep"/>
+                        <button type="submit" class="place-self-center">
+                            <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m15 9-6 6m0-6 6 6m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                            </svg>
+                        </button>
+                    </form>
+                }
+            </li>
+        }
+    </ul>
+    @if (!any)
     {
         <p>의존성이 없습니다.</p>
     }

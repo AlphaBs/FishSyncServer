@@ -39,9 +39,9 @@ public class ChangePasswordModel : PageModel
         if (!ModelState.IsValid) return Page();
 
         var user = await _userService.FindUser(username);
-        if (user == null) 
+        if (user == null)
             return NotFound();
-
+        
         await _userService.ChangePassword(user, NewPassword);
         StatusMessage = "Your password has been changed.";
         return Page();

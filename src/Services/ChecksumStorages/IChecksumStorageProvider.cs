@@ -4,6 +4,6 @@ namespace AlphabetUpdateServer.Services.ChecksumStorages;
 
 public interface IChecksumStorageProvider
 {
-    Task<IEnumerable<ChecksumStorageListItem>> GetStorages();
+    IAsyncEnumerable<ChecksumStorageListItem> GetStorages();
     Task<IChecksumStorage?> GetStorage(string id);
 }

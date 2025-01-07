@@ -15,15 +15,12 @@ public class ListBucketIndex : PageModel
         _bucketIndexService = bucketIndexService;
     }
 
-    public List<BucketIndex> BucketIndexes { get; set; } = [];
+    public IAsyncEnumerable<BucketIndex> BucketIndexes { get; set; } = AsyncEnumerable.Empty<BucketIndex>();
     
-    public async Task<ActionResult> OnGetAsync()
+    public ActionResult OnGet()
     {
-        var indexes = await _bucketIndexService.GetAllIndexes();
-        BucketIndexes = indexes
-            .Where(index => index.Searchable || User.IsInRole(UserRoleNames.BucketAdmin))
-            .ToList();
-            
+        BucketIndexes = _bucketIndexService.GetAllIndexes()
+            .Where(index => index.Searchable || User.IsInRole(UserRoleNames.BucketAdmin));
         return Page();
     }
 }

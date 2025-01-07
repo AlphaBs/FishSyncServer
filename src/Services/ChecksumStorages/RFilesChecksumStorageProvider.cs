@@ -15,9 +15,9 @@ public class RFilesChecksumStorageProvider : IChecksumStorageProvider
         _storageService = storageService;
     }
 
-    public async Task<IEnumerable<ChecksumStorageListItem>> GetStorages()
+    public IAsyncEnumerable<ChecksumStorageListItem> GetStorages()
     {
-        return await _storageService.GetAllItems();
+        return _storageService.GetAllItems();
     }
 
     public async Task<IChecksumStorage?> GetStorage(string id)

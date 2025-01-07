@@ -7,7 +7,7 @@ namespace AlphabetUpdateServer.Pages.Web.Buckets;
 public class BucketUsageModel
 {
     public bool ShowLimitations { get; set; } = true;
-    public BucketLimitations Limitations { get; set; }
+    public BucketLimitations Limitations { get; set; } = new();
     
     [DisplayName("사용중인 버킷 용량")]
     public long CurrentBucketSize { get; set; }

@@ -26,7 +26,7 @@ public class EditBucketIndex : PageModel
     [BindProperty]
     public bool Searchable { get; set; }
     
-    public List<string> Buckets { get; set; } = [];
+    public IAsyncEnumerable<string> Buckets { get; set; } = AsyncEnumerable.Empty<string>();
 
     public async Task<ActionResult> OnGetAsync()
     {
@@ -37,7 +37,7 @@ public class EditBucketIndex : PageModel
         Description = index.Description;
         Searchable = index.Searchable;
         
-        Buckets = (await _bucketIndexService.GetBucketsFromIndex(Id)).ToList();
+        Buckets = _bucketIndexService.GetBucketsFromIndex(Id);
         return Page();
     }
 

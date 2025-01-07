@@ -8,5 +8,5 @@ public class BucketDTO
     public DateTimeOffset? LastUpdated { get; set; }
     public BucketLimitations? Limitations { get; set; }
     public IReadOnlyCollection<BucketFile> Files { get; set; } = [];
-    public IReadOnlyCollection<string> Dependencies { get; set; } = [];
+    public IAsyncEnumerable<string> Dependencies { get; set; } = AsyncEnumerable.Empty<string>();
 }

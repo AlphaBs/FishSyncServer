@@ -13,15 +13,16 @@ public class BucketIndexService
         _context = context;
     }
 
-    public async Task<IEnumerable<BucketIndex>> GetAllIndexes()
+    public IAsyncEnumerable<BucketIndex> GetAllIndexes()
     {
-        return await _context.BucketIndexes
+        return _context.BucketIndexes
+            .AsNoTracking()
             .Select(e => new BucketIndex(e.Id)
             {
                 Description = e.Description,
                 Searchable = e.Searchable,
             })
-            .ToListAsync();
+            .AsAsyncEnumerable();
     }
 
     public async Task<BucketIndex?> FindIndex(string id)
@@ -64,12 +65,13 @@ public class BucketIndexService
                 .SetProperty(e => e.Searchable, index.Searchable));
     }
 
-    public async Task<IEnumerable<string>> GetBucketsFromIndex(string indexId)
+    public IAsyncEnumerable<string> GetBucketsFromIndex(string indexId)
     {
-        return await _context.BucketIndexes
+        return _context.BucketIndexes
+            .AsNoTracking()
             .Where(e => e.Id == indexId)
-            .Select(e => e.Buckets.Select(bucket => bucket.Id))
-            .FirstAsync();
+            .SelectMany(e => e.Buckets.Select(bucket => bucket.Id))
+            .AsAsyncEnumerable();
     }
     
     public async Task AddBucketToIndex(string indexId, string bucketId)
