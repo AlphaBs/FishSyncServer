@@ -31,6 +31,7 @@ public class BucketService
     public async Task<BucketListItem?> FindBucketItem(string id)
     {
         return await _dbContext.Buckets
+            .Where(bucket => bucket.Id == id)
             .Select(bucket => new BucketListItem(
                 bucket.Id,
                 bucket.Type,
