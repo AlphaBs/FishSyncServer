@@ -43,6 +43,7 @@ public class ApplicationDbContext : DbContext
             .HasMany(e => e.Owners)
             .WithMany(e => e.Buckets);
 
+        // N:M relationship between Buckets <-> Buckets
         modelBuilder.Entity<BucketEntity>()
             .HasMany(e => e.Dependencies)
             .WithMany();
@@ -54,13 +55,14 @@ public class ApplicationDbContext : DbContext
             .HasForeignKey(e => e.ChecksumStorageId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // 1:N relationship between Buckets(1) <-> BucketFiles(N)
+        // 1:N relationship between ChecksumStorageBucket(1) <-> BucketFiles(N)
         modelBuilder.Entity<ChecksumStorageBucketEntity>()
             .HasMany(e => e.Files)
             .WithOne()
             .HasForeignKey(e => e.BucketId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        // ChecksumStorageBucketFileEntity
         modelBuilder.Entity<ChecksumStorageBucketFileEntity>()
             .HasKey(
             [
@@ -70,6 +72,7 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<ChecksumStorageBucketFileEntity>()
             .ComplexProperty(p => p.Metadata);
 
+        // ChecksumStorageEntity
         modelBuilder.Entity<ChecksumStorageEntity>()
             .HasDiscriminator(e => e.Type)
             .HasValue<ChecksumStorageEntity>("base")
@@ -79,18 +82,20 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<RFilesChecksumStorageEntity>()
             .HasBaseType<ChecksumStorageEntity>();
 
+        // BucketSyncEventEntity
         modelBuilder.Entity<BucketSyncEventEntity>()
             .HasOne<BucketEntity>()
             .WithMany()
             .HasForeignKey(e => e.BucketId)
-            .OnDelete(DeleteBehavior.NoAction);
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<BucketSyncEventEntity>()
             .HasOne<UserEntity>()
             .WithMany()
             .HasForeignKey(e => e.UserId)
-            .OnDelete(DeleteBehavior.NoAction);
+            .OnDelete(DeleteBehavior.Cascade);
 
+        // BucketIndexEntity
         modelBuilder.Entity<BucketIndexEntity>()
             .HasMany(e => e.Buckets)
             .WithMany();
