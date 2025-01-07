@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace AlphabetUpdateServer.Pages.Web.Buckets;
 
-[Authorize(Roles = UserRoleNames.BucketUser)]
 public class View : PageModel
 {
     private readonly BucketService _bucketService;
