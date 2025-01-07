@@ -12,10 +12,17 @@ public class RedisChecksumStorageCache : IChecksumStorageCache
     };
 
     private readonly ConnectionMultiplexer _redis;
+    private readonly TimeSpan _expiry;
     
-    public RedisChecksumStorageCache(ConnectionMultiplexer redis)
+    public RedisChecksumStorageCache(
+        ConnectionMultiplexer redis,
+        IConfiguration config)
     {
         _redis = redis;
+        
+        var expiryString = config["RedisChecksumStorageCache:Expiry"] ??
+                           throw new ArgumentException("Expiry was empty");
+        _expiry = TimeSpan.Parse(expiryString);
     }
     
     public async Task<ChecksumStorageFile?> GetFile(string id, string checksum)
@@ -33,7 +40,7 @@ public class RedisChecksumStorageCache : IChecksumStorageCache
         _redis.GetDatabase().StringSet(
             getCacheKey(id, file.Checksum),
             JsonSerializer.SerializeToUtf8Bytes(file, SerializerOptions),
-            TimeSpan.FromHours(1),
+            _expiry,
             When.Always,
             CommandFlags.FireAndForget);
         return Task.CompletedTask;
