@@ -54,56 +54,70 @@ public class BucketController : ControllerBase
     /// <response code="200">성공</response>
     /// <response code="404">찾을 수 없는 버킷</response>
     [HttpGet("common/{id}")]
-    [ProducesResponseType<BucketDTO>(StatusCodes.Status200OK)]
+    [ProducesResponseType<BucketMetadata>(StatusCodes.Status200OK)]
     public async Task<ActionResult> GetBucket(string id)
     {
-        var bucket = await _bucketService.Find(id);
+        var bucket = await _bucketService.FindBucketMetadata(id);
         if (bucket == null)
         {
             return NotFound();
         }
 
-        var files = await bucket.GetFiles();
-        var dependencies = _bucketService.GetDependencies(id);
-        
-        return Ok(new BucketDTO
-        {
-            Id = id,
-            Limitations = bucket.Limitations,
-            LastUpdated = bucket.LastUpdated,
-            Files = files.ToList(),
-            Dependencies = dependencies
-        });
+        return Ok(bucket);
     }
 
     /// <summary>
     /// 버킷을 찾고 파일 목록을 반환
     /// </summary>
     /// <param name="id">찾을 버킷의 id</param>
+    /// <param name="modifiedSince">언제부터 업데이트되었을까요?</param>
     /// <returns>파일 목록</returns>
     /// <response code="200">성공</response>
     /// <response code="404">찾을 수 없는 버킷</response>
     [HttpGet("common/{id}/files")]
     [ProducesResponseType<BucketFilesDTO>(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult> GetFiles(string id)
+    public async Task<ActionResult> GetFiles(
+        [FromRoute] string id,
+        [FromHeader(Name = "If-Not-Modified-Since")] string? modifiedSince)
     {
-        var bucket = await _bucketService.Find(id);
-        if (bucket == null)
+        static DateTimeOffset parseIfNotModifiedSince(string? value)
         {
-            return NotFound();
+            if (string.IsNullOrEmpty(value))
+                return DateTimeOffset.MinValue;
+            return DateTimeOffset.Parse(value);
         }
 
-        var files = await bucket.GetFiles();
-        var dependencies = _bucketService.GetDependencies(id);
-
-        return Ok(new BucketFilesDTO
+        try
         {
-            Id = id,
-            LastUpdated = bucket.LastUpdated,
-            Files = files.ToArray(),
-            Dependencies = dependencies
-        });
+            var updatedAfter = parseIfNotModifiedSince(modifiedSince);
+            var (result, bucket) = await _bucketService.FindBucketUpdatedAfter(id, updatedAfter);
+
+            if (result == BucketFindResult.NotFound || bucket == null)
+            {
+                return NotFound();
+            }
+
+            if (result == BucketFindResult.NotModified)
+            {
+                return StatusCode(304);
+            }
+
+            var files = await bucket.GetFiles();
+            var dependencies = _bucketService.GetDependencies(id);
+
+            return Ok(new BucketFilesDTO
+            {
+                Id = id,
+                LastUpdated = bucket.LastUpdated,
+                Files = files,
+                Dependencies = dependencies
+            });
+        }
+        catch (FormatException)
+        {
+            return BadRequest();
+        }
     }
 
     /// <summary>
@@ -151,7 +165,7 @@ public class BucketController : ControllerBase
         {
             return BadRequest();
         }
-        
+
         var userId = getUserId();
 
         try
@@ -219,6 +233,6 @@ public class BucketController : ControllerBase
 
     private string getUserId()
     {
-        return User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value ?? "";        
+        return User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value ?? "";
     }
 }

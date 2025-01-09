@@ -4,6 +4,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AlphabetUpdateServer.Services.Buckets;
 
+public enum BucketFindResult
+{
+    Found, NotFound, NotModified
+}
+
 public class BucketService
 {
     private readonly BucketServiceFactory _bucketServiceFactory;
@@ -24,7 +29,6 @@ public class BucketService
             .Select(bucket => new BucketListItem(
                 bucket.Id,
                 bucket.Type,
-                bucket.Owners.Select(owner => owner.Username), 
                 bucket.LastUpdated))
             .AsAsyncEnumerable();
     }
@@ -37,24 +41,55 @@ public class BucketService
             .Select(bucket => new BucketListItem(
                 bucket.Id,
                 bucket.Type,
-                bucket.Owners.Select(owner => owner.Username),
                 bucket.LastUpdated))
             .FirstOrDefaultAsync();
     }
 
-    private async Task<BucketEntity?> findEntityById(string id) =>
-        await _dbContext.Buckets
+    public async Task<BucketMetadata?> FindBucketMetadata(string id)
+    {
+        return await _dbContext.Buckets
+            .AsNoTracking()
             .Where(bucket => bucket.Id == id)
+            .Select(bucket => new BucketMetadata(
+                bucket.Id,
+                bucket.Type,
+                bucket.LastUpdated,
+                bucket.Limitations,
+                bucket.Owners.Select(user => user.Username)))
+            .AsSplitQuery()
             .FirstOrDefaultAsync();
+    }
     
     public async Task<IBucket?> Find(string id)
     {
-        var entity = await findEntityById(id);
-        if (entity == null)
+        var type = await _dbContext.Buckets
+            .Where(bucket => bucket.Id == id)
+            .Select(bucket => bucket.Type)
+            .FirstOrDefaultAsync();
+
+        if (type == null)
             return null;
 
-        var service = _bucketServiceFactory.GetRequiredService(entity.Type);
+        var service = _bucketServiceFactory.GetRequiredService(type);
         return await service.Find(id);
+    }
+
+    public async Task<(BucketFindResult, IBucket?)> FindBucketUpdatedAfter(string id, DateTimeOffset updatedAfter)
+    {
+        var entity = await _dbContext.Buckets
+            .Where(bucket => bucket.Id == id)
+            .Select(bucket => new { bucket.Type, bucket.LastUpdated })
+            .FirstOrDefaultAsync();
+
+        if (entity == null)
+            return (BucketFindResult.NotFound, null);
+
+        if (entity.LastUpdated > updatedAfter)
+            return (BucketFindResult.NotModified, null);
+
+        var service = _bucketServiceFactory.GetRequiredService(entity.Type);
+        var bucket = await service.Find(id);
+        return (BucketFindResult.Found, bucket);
     }
 
     public async Task<BucketSyncResult> SyncAndLog(string bucketId, string userId, IEnumerable<BucketSyncFile> syncFiles)
@@ -62,7 +97,11 @@ public class BucketService
         if (await _configService.GetMaintenanceMode())
             throw new ServiceMaintenanceException();
         
-        var entity = await findEntityById(bucketId);
+        var entity = await _dbContext.Buckets
+            .Where(bucket => bucket.Id == bucketId)
+            .Select(bucket => new { bucket.Type, bucket.Limitations })
+            .FirstOrDefaultAsync();
+
         if (entity == null)
             throw new KeyNotFoundException(bucketId);
 
