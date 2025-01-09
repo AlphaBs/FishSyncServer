@@ -74,22 +74,22 @@ public class BucketService
         return await service.Find(id);
     }
 
-    public async Task<(BucketFindResult, IBucket?)> FindBucketUpdatedAfter(string id, DateTimeOffset updatedAfter)
+    public async Task<BucketFiles> GetBucketFiles(string id)
     {
-        var entity = await _dbContext.Buckets
-            .Where(bucket => bucket.Id == id)
-            .Select(bucket => new { bucket.Type, bucket.LastUpdated })
-            .FirstOrDefaultAsync();
+        var bucket = await Find(id);
+        if (bucket == null)
+            throw new KeyNotFoundException(id);
 
-        if (entity == null)
-            return (BucketFindResult.NotFound, null);
+        var files = await bucket.GetFiles();
+        var dependencies = await GetDependencies(id).ToListAsync();
 
-        if (entity.LastUpdated > updatedAfter)
-            return (BucketFindResult.NotModified, null);
-
-        var service = _bucketServiceFactory.GetRequiredService(entity.Type);
-        var bucket = await service.Find(id);
-        return (BucketFindResult.Found, bucket);
+        return new BucketFiles
+        {
+            Id = id,
+            LastUpdated = bucket.LastUpdated,
+            Files = files,
+            Dependencies = dependencies
+        };
     }
 
     public async Task<BucketSyncResult> SyncAndLog(string bucketId, string userId, IEnumerable<BucketSyncFile> syncFiles)

@@ -6,6 +6,7 @@ using AlphabetUpdateServer.Services.Buckets;
 using AlphabetUpdateServer.Services.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace AlphabetUpdateServer.Controllers.Api.Buckets;
 
@@ -19,16 +20,19 @@ public class BucketController : ControllerBase
 {
     private readonly ILogger<BucketController> _logger;
     private readonly BucketService _bucketService;
+    private readonly BucketFilesCacheService _bucketFilesCacheService;
     private readonly BucketOwnerService _bucketOwnerService;
 
     public BucketController(
         ILogger<BucketController> logger,
         BucketService bucketService,
-        BucketOwnerService bucketOwnerService)
+        BucketOwnerService bucketOwnerService,
+        BucketFilesCacheService bucketFilesCacheService)
     {
         _logger = logger;
         _bucketService = bucketService;
         _bucketOwnerService = bucketOwnerService;
+        _bucketFilesCacheService = bucketFilesCacheService;
     }
 
     /// <summary>
@@ -70,49 +74,28 @@ public class BucketController : ControllerBase
     /// 버킷을 찾고 파일 목록을 반환
     /// </summary>
     /// <param name="id">찾을 버킷의 id</param>
-    /// <param name="modifiedSince">언제부터 업데이트되었을까요?</param>
     /// <returns>파일 목록</returns>
     /// <response code="200">성공</response>
     /// <response code="404">찾을 수 없는 버킷</response>
     [HttpGet("common/{id}/files")]
-    [ProducesResponseType<BucketFilesDTO>(StatusCodes.Status200OK)]
+    [ProducesResponseType<BucketFiles>(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
-    public async Task<ActionResult> GetFiles(
-        [FromRoute] string id,
-        [FromHeader(Name = "If-Not-Modified-Since")] string? modifiedSince)
+    public async Task<ActionResult> GetFiles([FromRoute] string id)
     {
-        static DateTimeOffset parseIfNotModifiedSince(string? value)
-        {
-            if (string.IsNullOrEmpty(value))
-                return DateTimeOffset.MinValue;
-            return DateTimeOffset.Parse(value);
-        }
-
         try
         {
-            var updatedAfter = parseIfNotModifiedSince(modifiedSince);
-            var (result, bucket) = await _bucketService.FindBucketUpdatedAfter(id, updatedAfter);
-
-            if (result == BucketFindResult.NotFound || bucket == null)
-            {
-                return NotFound();
-            }
-
-            if (result == BucketFindResult.NotModified)
-            {
-                return StatusCode(304);
-            }
-
-            var files = await bucket.GetFiles();
-            var dependencies = _bucketService.GetDependencies(id);
-
-            return Ok(new BucketFilesDTO
-            {
-                Id = id,
-                LastUpdated = bucket.LastUpdated,
-                Files = files,
-                Dependencies = dependencies
-            });
+            var files = await _bucketFilesCacheService.GetOrCreate(
+                id, 
+                () =>
+                {
+                    _logger.LogInformation("Refresh cache for bucket files: {Id}", id);
+                    return _bucketService.GetBucketFiles(id);
+                });
+            return Ok(files);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
         }
         catch (FormatException)
         {
@@ -180,6 +163,7 @@ public class BucketController : ControllerBase
             var result = await _bucketService.SyncAndLog(id, userId, files.Files);
             _logger.LogInformation("User {UserId} requested a bucket sync for {BucketId}, Result: {Result}", userId, id,
                 result.IsSuccess);
+            _bucketFilesCacheService.Remove(id);
             return Ok(result);
         }
         catch (BucketLimitationException ex)

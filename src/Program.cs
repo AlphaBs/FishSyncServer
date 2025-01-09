@@ -26,6 +26,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options => options
                ?? throw new InvalidOperationException("ConnectionString Postgres was empty"))
     .EnableSensitiveDataLogging(true));
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+builder.Services.AddMemoryCache();
 builder.Services.AddHttpClient();
 builder.Services.AddProblemDetails();
 builder.Services.AddHealthChecks();
@@ -88,6 +89,7 @@ builder.Services.AddTransient<ConfigService>();
 
 builder.Services.AddTransient<BucketService>();
 builder.Services.AddTransient<BucketServiceFactory>();
+builder.Services.AddTransient<BucketFilesCacheService>();
 builder.Services.AddTransient<IBucketService, ChecksumStorageBucketService>();
 builder.Services.AddTransient<IBucketService, AlphabetMirrorBucketService>();
 builder.Services.AddTransient<BucketIndexService>();
