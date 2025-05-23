@@ -3,7 +3,7 @@ using FishBucket;
 
 namespace AlphabetUpdateServer.DTOs;
 
-public class BucketSyncRequestDTO
+public class BucketSyncRequest
 {
     [JsonPropertyName("files")]
     public List<BucketSyncFile>? Files { get; set; }

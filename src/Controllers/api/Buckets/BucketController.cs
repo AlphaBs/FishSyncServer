@@ -38,12 +38,12 @@ public class BucketController : ControllerBase
     /// 버킷 목록 가져오기
     /// </summary>
     [HttpGet]
-    [ProducesResponseType<BucketListDTO>(StatusCodes.Status200OK)]
+    [ProducesResponseType<BucketListResponse>(StatusCodes.Status200OK)]
     [Authorize(AuthenticationSchemes = JwtAuthService.SchemeName, Roles = UserRoleNames.BucketAdmin)]
     public ActionResult Index()
     {
         var buckets = _bucketService.GetAllBuckets();
-        return Ok(new BucketListDTO
+        return Ok(new BucketListResponse
         {
             Buckets = buckets.Select(bucket => bucket.Id)
         });
@@ -141,7 +141,7 @@ public class BucketController : ControllerBase
     [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(void), StatusCodes.Status503ServiceUnavailable)]
     [Authorize(AuthenticationSchemes = JwtAuthService.SchemeName, Roles = UserRoleNames.BucketUser)]
-    public async Task<ActionResult> PostSync(string id, BucketSyncRequestDTO files)
+    public async Task<ActionResult> PostSync(string id, BucketSyncRequest files)
     {
         if (files.Files == null)
         {

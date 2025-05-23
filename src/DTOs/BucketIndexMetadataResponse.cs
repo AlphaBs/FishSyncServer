@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace AlphabetUpdateServer.DTOs;
 
-public class BucketIndexMetadataDTO
+public class BucketIndexMetadataResponse
 {
     [JsonPropertyName("id")]
     public required string Id { get; set; }

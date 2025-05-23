@@ -17,7 +17,7 @@ public class BucketIndexController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    [ProducesResponseType<BucketIndexMetadataDTO>(StatusCodes.Status200OK)]
+    [ProducesResponseType<BucketIndexMetadataResponse>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> GetBucketIndex(string id)
     {
@@ -25,7 +25,7 @@ public class BucketIndexController : ControllerBase
         if (index == null)
             return NotFound();
         
-        return Ok(new BucketIndexMetadataDTO
+        return Ok(new BucketIndexMetadataResponse
         {
             Id = index.Id,
             Description = index.Description,

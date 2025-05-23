@@ -2,7 +2,7 @@ using FishBucket;
 
 namespace AlphabetUpdateServer.DTOs;
 
-public class BucketDTO
+public class BucketResponse
 {
     public required string Id { get; set; }
     public required DateTimeOffset LastUpdated { get; set; }

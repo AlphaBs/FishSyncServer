@@ -1,6 +1,6 @@
 ﻿namespace AlphabetUpdateServer.DTOs;
 
-public class BucketListDTO
+public class BucketListResponse
 {
     public IAsyncEnumerable<string>? Buckets { get; set; }
 }

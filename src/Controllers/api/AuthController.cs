@@ -27,7 +27,7 @@ public class AuthController : ControllerBase
 
     [AllowAnonymous]
     [HttpPost("login")]
-    public async Task<ActionResult> Login(LoginRequestDTO request)
+    public async Task<ActionResult> Login(LoginRequest request)
     {
         if (string.IsNullOrEmpty(request.Username) || string.IsNullOrEmpty(request.Password))
         {
@@ -43,7 +43,7 @@ public class AuthController : ControllerBase
         if (await _userService.LoginByPassword(user, request.Password))
         {
             var token = _jwtService.GenerateJwt(request.Username, user.Roles);
-            return Ok(new LoginResponseDTO
+            return Ok(new LoginResponse
             {
                 Username = request.Username,
                 Roles = user.Roles,
