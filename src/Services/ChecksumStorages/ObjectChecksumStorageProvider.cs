@@ -1,4 +1,4 @@
-using AlphabetUpdateServer.Models.ChecksumStorages;
+using FishBucket.ChecksumStorages.Storages;
 
 namespace AlphabetUpdateServer.Services.ChecksumStorages;
 

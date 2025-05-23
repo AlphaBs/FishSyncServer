@@ -1,6 +1,4 @@
-﻿using AlphabetUpdateServer.Services;
-
-namespace AlphabetUpdateServer.DTOs;
+﻿namespace AlphabetUpdateServer.DTOs;
 
 public class BucketListDTO
 {

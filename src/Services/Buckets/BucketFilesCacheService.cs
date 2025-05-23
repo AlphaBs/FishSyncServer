@@ -1,5 +1,4 @@
-﻿using AlphabetUpdateServer.Models.Buckets;
-using Microsoft.Extensions.Caching.Memory;
+﻿using Microsoft.Extensions.Caching.Memory;
 
 namespace AlphabetUpdateServer.Services.Buckets;
 

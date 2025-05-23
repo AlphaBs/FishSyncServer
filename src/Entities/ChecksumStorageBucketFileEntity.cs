@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using AlphabetUpdateServer.Models;
+using FishBucket;
 
 namespace AlphabetUpdateServer.Entities;
 

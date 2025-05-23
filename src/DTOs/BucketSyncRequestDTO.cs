@@ -1,5 +1,5 @@
-using AlphabetUpdateServer.Models.Buckets;
 using System.Text.Json.Serialization;
+using FishBucket;
 
 namespace AlphabetUpdateServer.DTOs;
 

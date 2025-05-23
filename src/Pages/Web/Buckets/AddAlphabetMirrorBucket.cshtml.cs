@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using AlphabetUpdateServer.Models.Buckets;
 using AlphabetUpdateServer.Services.Buckets;
 using AlphabetUpdateServer.Services.Users;
 using Microsoft.AspNetCore.Authorization;

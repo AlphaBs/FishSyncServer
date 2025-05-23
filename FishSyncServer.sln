@@ -12,6 +12,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "솔루션 항목", "솔루�
 		TODO.md = TODO.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FishBucket", "FishBucket\FishBucket.csproj", "{E55D6CFF-9E39-4420-B9F0-706045BF95A2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FishBucket.Tests", "FishBucket.Tests\FishBucket.Tests.csproj", "{70AFD99F-9584-42D3-BBBB-9833A1BFC35C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,6 +30,14 @@ Global
 		{76A0ED48-BE65-4468-97E0-A476B8B454D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{76A0ED48-BE65-4468-97E0-A476B8B454D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{76A0ED48-BE65-4468-97E0-A476B8B454D9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E55D6CFF-9E39-4420-B9F0-706045BF95A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E55D6CFF-9E39-4420-B9F0-706045BF95A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E55D6CFF-9E39-4420-B9F0-706045BF95A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E55D6CFF-9E39-4420-B9F0-706045BF95A2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{70AFD99F-9584-42D3-BBBB-9833A1BFC35C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{70AFD99F-9584-42D3-BBBB-9833A1BFC35C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{70AFD99F-9584-42D3-BBBB-9833A1BFC35C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{70AFD99F-9584-42D3-BBBB-9833A1BFC35C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

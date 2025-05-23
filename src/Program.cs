@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
-using AlphabetUpdateServer.Models.ChecksumStorages;
 using AlphabetUpdateServer.Services.Buckets;
 using AlphabetUpdateServer.Services.ChecksumStorageCaches;
 using AlphabetUpdateServer.Services.ChecksumStorages;
 using AlphabetUpdateServer.Services.Users;
+using FishBucket.ChecksumStorages.Caches;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using StackExchange.Redis;
 using CookieOptions = AlphabetUpdateServer.Services.Users.CookieOptions;
@@ -23,13 +23,11 @@ builder.Services.AddRazorPages();
 builder.Services.AddControllers();
 builder.Services.AddDbContext<ApplicationDbContext>(options => options
     .UseNpgsql(builder.Configuration.GetConnectionString("Postgres") 
-               ?? throw new InvalidOperationException("ConnectionString Postgres was empty"))
-    .EnableSensitiveDataLogging(true));
+               ?? throw new InvalidOperationException("ConnectionString Postgres was empty")));
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 builder.Services.AddMemoryCache();
 builder.Services.AddHttpClient();
 builder.Services.AddProblemDetails();
-builder.Services.AddHealthChecks();
 builder.Services.AddSingleton<ConnectionMultiplexer>(_ => 
     ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("RedisCache")
     ?? throw new InvalidOperationException("ConnectionString RedisCache was empty")));
@@ -118,7 +116,6 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.MapHealthChecks("/healthz");
 app.UseExceptionHandler("/api/error");
 app.UseStatusCodePages();
 

@@ -1,5 +1,6 @@
 ﻿using AlphabetUpdateServer.Entities;
-using AlphabetUpdateServer.Models.Buckets;
+using AlphabetUpdateServer.Models;
+using FishBucket;
 using Microsoft.EntityFrameworkCore;
 
 namespace AlphabetUpdateServer.Services.Buckets;

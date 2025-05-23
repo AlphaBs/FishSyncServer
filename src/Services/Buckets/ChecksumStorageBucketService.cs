@@ -1,6 +1,7 @@
 using AlphabetUpdateServer.Entities;
-using AlphabetUpdateServer.Models.Buckets;
 using AlphabetUpdateServer.Services.ChecksumStorages;
+using FishBucket;
+using FishBucket.ChecksumStorages.Buckets;
 using Microsoft.EntityFrameworkCore;
 using NuGet.Packaging;
 
