@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using FishBucket.SyncActions;
 
 namespace FishBucket;
@@ -13,7 +14,7 @@ public class BucketSyncResult
     public static BucketSyncResult ActionRequired(BucketSyncAction action) =>
         ActionRequired([action]);
 
-    public static BucketSyncResult ActionRequired(IEnumerable<BucketSyncAction> actions) => 
+    public static BucketSyncResult ActionRequired(IReadOnlyList<BucketSyncAction> actions) => 
         new BucketSyncResult(
             false, 
             actions,
@@ -21,12 +22,17 @@ public class BucketSyncResult
 
     public BucketSyncResult(
         bool isSuccess, 
-        IEnumerable<BucketSyncAction> actions,
+        IReadOnlyList<BucketSyncAction> actions,
         DateTimeOffset updatedAt) =>
         (IsSuccess, RequiredActions, UpdatedAt) = 
         (isSuccess, actions, updatedAt);
 
+    [JsonPropertyName("isSuccess")]
     public bool IsSuccess { get; }
-    public IEnumerable<BucketSyncAction> RequiredActions { get; }
+    
+    [JsonPropertyName("requiredActions")]
+    public IReadOnlyList<BucketSyncAction> RequiredActions { get; }
+    
+    [JsonPropertyName("updatedAt")]
     public DateTimeOffset UpdatedAt { get; }
 }

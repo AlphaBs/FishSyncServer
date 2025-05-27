@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="AWSSDK.S3" Version="3.7.400.3" />
+        <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.5" />
+        <PackageReference Include="RFiles.NET" Version="0.0.4" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\FishBucket\FishBucket.csproj" />
+    </ItemGroup>
+    
+</Project>

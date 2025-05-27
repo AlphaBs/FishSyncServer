@@ -1,8 +1,11 @@
-using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace FishBucket;
 
 public record FileMetadata(
+    [property:JsonPropertyName("size")]
     long Size,
+    [property:JsonPropertyName("lastUpdated")]
     DateTimeOffset LastUpdated,
-    [property:MaxLength(64)] string Checksum);
+    [property:JsonPropertyName("checksum")]
+    string Checksum);

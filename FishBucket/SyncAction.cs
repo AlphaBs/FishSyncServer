@@ -1,7 +1,10 @@
+using System.Text.Json.Serialization;
+
 namespace FishBucket;
 
-public record SyncAction
-(
+public record SyncAction(
+    [property:JsonPropertyName("type")] 
     string Type,
-    IReadOnlyDictionary<string, string>? Parameters
-);
+    
+    [property:JsonPropertyName("parameters")] 
+    IReadOnlyDictionary<string, string>? Parameters);

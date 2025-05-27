@@ -8,11 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Polyfill" Version="7.32.0">
-        <PrivateAssets>all</PrivateAssets>
-        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      </PackageReference>
-      <PackageReference Include="System.Text.Json" Version="9.0.5" />
+      <ProjectReference Include="..\FishBucket\FishBucket.csproj" />
     </ItemGroup>
 
 </Project>

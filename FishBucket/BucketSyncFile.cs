@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace FishBucket;
 
-public class BucketSyncFile
+public record BucketSyncFile
 {
     [JsonPropertyName("path")]
     public string? Path { get; set; }

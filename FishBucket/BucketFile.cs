@@ -1,6 +1,13 @@
+using System.Text.Json.Serialization;
+
 namespace FishBucket;
 
 public record BucketFile(
-    string Path, 
+    [property:JsonPropertyName("path")] 
+    string Path,
+    
+    [property:JsonPropertyName("location")] 
     string? Location,
+    
+    [property:JsonPropertyName("metadata")] 
     FileMetadata Metadata);
