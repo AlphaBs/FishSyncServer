@@ -49,9 +49,9 @@ public class EditRFilesModel : PageModel
             return NotFound();
         }
 
-        entity.IsReadonly = entity.IsReadonly;
-        entity.ClientSecret = entity.ClientSecret;
-        entity.Host = entity.Host;
+        entity.IsReadonly = Entity.IsReadonly;
+        entity.ClientSecret = Entity.ClientSecret;
+        entity.Host = Entity.Host;
         await _storageService.Update(entity);
         
         return RedirectToPage("EditRFiles");
