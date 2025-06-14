@@ -19,19 +19,19 @@ public class BucketController : ControllerBase
 {
     private readonly ILogger<BucketController> _logger;
     private readonly BucketService _bucketService;
-    private readonly BucketFilesCacheService _bucketFilesCacheService;
+    private readonly BucketFilesCacheService _cachedBucketService;
     private readonly BucketOwnerService _bucketOwnerService;
 
     public BucketController(
         ILogger<BucketController> logger,
         BucketService bucketService,
         BucketOwnerService bucketOwnerService,
-        BucketFilesCacheService bucketFilesCacheService)
+        BucketFilesCacheService cachedBucketService)
     {
         _logger = logger;
         _bucketService = bucketService;
         _bucketOwnerService = bucketOwnerService;
-        _bucketFilesCacheService = bucketFilesCacheService;
+        _cachedBucketService = cachedBucketService;
     }
 
     /// <summary>
@@ -83,13 +83,7 @@ public class BucketController : ControllerBase
     {
         try
         {
-            var files = await _bucketFilesCacheService.GetOrCreate(
-                id, 
-                () =>
-                {
-                    _logger.LogInformation("Refresh cache for bucket files: {Id}", id);
-                    return _bucketService.GetBucketFiles(id);
-                });
+            var files = await _cachedBucketService.GetOrCreate(id, CancellationToken.None);
             return Ok(files);
         }
         catch (KeyNotFoundException)
@@ -162,7 +156,7 @@ public class BucketController : ControllerBase
             var result = await _bucketService.SyncAndLog(id, userId, files.Files);
             _logger.LogInformation("User {UserId} requested a bucket sync for {BucketId}, Result: {Result}", userId, id,
                 result.IsSuccess);
-            _bucketFilesCacheService.Remove(id);
+            _cachedBucketService.Remove(id);
             return Ok(result);
         }
         catch (BucketLimitationException ex)

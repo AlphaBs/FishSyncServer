@@ -74,7 +74,7 @@ public class BucketService
         return await service.Find(id);
     }
 
-    public async Task<BucketFiles> GetBucketFiles(string id, CancellationToken cancellationToken = default)
+    public async Task<BucketFiles> GetBucketFiles(string id, CancellationToken cancellationToken)
     {
         var bucket = await Find(id);
         if (bucket == null)
