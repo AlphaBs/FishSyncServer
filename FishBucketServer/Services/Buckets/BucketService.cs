@@ -26,6 +26,7 @@ public class BucketService
     {
         return _dbContext.Buckets
             .AsNoTracking()
+            .OrderBy(bucket => bucket.Id)
             .Select(bucket => new BucketListItem(
                 bucket.Id,
                 bucket.Type,
