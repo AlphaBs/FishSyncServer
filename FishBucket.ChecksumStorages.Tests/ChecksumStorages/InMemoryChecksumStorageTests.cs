@@ -143,7 +143,7 @@ public class InMemoryChecksumStorageTests
 
         var result = await storage.Sync(["a", "1", "a", "1"]);
         Assert.Equal([files[0]], result.SuccessFiles);
-        Assert.Equal(1, result.RequiredActions.Count);
+        Assert.Single(result.RequiredActions);
         Assert.Contains(result.RequiredActions, action => action.Checksum == "a");
     }
 

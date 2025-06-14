@@ -46,7 +46,7 @@ public class ViewChecksumStorageBucketModel : PageModel
         }
 
         Id = id;
-        Files = await bucket.GetFiles();
+        Files = await bucket.GetFiles(CancellationToken.None);
         Usage.Limitations = bucket.Limitations;
         Usage.CurrentMonthlySyncCount = await _bucketService.GetMonthlySuccessfulSyncCount(id);
         StorageId = await getService().GetStorageId(id);

@@ -28,7 +28,7 @@ public class AlphabetMirrorBucket : IBucket
 
     public BucketLimitations Limitations => DefaultLimitations;
     
-    public async ValueTask<IEnumerable<BucketFile>> GetFiles()
+    public async ValueTask<IEnumerable<BucketFile>> GetFiles(CancellationToken cancellationToken = default)
     {
         var metadata = await getMetadata();
         var files = metadata.Files?.Files ?? [];

@@ -74,14 +74,14 @@ public class BucketService
         return await service.Find(id);
     }
 
-    public async Task<BucketFiles> GetBucketFiles(string id)
+    public async Task<BucketFiles> GetBucketFiles(string id, CancellationToken cancellationToken = default)
     {
         var bucket = await Find(id);
         if (bucket == null)
             throw new KeyNotFoundException(id);
 
-        var files = await bucket.GetFiles();
-        var dependencies = await GetDependencies(id).ToListAsync();
+        var files = await bucket.GetFiles(cancellationToken);
+        var dependencies = await GetDependencies(id).ToListAsync(cancellationToken);
 
         return new BucketFiles
         {

@@ -10,6 +10,5 @@ public class UpdateFileCollection
     [JsonPropertyName("hashAlgorithm")]
     public string? HashAlgorithm { get; set; }
 
-    [JsonPropertyName("files")]
-    public UpdateFile[]? Files { get; set; }
+    [JsonPropertyName("files")] public IEnumerable<UpdateFile> Files { get; set; } = [];
 }

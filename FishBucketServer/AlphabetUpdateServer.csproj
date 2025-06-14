@@ -42,6 +42,7 @@
   </ItemGroup>
   
   <ItemGroup>
+    <ProjectReference Include="..\FishBucket.ApiClient\FishBucket.ApiClient.csproj" />
     <ProjectReference Include="..\FishBucket.ChecksumStorages\FishBucket.ChecksumStorages.csproj" />
     <ProjectReference Include="..\FishBucket.Alphabet\FishBucket.Alphabet.csproj" />
   </ItemGroup>

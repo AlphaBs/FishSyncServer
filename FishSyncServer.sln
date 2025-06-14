@@ -20,6 +20,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FishBucket.ApiClient", "Fis
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlphabetUpdateServer", "FishBucketServer\AlphabetUpdateServer.csproj", "{22978F04-3ECB-4EE5-888A-13C4D395832D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FishBucket.SyncClient", "FishBucket.SyncClient\FishBucket.SyncClient.csproj", "{37A8B72E-FE2E-483C-AD02-6D0955A48D78}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FishBucket.ApiClient.Tests", "FishBucket.ApiClient.Tests\FishBucket.ApiClient.Tests.csproj", "{DCEFEAC5-8912-403A-A65D-D5F444B19F4A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -102,6 +106,30 @@ Global
 		{22978F04-3ECB-4EE5-888A-13C4D395832D}.Release|x64.Build.0 = Release|Any CPU
 		{22978F04-3ECB-4EE5-888A-13C4D395832D}.Release|x86.ActiveCfg = Release|Any CPU
 		{22978F04-3ECB-4EE5-888A-13C4D395832D}.Release|x86.Build.0 = Release|Any CPU
+		{37A8B72E-FE2E-483C-AD02-6D0955A48D78}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37A8B72E-FE2E-483C-AD02-6D0955A48D78}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37A8B72E-FE2E-483C-AD02-6D0955A48D78}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{37A8B72E-FE2E-483C-AD02-6D0955A48D78}.Debug|x64.Build.0 = Debug|Any CPU
+		{37A8B72E-FE2E-483C-AD02-6D0955A48D78}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{37A8B72E-FE2E-483C-AD02-6D0955A48D78}.Debug|x86.Build.0 = Debug|Any CPU
+		{37A8B72E-FE2E-483C-AD02-6D0955A48D78}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37A8B72E-FE2E-483C-AD02-6D0955A48D78}.Release|Any CPU.Build.0 = Release|Any CPU
+		{37A8B72E-FE2E-483C-AD02-6D0955A48D78}.Release|x64.ActiveCfg = Release|Any CPU
+		{37A8B72E-FE2E-483C-AD02-6D0955A48D78}.Release|x64.Build.0 = Release|Any CPU
+		{37A8B72E-FE2E-483C-AD02-6D0955A48D78}.Release|x86.ActiveCfg = Release|Any CPU
+		{37A8B72E-FE2E-483C-AD02-6D0955A48D78}.Release|x86.Build.0 = Release|Any CPU
+		{DCEFEAC5-8912-403A-A65D-D5F444B19F4A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DCEFEAC5-8912-403A-A65D-D5F444B19F4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DCEFEAC5-8912-403A-A65D-D5F444B19F4A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{DCEFEAC5-8912-403A-A65D-D5F444B19F4A}.Debug|x64.Build.0 = Debug|Any CPU
+		{DCEFEAC5-8912-403A-A65D-D5F444B19F4A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{DCEFEAC5-8912-403A-A65D-D5F444B19F4A}.Debug|x86.Build.0 = Debug|Any CPU
+		{DCEFEAC5-8912-403A-A65D-D5F444B19F4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DCEFEAC5-8912-403A-A65D-D5F444B19F4A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DCEFEAC5-8912-403A-A65D-D5F444B19F4A}.Release|x64.ActiveCfg = Release|Any CPU
+		{DCEFEAC5-8912-403A-A65D-D5F444B19F4A}.Release|x64.Build.0 = Release|Any CPU
+		{DCEFEAC5-8912-403A-A65D-D5F444B19F4A}.Release|x86.ActiveCfg = Release|Any CPU
+		{DCEFEAC5-8912-403A-A65D-D5F444B19F4A}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

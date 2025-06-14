@@ -21,7 +21,7 @@ public class ChecksumStorageBucket : IBucket
     public BucketLimitations Limitations { get; set; }
     private IEnumerable<ChecksumStorageBucketFile> Files { get; set; } = [];
 
-    public async ValueTask<IEnumerable<BucketFile>> GetFiles()
+    public async ValueTask<IEnumerable<BucketFile>> GetFiles(CancellationToken cancellationToken = default)
     {
         var checksumFileMap = new Dictionary<string, List<ChecksumStorageBucketFile>>();
         foreach (var file in Files)

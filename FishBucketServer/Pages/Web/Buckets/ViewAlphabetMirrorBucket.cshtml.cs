@@ -43,7 +43,7 @@ public class ViewAlphabetMirrorBucketModel : PageModel
         }
 
         Id = id;
-        Files = await bucket.GetFiles();
+        Files = await bucket.GetFiles(CancellationToken.None);
         Dependencies = _bucketService.GetDependencies(id);
         OriginUrl = await getService().GetOriginUrl(id);
 
